@@ -7,7 +7,7 @@ import Footer from './Footer'
 import './Layout.scss'
 
 class Layout extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
   }
 
