@@ -6,17 +6,6 @@ let space
 let auth
 let query
 
-export function getLocale() {
-  return (
-    JSON.parse(localStorage.getItem('locale')) ||
-    process.env.CONTENTFUL_DEFAULT_LOCALE
-  )
-}
-
-export function setLocale(locale) {
-  localStorage.setItem('locale', JSON.stringify(locale))
-}
-
 export function initClient() {
   const config = {}
 

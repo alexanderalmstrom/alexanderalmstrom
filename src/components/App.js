@@ -4,14 +4,12 @@ import { Helmet } from 'react-helmet'
 
 import { connectComponent } from '../connect'
 import * as contentfulService from '../services/contentful'
-import * as managementService from '../services/management'
 
 import Loading from './Loading'
 import Notice from './Notice'
 
-import Products from './Products'
-import Product from './Product'
-import Checkout from './Checkout'
+import Projects from './Projects'
+import Project from './Project'
 import NotFound from './NotFound'
 
 import Layout from './Layout'
@@ -30,30 +28,6 @@ class App extends React.Component {
         () => this.props.setAppContentfulState('success'),
         () => this.props.setAppContentfulState('error')
       )
-
-    managementService
-      .initClient()
-      .then(
-        () => this.props.setAppManagementState('success'),
-        () => this.props.setAppManagementState('error')
-      )
-  }
-
-  renderLocales() {
-    return (
-      <div className="locales is-hidden">
-        {this.props.contentful.space.locales.map(locale => {
-          return (
-            <div
-              key={locale.code}
-              className="locale"
-              onClick={contentfulService.setLocale.bind(this, locale.code)}>
-              {locale.name}
-            </div>
-          )
-        })}
-      </div>
-    )
   }
 
   render() {
@@ -68,12 +42,10 @@ class App extends React.Component {
               <title>{this.props.contentful.space.name}</title>
               <meta name="description" content="" />
             </Helmet>
-            {this.renderLocales()}
             <Layout>
               <Switch>
-                <Route exact path="/" component={Products} />
-                <Route path="/product/:slug" component={Product} />
-                <Route path="/checkout" component={Checkout} />
+                <Route exact path="/" component={Projects} />
+                <Route path="/project/:slug" component={Project} />
                 <Route path="*" component={NotFound} />
               </Switch>
             </Layout>

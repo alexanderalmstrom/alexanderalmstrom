@@ -6,23 +6,23 @@ import { connectComponent } from '../connect'
 import Loading from './Loading'
 import Card from './Card'
 
-import './Products.scss'
+import './Projects.scss'
 
-class Products extends React.Component {
+class Projects extends React.Component {
   constructor(props) {
     super(props)
   }
 
   componentDidMount() {
-    this.props.loadProducts()
+    this.props.loadProjects()
   }
 
   render() {
-    const { entries } = this.props.products
+    const { entries } = this.props.projects
 
     return (
       <div className="container">
-        <div className="products">
+        <div className="projects">
           {entries ? (
             Object.keys(entries).map((id, index) => {
               return <Card key={index} entry={entries[id]} />
@@ -36,9 +36,9 @@ class Products extends React.Component {
   }
 }
 
-Products.propTypes = {
-  products: PropTypes.object,
-  loadProducts: PropTypes.func
+Projects.propTypes = {
+  projects: PropTypes.object,
+  loadProjects: PropTypes.func
 }
 
-export default connectComponent(Products)
+export default connectComponent(Projects)

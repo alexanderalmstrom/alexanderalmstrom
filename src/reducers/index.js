@@ -1,17 +1,13 @@
 import { combineReducers } from 'redux'
 
 import { contentful } from './contentful'
-import { management } from './management'
-import { product } from './product'
-import { products } from './products'
-import { cart } from './cart'
+import { project } from './project'
+import { projects } from './projects'
 
 const rootReducer = combineReducers({
   contentful,
-  management,
-  product,
-  products,
-  cart
+  project,
+  projects
 })
 
 export default rootReducer

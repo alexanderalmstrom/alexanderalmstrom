@@ -1,5 +1,4 @@
 import * as entryService from '../services/entry'
-import * as cartService from '../services/cart'
 import * as contentfulService from '../services/contentful'
 
 export function setAppContentfulState(authState) {
@@ -19,26 +18,19 @@ export function setAppManagementState(authState) {
   }
 }
 
-export function loadProducts() {
+export function loadProjects() {
   return {
-    type: 'LOAD_PRODUCTS',
-    payload: entryService.getEntries('product')
+    type: 'LOAD_PROJECTS',
+    payload: entryService.getEntries('project')
   }
 }
 
-export function loadProduct(slug) {
+export function loadProject(slug) {
   return {
-    type: 'LOAD_PRODUCT',
-    payload: entryService.getEntryBySlug('product', slug),
+    type: 'LOAD_PROJECT',
+    payload: entryService.getEntryBySlug('project', slug),
     meta: {
       slug
     }
-  }
-}
-
-export function loadCart() {
-  return {
-    type: 'LOAD_CART',
-    payload: cartService.getCartItems()
   }
 }

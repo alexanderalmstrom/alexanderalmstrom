@@ -10,20 +10,20 @@ class Image extends React.Component {
   }
 
   render() {
-    const { image, ...args } = this.props
+    const { image, ...rest } = this.props
 
     const query = {
-      fm: args.format,
-      q: args.quality,
-      w: args.width,
-      h: args.height
+      fm: rest.format,
+      q: rest.quality,
+      w: rest.width,
+      h: rest.height
     }
 
     const jpg = qs.stringify(query)
     const webp = qs.stringify(Object.assign(query, { fm: 'webp' }))
 
     return (
-      <div className={args.className}>
+      <div className={rest.className}>
         {image && image.fields ? (
           <picture>
             <source

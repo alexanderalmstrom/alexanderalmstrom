@@ -1,14 +1,14 @@
 import { makeReducer } from './util'
 
-export const products = makeReducer(
+export const projects = makeReducer(
   function(action) {
     switch (action.type) {
-      case 'LOAD_PRODUCTS_PENDING':
+      case 'LOAD_PROJECTS_PENDING':
         return {
           fetching: true
         }
 
-      case 'LOAD_PRODUCTS_FULFILLED':
+      case 'LOAD_PROJECTS_FULFILLED':
         return {
           fetching: false,
           entries: action.payload.reduce((collection, entry) => {
@@ -17,7 +17,7 @@ export const products = makeReducer(
           }, {})
         }
 
-      case 'LOAD_PRODUCTS_REJECTED':
+      case 'LOAD_PROJECTS_REJECTED':
         return {
           error: true,
           fetching: false

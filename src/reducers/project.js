@@ -1,6 +1,6 @@
 import { makeReducer } from './util'
 
-export const product = makeReducer(
+export const project = makeReducer(
   function(action) {
     switch (action.type) {
       case 'LOAD_PRODUCT_PENDING':
