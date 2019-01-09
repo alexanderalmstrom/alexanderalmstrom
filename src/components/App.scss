@@ -115,16 +115,3 @@ button {
   transition: opacity 0.3s;
   opacity: 0;
 }
-
-.locales {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  display: flex;
-  justify-content: center;
-  font-size: 1.4rem;
-
-  .locale {
-    margin-left: 2rem;
-  }
-}
