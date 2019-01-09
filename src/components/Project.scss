@@ -1,22 +1,22 @@
-// Product.scss
+// Project.scss
 
 @import '../variables';
 @import '../mixins';
 
-.product {
+.project {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 6rem;
 }
 
-.product-image,
-.product-content {
+.project-image,
+.project-content {
   @include column(12);
   margin-bottom: 4rem;
 }
 
-.product-image {
+.project-image {
   @include media(sm) {
     @include column(6);
   }
@@ -30,7 +30,7 @@
   }
 }
 
-.product-content {
+.project-content {
   @include media(sm) {
     @include column(6);
   }
@@ -41,7 +41,7 @@
   }
 }
 
-.product-name {
+.project-name {
   font-size: 3rem;
 
   @include media(sm) {
@@ -53,7 +53,7 @@
   }
 }
 
-.product-price {
+.project-price {
   margin-bottom: 2rem;
   font-size: 2rem;
 
@@ -66,7 +66,7 @@
   }
 }
 
-.product-form {
+.project-form {
   position: fixed;
   left: 0;
   right: 0;
@@ -88,7 +88,7 @@
   }
 }
 
-.product-btn {
+.project-btn {
   display: block;
   width: 100%;
   padding: 2rem 3rem;

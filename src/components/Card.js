@@ -8,11 +8,11 @@ import './Card.scss'
 
 class Card extends React.Component {
   render() {
-    const { entry } = this.props
+    const { entry, basename } = this.props
 
     return (
       <div className="card">
-        <Link to={`/product/${entry.fields.slug}`} className="card-link">
+        <Link to={`/${basename}/${entry.fields.slug}`} className="card-link">
           <div className="card-image">
             {entry.fields.image ? (
               <Image image={entry.fields.image} width={680} />
@@ -32,7 +32,8 @@ class Card extends React.Component {
 }
 
 Card.propTypes = {
-  entry: PropTypes.object.isRequired
+  entry: PropTypes.object.isRequired,
+  basename: PropTypes.string.isRequired
 }
 
 export default Card

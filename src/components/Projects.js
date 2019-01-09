@@ -25,7 +25,7 @@ class Projects extends React.Component {
         <div className="projects">
           {entries ? (
             Object.keys(entries).map((id, index) => {
-              return <Card key={index} entry={entries[id]} />
+              return <Card key={index} basename="project" entry={entries[id]} />
             })
           ) : (
             <Loading />
