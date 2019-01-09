@@ -19,7 +19,7 @@ class Image extends React.Component {
       h: rest.height
     }
 
-    const jpg = qs.stringify(Object.assign(query, { fl: 'progressive' }))
+    const jpg = qs.stringify(query)
     const webp = qs.stringify(Object.assign(query, { fm: 'webp' }))
 
     return (
@@ -32,11 +32,11 @@ class Image extends React.Component {
             />
             <source
               type="image/jpeg"
-              srcSet={`${image.fields.file.url}?${jpg}`}
+              srcSet={`${image.fields.file.url}?${jpg}&fl=progressive`}
             />
             <img
               className="image"
-              src={`${image.fields.file.url}?${jpg}`}
+              src={`${image.fields.file.url}?${jpg}&fl=progressive`}
               alt={image.title}
             />
           </picture>
