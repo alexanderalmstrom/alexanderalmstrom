@@ -1,7 +1,3 @@
 module.exports = function (migration) {
-  const product = migration.editContentType('product')
-
-  product.createField('stock')
-    .name('Stock')
-    .type('Integer')
+  const content_type = migration.editContentType('content_type')
 }
