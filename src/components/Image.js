@@ -19,7 +19,7 @@ class Image extends React.Component {
       h: rest.height
     }
 
-    const jpg = qs.stringify(query)
+    const jpg = qs.stringify(Object.assign(query, { fl: 'progressive' }))
     const webp = qs.stringify(Object.assign(query, { fm: 'webp' }))
 
     return (
