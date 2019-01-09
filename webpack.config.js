@@ -89,15 +89,7 @@ if (env == 'production') {
       'process.env.CONTENTFUL_ACCESS_TOKEN': JSON.stringify(process.env.CONTENTFUL_ACCESS_TOKEN),
       'process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN': JSON.stringify(process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN),
       'process.env.CONTENTFUL_PREVIEW': JSON.stringify(process.env.CONTENTFUL_PREVIEW),
-      'process.env.CONTENTFUL_MANAGEMENT_TOKEN': JSON.stringify(process.env.CONTENTFUL_MANAGEMENT_TOKEN),
-      'process.env.CONTENTFUL_DEFAULT_LOCALE': JSON.stringify(process.env.CONTENTFUL_DEFAULT_LOCALE),
-      'process.env.CONTENTFUL_ENVIRONMENT': JSON.stringify(process.env.CONTENTFUL_ENVIRONMENT),
-      'process.env.KLARNA_USERNAME': JSON.stringify(process.env.KLARNA_USERNAME),
-      'process.env.KLARNA_PASSWORD': JSON.stringify(process.env.KLARNA_PASSWORD),
-      'process.env.SITE_URL': JSON.stringify(process.env.SITE_URL),
-      'process.env.DEFAULT_COUNTRY': JSON.stringify(process.env.DEFAULT_COUNTRY),
-      'process.env.DEFAULT_CURRENCY': JSON.stringify(process.env.DEFAULT_CURRENCY),
-      'process.env.DEFAULT_LOCALE': JSON.stringify(process.env.DEFAULT_LOCALE)
+      'process.env.CONTENTFUL_ENVIRONMENT': JSON.stringify(process.env.CONTENTFUL_ENVIRONMENT)
     }),
     new CleanWebpackPlugin('build'),
     new CopyWebpackPlugin([
