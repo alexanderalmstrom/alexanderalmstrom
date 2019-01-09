@@ -1,7 +1,5 @@
 # alexanderalmstrom.com
 
-React, Redux and Contentful.
-
 1. Edit `.env.example` with your Contentful space id and token. Rename it to `.env`. Or copy the content of  `.env.example` and create a new `.env` file.
 
 ## Install
@@ -44,13 +42,13 @@ yarn run server:prod
 
 ## Deploy to Netlify
 
-Install netlify-cli
+Install netlify-cli.
 
 ```
 npm install netlify-cli -g
 ```
 
-Deploy app
+Deploy app.
 
 ```
 netlify deploy
@@ -58,9 +56,9 @@ netlify deploy
 
 ## Deploy to Heroku
 
-heroku-cli is required.
+Install heroku-cli.
 
-Create new app
+Create a new app
 
 ```
 heroku create your-app-name
