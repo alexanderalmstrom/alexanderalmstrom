@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom'
 
 import { connectComponent } from '../connect'
 
+import Logo from '../images/logo.svg'
+
 import './Header.scss'
 
 class Header extends React.Component {
@@ -14,12 +16,13 @@ class Header extends React.Component {
   render() {
     return (
       <header className="header">
+        <div class="site-name">
+          <span>{this.props.contentful.space.name}</span>
+        </div>
         <div className="container">
-          <div className="site-brand">
-            <Link className="site-brand-link" to="/">
-              {this.props.contentful.space.name}
-            </Link>
-          </div>
+          <Link className="site-brand" to="/">
+            <Logo />
+          </Link>
         </div>
       </header>
     )
