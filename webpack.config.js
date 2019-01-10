@@ -15,8 +15,7 @@ const config = {
   mode: env,
 
   entry: {
-    main: './src/main.js',
-    app: './src/app.js'
+    main: './src/main.js'
   },
 
   output: {
