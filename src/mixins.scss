@@ -1,5 +1,72 @@
 // mixins.scss
 
+@mixin h1 {
+  font-size: 5rem;
+
+  @include media(md) {
+    font-size: 6rem;
+  }
+
+  @include media(lg) {
+    font-size: 7rem;
+  }
+}
+
+@mixin h2 {
+  font-size: 4rem;
+
+  @include media(md) {
+    font-size: 5rem;
+  }
+
+  @include media(lg) {
+    font-size: 6rem;
+  }
+}
+
+@mixin h3 {
+  font-size: 3rem;
+
+  @include media(md) {
+    font-size: 4rem;
+  }
+
+  @include media(lg) {
+    font-size: 5rem;
+  }
+}
+
+@mixin h4 {
+  font-size: 2rem;
+  letter-spacing: 0;
+
+  @include media(lg) {
+    font-size: 2.2rem;
+  }
+
+  @include media(md) {
+    font-size: 2.4rem;
+  }
+}
+
+@mixin h5 {
+  font-size: 1.6rem;
+  letter-spacing: 0;
+
+  @include media(md) {
+    font-size: 1.8rem;
+  }
+
+  @include media(lg) {
+    font-size: 2rem;
+  }
+}
+
+@mixin h6 {
+  font-size: 1.6rem;
+  letter-spacing: 0;
+}
+
 @mixin media($breakpoint) {
   @if $breakpoint == xs {
     @media (max-width: $breakpoint-sm - 1) {

@@ -4,10 +4,17 @@
 @import '../mixins';
 
 .project {
+  margin-bottom: 6rem;
+}
+
+.project-header {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-  margin-bottom: 6rem;
+
+  @include media(sm) {
+    flex-direction: row-reverse;
+  }
 }
 
 .project-image,
@@ -19,10 +26,12 @@
 .project-image {
   @include media(sm) {
     @include column(6);
+    padding-right: $grid-gutter * 2;
   }
 
   @include media(md) {
     @include column(7);
+    padding-left: $grid-gutter * 4;
   }
 
   img {
@@ -33,84 +42,11 @@
 .project-content {
   @include media(sm) {
     @include column(6);
+    margin-top: 12rem;
   }
 
   @include media(md) {
     @include column(5);
-    padding-left: $grid-gutter * 2;
-  }
-}
-
-.project-name {
-  font-size: 3rem;
-
-  @include media(sm) {
-    font-size: 4rem;
-  }
-
-  @include media(md) {
-    font-size: 6rem;
-  }
-}
-
-.project-price {
-  margin-bottom: 2rem;
-  font-size: 2rem;
-
-  @include media(sm) {
-    font-size: 2.4rem;
-  }
-
-  @include media(md) {
-    font-size: 2.8rem;
-  }
-}
-
-.project-form {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-
-  @include media(sm) {
-    position: relative;
-    left: inherit;
-    right: inherit;
-    bottom: inherit;
-    padding: 0;
-    margin-bottom: 3rem;
-    background-color: transparent;
-  }
-
-  p {
-    margin: 2rem 2rem 0 2rem;
-  }
-}
-
-.project-btn {
-  display: block;
-  width: 100%;
-  padding: 2rem 3rem;
-  margin-bottom: 0;
-  font-size: 2.4rem;
-  border: none;
-  background-color: $black;
-  color: $white;
-  cursor: pointer;
-
-  @include media(md) {
-    padding: 2.2rem 3.4rem;
-    font-size: 3.2rem;
-  }
-
-  @include media(lg) {
-    margin-bottom: 3rem;
-  }
-
-  span {
-    font-size: 1.4rem;
-    display: block;
-    margin-top: 0.5rem;
+    margin-top: 16rem;
   }
 }

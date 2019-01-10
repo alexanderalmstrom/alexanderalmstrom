@@ -31,23 +31,30 @@ class Project extends React.Component {
     return (
       <div className="container">
         {!this.props.projects.fetching ? (
-          <div className="project">
+          <article className="project">
             <Helmet>
               <title>
                 {entry.fields.name} - {this.props.contentful.space.name}
               </title>
               <meta name="description" content={entry.fields.description} />
             </Helmet>
-            <div className="project-image">
-              {entry.fields.image ? (
-                <Image image={entry.fields.image} width={800} />
-              ) : null}
-            </div>
-            <div className="project-content">
-              <h2 className="project-name">{entry.fields.name}</h2>
-              <p className="project-description">{entry.fields.description}</p>
-            </div>
-          </div>
+            <header className="project-header">
+              <div className="project-image">
+                {entry.fields.image ? (
+                  <Image image={entry.fields.image} width={800} />
+                ) : null}
+              </div>
+              <div className="project-content">
+                <h1 className="project-name">{entry.fields.name}</h1>
+                <p className="project-description">{entry.fields.description}</p>
+              </div>
+            </header>
+            <section class="product-section">
+              <div>
+                
+              </div>
+            </section>
+          </article>
         ) : (
           <Loading />
         )}

@@ -34,7 +34,7 @@
 
 .card-name {
   margin-bottom: 1rem;
-  font-size: inherit;
+  @include h4;
 }
 
 .card-description {
