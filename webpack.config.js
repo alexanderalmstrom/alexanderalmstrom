@@ -15,7 +15,8 @@ const config = {
   mode: env,
 
   entry: {
-    main: './src/main.js'
+    main: './src/main.js',
+    app: './src/app.js'
   },
 
   output: {
@@ -109,7 +110,7 @@ if (env == 'production') {
         to: ''
       },
       {
-        from: './src/vendor/fonts',
+        from: './src/fonts',
         to: 'fonts'
       }
     ]),
