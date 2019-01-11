@@ -5,5 +5,9 @@
 
 .main {
   margin-bottom: 2rem;
-  padding-top: 12rem;
+  padding-top: 10rem;
+
+  @include media(sm) {
+    padding-top: 12rem;
+  }
 }

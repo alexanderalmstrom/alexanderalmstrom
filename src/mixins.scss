@@ -84,6 +84,18 @@
     @media (min-width: $breakpoint-lg) {
       @content;
     }
+  } @else if $breakpoint == 'sm-max' {
+    @media (max-width: $breakpoint-sm - 1) {
+      @content;
+    }
+  } @else if $breakpoint == 'md-max' {
+    @media (max-width: $breakpoint-md - 1) {
+      @content;
+    }
+  } @else if $breakpoint == 'lg-max' {
+    @media (max-width: $breakpoint-lg - 1) {
+      @content;
+    }
   } @else {
     @warn "Breakpoint mixin supports: xs, sm, md, lg";
   }

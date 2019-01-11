@@ -35,7 +35,7 @@ class Card extends React.Component {
             {entry.fields.image ? (
               <Image
                 image={entry.fields.image}
-                width={680}
+                width={800}
                 onLoad={this.handleLoaded.bind(this)}
               />
             ) : null}

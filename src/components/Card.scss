@@ -5,10 +5,11 @@
 
 .card {
   @include column(12);
-  margin-bottom: $grid-gutter * 2;
+  margin-bottom: $grid-gutter;
 
   @include media(sm) {
     @include column(6);
+    margin-bottom: $grid-gutter * 2;
   }
 }
 
