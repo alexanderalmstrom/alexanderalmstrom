@@ -36,3 +36,11 @@
   margin-bottom: 1rem;
   @include h6;
 }
+
+.card {
+  @include animate;
+}
+
+.card--is-loaded {
+  @include animate-in;
+}

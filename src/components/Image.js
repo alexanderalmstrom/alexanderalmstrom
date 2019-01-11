@@ -9,6 +9,8 @@ class Image extends React.Component {
     super(props)
   }
 
+  componentDidMount() {}
+
   render() {
     const { image, ...rest } = this.props
 
@@ -38,6 +40,7 @@ class Image extends React.Component {
               className="image"
               src={`${image.fields.file.url}?${jpg}&fl=progressive`}
               alt={image.title}
+              onLoad={this.props.onLoad}
             />
           </picture>
         ) : null}
@@ -58,7 +61,8 @@ Image.propTypes = {
   format: PropTypes.string,
   quality: PropTypes.number,
   width: PropTypes.number,
-  height: PropTypes.number
+  height: PropTypes.number,
+  onLoad: PropTypes.func
 }
 
 export default Image

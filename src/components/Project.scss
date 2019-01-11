@@ -7,6 +7,14 @@
   margin-bottom: 6rem;
 }
 
+.project-image {
+  @include animate;
+
+  .project--is-loaded & {
+    @include animate-in;
+  }
+}
+
 .project-header {
   width: 100%;
   display: flex;

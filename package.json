@@ -7,8 +7,7 @@
   "scripts": {
     "start": "NODE_ENV=development webpack-dev-server",
     "build": "NODE_ENV=production webpack",
-    "server:dev": "NODE_ENV=development node server.js",
-    "server:prod": "NODE_ENV=production node server.js",
+    "server": "NODE_ENV=production node server.js",
     "format": "prettier --write \"src/**/*.{js,scss,json,md}\"",
     "stats": "webpack --profile --json > stats.json"
   },

@@ -12,6 +12,10 @@ import './Project.scss'
 class Project extends React.Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      isLoaded: false
+    }
   }
 
   componentDidMount() {
@@ -22,16 +26,23 @@ class Project extends React.Component {
     window.scrollTo(0, 0)
   }
 
+  handleLodaded(e) {
+    this.setState({ isLoaded: true })
+  }
+
   render() {
     const { match, projects } = this.props
     const entry = projects.entries[match.params.slug]
 
     if (!entry || !entry.fields) return null
 
+    const { isLoaded } = this.state
+
     return (
       <div className="container">
         {!this.props.projects.fetching ? (
-          <article className="project">
+          <article
+            className={`project ${isLoaded ? 'project--is-loaded' : ''}`}>
             <Helmet>
               <title>
                 {entry.fields.name} - {this.props.contentful.space.name}
@@ -41,18 +52,22 @@ class Project extends React.Component {
             <header className="project-header">
               <div className="project-image">
                 {entry.fields.image ? (
-                  <Image image={entry.fields.image} width={800} />
+                  <Image
+                    image={entry.fields.image}
+                    width={800}
+                    onLoad={this.handleLodaded.bind(this)}
+                  />
                 ) : null}
               </div>
               <div className="project-content">
                 <h1 className="project-name">{entry.fields.name}</h1>
-                <p className="project-description">{entry.fields.description}</p>
+                <p className="project-description">
+                  {entry.fields.description}
+                </p>
               </div>
             </header>
-            <section class="product-section">
-              <div>
-                
-              </div>
+            <section className="product-section">
+              <div />
             </section>
           </article>
         ) : (
