@@ -1,0 +1,58 @@
+// typo.scss
+
+@import '../variables';
+@import '../mixins';
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0 0 2rem 0;
+  line-height: 1;
+  font-weight: 500;
+  color: $black;
+  letter-spacing: -0.1rem;
+}
+
+h1 {
+  @include h1;
+}
+
+h2 {
+  @include h2;
+}
+
+h3 {
+  @include h3;
+}
+
+h4 {
+  @include h4;
+}
+
+h5 {
+  @include h5;
+}
+
+h6 {
+  @include h6;
+}
+
+p {
+  margin: 0 0 3rem 0;
+  line-height: 1.7;
+  letter-spacing: 0.02rem;
+  word-spacing: 0.02rem;
+}
+
+a {
+  color: $black;
+  transition: color $transition;
+  text-decoration: underline;
+
+  &:hover {
+    text-decoration: none;
+  }
+}

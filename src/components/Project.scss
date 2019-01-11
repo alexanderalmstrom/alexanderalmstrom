@@ -48,5 +48,6 @@
   @include media(md) {
     @include column(5);
     margin-top: 16rem;
+    padding-left: $grid-gutter * 2;
   }
 }

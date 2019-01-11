@@ -1,0 +1,20 @@
+// buttons.scss
+
+@import '../variables';
+@import '../mixins';
+
+button {
+  outline: none;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:disabled {
+    background-color: rgba($gray, 0.5);
+    color: $black;
+    cursor: default;
+    pointer-events: none;
+  }
+}

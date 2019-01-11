@@ -1,0 +1,19 @@
+// grid.scss
+
+@import '../variables';
+@import '../mixins';
+
+.container {
+  @include container;
+  padding-left: $grid-gutter;
+  padding-right: $grid-gutter;
+
+  @include media(sm) {
+    padding-left: 12rem;
+  }
+
+  .container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

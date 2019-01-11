@@ -16,13 +16,23 @@ class Header extends React.Component {
   render() {
     return (
       <header className="header">
-        <div class="site-name">
-          <span>{this.props.contentful.space.name}</span>
+        <div className="site-title">
+          <span>Frontend Developer / Designer</span>
         </div>
         <div className="container">
           <Link className="site-brand" to="/">
             <Logo />
           </Link>
+          <div className="site-name">
+            <span>{this.props.contentful.space.name}</span>
+          </div>
+          <nav className="site-nav">
+            <ul>
+              <li>
+                <Link className="nav-link" to="/about">About</Link>
+              </li>
+            </ul>
+          </nav>
         </div>
       </header>
     )
