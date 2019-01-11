@@ -1,10 +1,10 @@
 // mixins.scss
 
 @mixin h1 {
-  font-size: 5rem;
+  font-size: 4rem;
 
   @include media(md) {
-    font-size: 6rem;
+    font-size: 5.5rem;
   }
 
   @include media(lg) {

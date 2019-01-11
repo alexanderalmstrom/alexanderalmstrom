@@ -5,11 +5,10 @@
 
 .container {
   @include container;
-  padding-left: $grid-gutter;
-  padding-right: $grid-gutter;
 
   @include media(sm) {
     padding-left: 12rem;
+    padding-right: $grid-gutter;
   }
 
   .container {

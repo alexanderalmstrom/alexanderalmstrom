@@ -39,10 +39,9 @@ class Project extends React.Component {
     const { isLoaded } = this.state
 
     return (
-      <div className="container">
+      <article className={`project ${isLoaded ? 'project--is-loaded' : ''}`}>
         {!this.props.projects.fetching ? (
-          <article
-            className={`project ${isLoaded ? 'project--is-loaded' : ''}`}>
+          <div className="container project-container">
             <Helmet>
               <title>
                 {entry.fields.name} - {this.props.contentful.space.name}
@@ -69,11 +68,11 @@ class Project extends React.Component {
             <section className="product-section">
               <div />
             </section>
-          </article>
+          </div>
         ) : (
           <Loading />
         )}
-      </div>
+      </article>
     )
   }
 }

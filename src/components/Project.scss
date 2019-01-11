@@ -20,7 +20,7 @@
 .project-image,
 .project-content {
   @include column(12);
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 }
 
 .project-image {
@@ -47,6 +47,8 @@
 
 .project-content {
   @include animate('up');
+  padding-left: $grid-gutter * 2;
+  padding-right: $grid-gutter * 2;
 
   @include media(sm) {
     @include column(6);
