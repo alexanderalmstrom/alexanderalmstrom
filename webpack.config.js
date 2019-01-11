@@ -16,7 +16,7 @@ const config = {
 
   entry: {
     app: './src/app.js',
-    site: './src/index.js'
+    site: './src/site.js'
   },
 
   output: {
