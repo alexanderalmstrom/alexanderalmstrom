@@ -35,6 +35,18 @@ const config = {
     historyApiFallback: true
   },
 
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          chunks: 'all',
+          name: 'vendors'
+        },
+      },
+    },
+  },
+
   module: {
     rules: [
       {
