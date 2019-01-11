@@ -53,31 +53,3 @@ Deploy app.
 ```
 netlify deploy
 ```
-
-## Deploy to Heroku
-
-Install heroku-cli.
-
-Create a new app
-
-```
-heroku create your-app-name
-```
-
-or add existing app to remote
-
-```
-heroku git:remote -a your-app-name
-```
-
-Deploy app
-
-```
-yarn run deploy
-```
-
-Open app in browser
-
-```
-heroku open
-```
