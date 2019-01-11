@@ -92,7 +92,7 @@ if (env == 'development') {
 }
 
 if (env == 'production') {
-  config.output.filename = '[name]-[hash].js'
+  config.output.filename = '[name].[contenthash].js'
 
   config.plugins.push(
     new webpack.DefinePlugin({
@@ -115,7 +115,7 @@ if (env == 'production') {
       }
     ]),
     new MiniCssExtractPlugin({
-      filename: '[name]-[hash].css'
+      filename: '[name].[contenthash].css'
     }),
     new OptimizeCSSAssetsPlugin(),
     new ManifestPlugin({
