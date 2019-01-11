@@ -1,5 +1,8 @@
 // NotFound.scss
 
+@import '../stylesheets/variables';
+@import '../stylesheets/mixins';
+
 .not-found {
   margin-top: 2rem;
   text-align: center;

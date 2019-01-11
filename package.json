@@ -2,12 +2,12 @@
   "name": "alexanderalmstrom.com",
   "version": "1.0.0",
   "author": "Alexander Almström <info@alexanderalmstrom.com>",
-  "main": "index.js",
+  "main": "server.js",
   "license": "MIT",
   "scripts": {
     "start": "NODE_ENV=development webpack-dev-server",
     "build": "NODE_ENV=production webpack",
-    "server": "NODE_ENV=production node server.js",
+    "server": "node server.js",
     "format": "prettier --write \"src/**/*.{js,scss,json,md}\"",
     "stats": "webpack --profile --json > stats.json"
   },

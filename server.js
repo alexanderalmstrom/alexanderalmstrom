@@ -16,9 +16,7 @@ app.use(bodyParser.json())
 
 if (env == 'development') {
   app.use(morgan('dev'))
-}
-
-if (env == 'production') {
+} else {
   app.use(morgan('combined'))
 }
 

@@ -7,7 +7,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const ManifestPlugin = require('webpack-manifest-plugin')
-const RevPlugin = require('./plugins/RevPlugin')
+const RevPlugin = require('./lib/RevPlugin')
 
 const env = process.env.NODE_ENV
 
@@ -15,8 +15,8 @@ const config = {
   mode: env,
 
   entry: {
-    main: './src/main.js',
-    app: './src/app.js'
+    app: './src/app.js',
+    site: './src/index.js'
   },
 
   output: {
