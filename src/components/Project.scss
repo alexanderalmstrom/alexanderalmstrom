@@ -7,14 +7,6 @@
   margin-bottom: 6rem;
 }
 
-.project-image {
-  @include animate;
-
-  .project--is-loaded & {
-    @include animate-in;
-  }
-}
-
 .project-header {
   width: 100%;
   display: flex;
@@ -32,6 +24,8 @@
 }
 
 .project-image {
+  @include animate('down');
+
   @include media(sm) {
     @include column(6);
     padding-right: $grid-gutter * 2;
@@ -42,12 +36,18 @@
     padding-left: $grid-gutter * 4;
   }
 
+  .project--is-loaded & {
+    @include animate-in;
+  }
+
   img {
     width: 100%;
   }
 }
 
 .project-content {
+  @include animate('up');
+
   @include media(sm) {
     @include column(6);
     margin-top: 12rem;
@@ -57,5 +57,9 @@
     @include column(5);
     margin-top: 16rem;
     padding-left: $grid-gutter * 2;
+  }
+
+  .project--is-loaded & {
+    @include animate-in;
   }
 }

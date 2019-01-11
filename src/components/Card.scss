@@ -38,7 +38,7 @@
 }
 
 .card {
-  @include animate;
+  @include animate('down');
 }
 
 .card--is-loaded {
