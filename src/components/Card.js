@@ -20,10 +20,6 @@ class Card extends React.Component {
           </div>
           <div className="card-content">
             <h2 className="card-name">{entry.fields.name}</h2>
-            <div className="card-price">
-              {entry.fields.price} {entry.fields.currency}
-            </div>
-            <p className="card-description">{entry.fields.description}</p>
           </div>
         </Link>
       </div>
