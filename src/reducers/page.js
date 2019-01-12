@@ -1,27 +1,24 @@
 import { makeReducer } from './util'
 
-export const project = makeReducer(
+export const page = makeReducer(
   function(action) {
     switch (action.type) {
-      case 'LOAD_PRODUCT_PENDING':
+      case 'LOAD_PAGE_PENDING':
         return {
           entry: {
-            fetching: true,
-            [action.meta.slug]: {}
+            fetching: true
           }
         }
 
-      case 'LOAD_PRODUCT_FULFILLED':
+      case 'LOAD_PAGE_FULFILLED':
         action.payload.fetching = false
 
         return {
           fetching: false,
-          entry: {
-            [action.meta.slug]: action.payload
-          }
+          entry: action.payload
         }
 
-      case 'LOAD_PRODUCT_REJECTED':
+      case 'LOAD_PAGE_REJECTED':
         return {
           error: true,
           fetching: false,

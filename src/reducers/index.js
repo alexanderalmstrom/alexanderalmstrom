@@ -1,13 +1,13 @@
 import { combineReducers } from 'redux'
 
 import { contentful } from './contentful'
-import { project } from './project'
 import { projects } from './projects'
+import { page } from './page'
 
 const rootReducer = combineReducers({
   contentful,
-  project,
-  projects
+  projects,
+  page
 })
 
 export default rootReducer

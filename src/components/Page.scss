@@ -1,0 +1,75 @@
+// Page.scss
+
+@import '../stylesheets/variables';
+@import '../stylesheets/mixins';
+
+.page {
+  margin-bottom: 6rem;
+}
+
+.page-header {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+
+  @include media(sm) {
+    flex-direction: row-reverse;
+  }
+}
+
+.page-image,
+.page-content {
+  @include column(12);
+  margin-bottom: 3rem;
+}
+
+.page-image {
+  @include animate('down');
+
+  @include media(sm) {
+    @include column(6);
+    padding-right: $grid-gutter * 2;
+  }
+
+  @include media(md) {
+    @include column(7);
+    padding-left: $grid-gutter * 4;
+  }
+
+  .page--is-loaded & {
+    @include animate-in;
+  }
+
+  img {
+    width: 100%;
+  }
+}
+
+.page-content {
+  @include animate('up');
+  padding-left: $grid-gutter * 2;
+  padding-right: $grid-gutter * 2;
+
+  @include media(sm) {
+    @include column(6);
+    margin-top: 12rem;
+  }
+
+  @include media(md) {
+    @include column(5);
+    margin-top: 16rem;
+    padding-left: $grid-gutter * 2;
+  }
+
+  .page--is-loaded & {
+    @include animate-in;
+  }
+}
+
+.page-title {
+
+}
+
+.page-text {
+
+}

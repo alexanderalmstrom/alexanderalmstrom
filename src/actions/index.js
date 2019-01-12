@@ -25,12 +25,9 @@ export function loadProjects() {
   }
 }
 
-export function loadProject(slug) {
+export function loadPage(slug) {
   return {
-    type: 'LOAD_PROJECT',
-    payload: entryService.getEntryBySlug('project', slug),
-    meta: {
-      slug
-    }
+    type: 'LOAD_PAGE',
+    payload: entryService.getEntryBySlug('page', slug)
   }
 }

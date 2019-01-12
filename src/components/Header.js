@@ -29,7 +29,7 @@ class Header extends React.Component {
           <nav className="site-nav">
             <ul>
               <li>
-                <Link className="nav-link" to="/about">
+                <Link className="nav-link" to="/page/about">
                   About
                 </Link>
               </li>

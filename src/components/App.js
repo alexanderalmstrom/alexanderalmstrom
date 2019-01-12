@@ -8,8 +8,9 @@ import * as contentfulService from '../services/contentful'
 import Loading from './Loading'
 import Notice from './Notice'
 
-import Projects from './Projects'
+import Home from './Home'
 import Project from './Project'
+import Page from './Page'
 import NotFound from './NotFound'
 
 import Layout from './Layout'
@@ -44,8 +45,9 @@ class App extends React.Component {
             </Helmet>
             <Layout>
               <Switch>
-                <Route exact path="/" component={Projects} />
+                <Route exact path="/" component={Home} />
                 <Route path="/project/:slug" component={Project} />
+                <Route path="/page/:slug" component={Page} />
                 <Route path="*" component={NotFound} />
               </Switch>
             </Layout>

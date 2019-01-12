@@ -6,9 +6,9 @@ import { connectComponent } from '../connect'
 import Loading from './Loading'
 import Card from './Card'
 
-import './Projects.scss'
+import './Home.scss'
 
-class Projects extends React.Component {
+class Home extends React.Component {
   constructor(props) {
     super(props)
   }
@@ -36,9 +36,9 @@ class Projects extends React.Component {
   }
 }
 
-Projects.propTypes = {
+Home.propTypes = {
   projects: PropTypes.object,
   loadProjects: PropTypes.func
 }
 
-export default connectComponent(Projects)
+export default connectComponent(Home)
