@@ -37,7 +37,6 @@
   width: 3rem;
   height: 3rem;
   display: block;
-  margin-left: $grid-gutter;
 
   @include media(sm) {
     width: 4rem;
@@ -87,7 +86,9 @@
 }
 
 .site-nav {
-  margin-right: $grid-gutter;
+  @include media(sm) {
+    margin-right: $grid-gutter;
+  }
 
   ul {
     list-style: none;

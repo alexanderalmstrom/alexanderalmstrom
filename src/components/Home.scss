@@ -9,7 +9,7 @@
   width: 100%;
   
   @include media('sm-max') {
-    padding-left: $grid-gutter;
-    padding-right: $grid-gutter;
+    padding-left: $grid-gutter / 2;
+    padding-right: $grid-gutter / 2;
   }
 }
