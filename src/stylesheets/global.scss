@@ -37,3 +37,13 @@ img {
   height: auto;
   border: 0;
 }
+
+a {
+  color: $black;
+  transition: color $transition;
+  text-decoration: underline;
+
+  &:hover {
+    text-decoration: none;
+  }
+}

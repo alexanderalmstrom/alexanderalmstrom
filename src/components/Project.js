@@ -19,11 +19,17 @@ class Project extends React.Component {
   }
 
   componentDidMount() {
+    document.querySelector('body').classList.add('view--is-project')
+
     if (!this.props.projects.entries.length) {
       this.props.loadProjects()
     }
 
     window.scrollTo(0, 0)
+  }
+
+  componentWillUnmount () {
+    document.querySelector('body').classList.remove('view--is-project')
   }
 
   handleLodaded(e) {

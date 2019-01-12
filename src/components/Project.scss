@@ -76,3 +76,23 @@
     @include animate-in;
   }
 }
+
+.site-brand {
+  .view--is-project & {
+    svg {
+      @include media('sm-max') {
+        fill: $white;
+      }
+    }
+  }
+}
+
+.site-nav {
+  .view--is-project & {
+    .nav-link {
+      @include media('sm-max') {
+        color: $white;
+      }
+    }
+  }
+}

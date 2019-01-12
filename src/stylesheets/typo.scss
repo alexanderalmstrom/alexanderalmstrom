@@ -46,13 +46,3 @@ p {
   letter-spacing: 0.02rem;
   word-spacing: 0.02rem;
 }
-
-a {
-  color: $black;
-  transition: color $transition;
-  text-decoration: underline;
-
-  &:hover {
-    text-decoration: none;
-  }
-}
