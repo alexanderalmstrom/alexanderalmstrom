@@ -4,27 +4,36 @@
 @import '../stylesheets/mixins';
 
 .page {
-  margin-bottom: 6rem;
+  margin-top: -10rem;
+
+  @include media(sm) {
+    margin-top: 0;
+  }
+}
+
+.container.page-container {
+
 }
 
 .page-header {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-
-  @include media(sm) {
-    flex-direction: row-reverse;
-  }
 }
 
 .page-image,
 .page-content {
   @include column(12);
-  margin-bottom: 3rem;
+
+  @include media('sm-max') {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .page-image {
   @include animate('down');
+  margin-bottom: 4rem;
 
   @include media(sm) {
     @include column(6);
@@ -32,8 +41,7 @@
   }
 
   @include media(md) {
-    @include column(7);
-    padding-left: $grid-gutter * 4;
+    @include column(6);
   }
 
   .page--is-loaded & {
@@ -46,7 +54,7 @@
 }
 
 .page-content {
-  @include animate('up');
+  @include animate('down');
   padding-left: $grid-gutter * 2;
   padding-right: $grid-gutter * 2;
 
@@ -56,9 +64,10 @@
   }
 
   @include media(md) {
-    @include column(5);
+    @include column(6);
     margin-top: 16rem;
     padding-left: $grid-gutter * 2;
+    padding-right: $grid-gutter * 2;
   }
 
   .page--is-loaded & {

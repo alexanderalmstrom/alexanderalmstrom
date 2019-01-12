@@ -34,8 +34,8 @@
 }
 
 .card-name {
-  margin-bottom: 1rem;
   @include h6;
+  margin-bottom: 0;
 }
 
 .card {

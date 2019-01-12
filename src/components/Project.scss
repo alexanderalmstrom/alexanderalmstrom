@@ -4,7 +4,11 @@
 @import '../stylesheets/mixins';
 
 .project {
-  margin-bottom: 6rem;
+  margin-top: -10rem;
+
+  @include media(sm) {
+    margin-top: 0;
+  }
 }
 
 .project-header {
@@ -20,15 +24,21 @@
 .project-image,
 .project-content {
   @include column(12);
-  margin-bottom: 3rem;
+
+  @include media('sm-max') {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .project-image {
   @include animate('down');
+  margin-bottom: 4rem;
 
   @include media(sm) {
     @include column(6);
     padding-right: $grid-gutter * 2;
+    margin-bottom: 0;
   }
 
   @include media(md) {
@@ -46,11 +56,12 @@
 }
 
 .project-content {
-  @include animate('up');
+  @include animate('down');
   padding-left: $grid-gutter * 2;
   padding-right: $grid-gutter * 2;
 
   @include media(sm) {
+    @include animate('up');
     @include column(6);
     margin-top: 12rem;
   }
