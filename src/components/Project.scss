@@ -4,11 +4,7 @@
 @import '../stylesheets/mixins';
 
 .project {
-  margin-top: -10rem;
-
-  @include media(sm) {
-    margin-top: 0;
-  }
+  
 }
 
 .project-header {
@@ -74,25 +70,5 @@
 
   .project--is-loaded & {
     @include animate-in;
-  }
-}
-
-.site-brand {
-  .view--is-project & {
-    svg {
-      @include media('sm-max') {
-        fill: $white;
-      }
-    }
-  }
-}
-
-.site-nav {
-  .view--is-project & {
-    .nav-link {
-      @include media('sm-max') {
-        color: $white;
-      }
-    }
   }
 }

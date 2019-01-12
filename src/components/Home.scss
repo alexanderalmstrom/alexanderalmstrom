@@ -7,4 +7,9 @@
   display: flex;
   flex-wrap: wrap;
   width: 100%;
+  
+  @include media('sm-max') {
+    padding-left: $grid-gutter;
+    padding-right: $grid-gutter;
+  }
 }
