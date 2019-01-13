@@ -59,10 +59,10 @@ class Page extends React.Component {
                 ) : null}
               </div>
               <div className="page-content">
-                <h1 className="page-title">{entry.fields.title || entry.fields.name}</h1>
-                <p className="page-text">
-                  {entry.fields.text}
-                </p>
+                <h1 className="page-title">
+                  {entry.fields.title || entry.fields.name}
+                </h1>
+                <p className="page-text">{entry.fields.text}</p>
               </div>
             </header>
           </div>

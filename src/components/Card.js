@@ -26,6 +26,8 @@ class Card extends React.Component {
   render() {
     const { entry, basename } = this.props
 
+    if (!entry || !entry.fields) return null
+
     const { isLoaded } = this.state
 
     return (

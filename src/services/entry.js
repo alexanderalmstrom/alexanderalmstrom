@@ -4,7 +4,8 @@ export function getEntries(content_type) {
   return getClient()
     .getEntries({
       content_type: content_type,
-      order: 'sys.createdAt'
+      order: 'sys.createdAt',
+      include: 2
     })
     .then(payload => {
       return payload.items
@@ -15,7 +16,8 @@ export function getEntryBySlug(content_type, slug) {
   return getClient()
     .getEntries({
       content_type: content_type,
-      'fields.slug': slug
+      'fields.slug': slug,
+      include: 2
     })
     .then(payload => {
       if (!payload.items.length) {

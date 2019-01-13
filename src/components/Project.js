@@ -6,6 +6,7 @@ import { connectComponent } from '../connect'
 
 import Loading from './Loading'
 import Image from './Image'
+import Block from './Block'
 
 import './Project.scss'
 
@@ -28,7 +29,7 @@ class Project extends React.Component {
     window.scrollTo(0, 0)
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     document.querySelector('body').classList.remove('view--is-project')
   }
 
@@ -41,6 +42,8 @@ class Project extends React.Component {
     const entry = projects.entries[match.params.slug]
 
     if (!entry || !entry.fields) return null
+
+    const { blocks } = entry.fields
 
     const { isLoaded } = this.state
 
@@ -72,7 +75,13 @@ class Project extends React.Component {
               </div>
             </header>
             <section className="product-section">
-              <div />
+              <div className="blocks">
+                {blocks
+                  ? blocks.map((entry, index) => {
+                      return <Block key={index} entry={entry} />
+                    })
+                  : null}
+              </div>
             </section>
           </div>
         ) : (

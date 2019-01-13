@@ -7,7 +7,7 @@
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  
+
   @include media('sm-max') {
     padding-left: $grid-gutter / 2;
     padding-right: $grid-gutter / 2;
