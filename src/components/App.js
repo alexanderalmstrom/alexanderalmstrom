@@ -5,15 +5,13 @@ import { Helmet } from 'react-helmet'
 import { connectComponent } from '../connect'
 import * as contentfulService from '../services/contentful'
 
+import Layout from './Layout'
 import Loading from './Loading'
 import Notice from './Notice'
-
+import NotFound from './NotFound'
 import Home from './Home'
 import Project from './Project'
 import Page from './Page'
-import NotFound from './NotFound'
-
-import Layout from './Layout'
 
 import './App.scss'
 
