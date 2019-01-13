@@ -75,13 +75,11 @@ class Project extends React.Component {
               </div>
             </header>
             <section className="product-section">
-              <div className="blocks">
-                {blocks
-                  ? blocks.map((entry, index) => {
-                      return <Block key={index} entry={entry} />
-                    })
-                  : null}
-              </div>
+              {blocks
+                ? blocks.map((entry, index) => {
+                    return <Block key={index} entry={entry} />
+                  })
+                : null}
             </section>
           </div>
         ) : (

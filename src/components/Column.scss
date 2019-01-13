@@ -1,0 +1,8 @@
+// Column.scss
+
+@import '../stylesheets/variables';
+@import '../stylesheets/mixins';
+
+.column {
+  @include column(12);
+}

@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 
 import ContentBlock from './ContentBlock'
 
+import './Block.scss'
+
 class Block extends React.Component {
   constructor(props) {
     super(props)

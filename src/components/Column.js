@@ -1,6 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+import './Column.scss'
+
 class Column extends React.Component {
   constructor(props) {
     super(props)

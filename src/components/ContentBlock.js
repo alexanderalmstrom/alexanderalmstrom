@@ -16,18 +16,20 @@ class Block extends React.Component {
     const { columns } = entry.fields
 
     return (
-      <div className="content-block">
-        {columns
-          ? columns.map((entry, index) => {
-              switch (entry.sys.contentType.sys.id) {
-                case 'column':
-                  return <Column key={index} entry={entry} />
-                  break
-                default:
-                  return null
-              }
-            })
-          : null}
+      <div className="block content-block">
+        <div className="container">
+          {columns
+            ? columns.map((entry, index) => {
+                switch (entry.sys.contentType.sys.id) {
+                  case 'column':
+                    return <Column key={index} entry={entry} />
+                    break
+                  default:
+                    return null
+                }
+              })
+            : null}
+        </div>
       </div>
     )
   }
