@@ -20,7 +20,9 @@ class Card extends React.Component {
   componentDidMount() {}
 
   handleLoaded(e) {
-    this.setState({ isLoaded: true })
+    setTimeout(() => {
+      this.setState({ isLoaded: true })
+    }, 100)
   }
 
   render() {

@@ -34,7 +34,9 @@ class Project extends React.Component {
   }
 
   handleLodaded(e) {
-    this.setState({ isLoaded: true })
+    setTimeout(() => {
+      this.setState({ isLoaded: true })
+    }, 100)
   }
 
   render() {
