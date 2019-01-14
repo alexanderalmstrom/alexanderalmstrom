@@ -4,6 +4,9 @@
 @import '../stylesheets/mixins';
 
 .project {
+  @include media(sm) {
+    margin-bottom: 4rem;
+  }
 }
 
 .project-header {

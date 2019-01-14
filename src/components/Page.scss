@@ -8,39 +8,40 @@
 
   @include media(sm) {
     margin-top: 0;
+    margin-bottom: 4rem;
   }
 }
 
 .container.page-container {
+
 }
 
 .page-header {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
+  flex-direction: row-reverse;
+  align-items: center;
 }
 
 .page-image,
 .page-content {
   @include column(12);
-
-  @include media('sm-max') {
-    padding-left: 0;
-    padding-right: 0;
-  }
 }
 
 .page-image {
-  @include animate('down');
+  @include animate('down'); 
   margin-bottom: 4rem;
+  padding-left: 0;
+  padding-right: 0;
 
   @include media(sm) {
     @include column(6);
-    padding-right: $grid-gutter * 2;
+    margin-bottom: 0;
   }
 
   @include media(md) {
-    @include column(6);
+    @include column(4);
   }
 
   .page--is-loaded & {
@@ -59,14 +60,10 @@
 
   @include media(sm) {
     @include column(6);
-    margin-top: 12rem;
   }
 
   @include media(md) {
-    @include column(6);
-    margin-top: 16rem;
-    padding-left: $grid-gutter * 2;
-    padding-right: $grid-gutter * 2;
+    @include column(8);
   }
 
   .page--is-loaded & {
@@ -78,4 +75,7 @@
 }
 
 .page-text {
+  @include media(sm) {
+    padding-right: $grid-gutter * 2;
+  }
 }

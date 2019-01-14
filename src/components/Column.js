@@ -1,6 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+import { markdown } from '../services/helpers'
+
 import './Column.scss'
 
 class Column extends React.Component {
@@ -15,7 +17,9 @@ class Column extends React.Component {
 
     const { content } = entry.fields
 
-    return <div className="column">{content}</div>
+    if (!content) return null
+
+    return <div className="column" dangerouslySetInnerHTML={markdown(content)} />
   }
 }
 

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
 
 import { connectComponent } from '../connect'
+import { markdown } from '../services/helpers'
 
 import Loading from './Loading'
 import Image from './Image'
@@ -51,20 +52,22 @@ class Page extends React.Component {
               <meta name="description" content={entry.fields.description} />
             </Helmet>
             <header className="page-header">
-              <div className="page-image">
-                {entry.fields.image ? (
+              {entry.fields.image ? (
+                <div className="page-image">
                   <Image
                     image={entry.fields.image}
                     width={800}
                     onLoad={this.handleLodaded.bind(this)}
                   />
-                ) : null}
-              </div>
+                </div>
+              ) : null}
               <div className="page-content">
-                <h1 className="page-title">
-                  {entry.fields.title || entry.fields.name}
-                </h1>
-                <p className="page-text">{entry.fields.text}</p>
+                { entry.fields.title ? (
+                  <h1 className="page-title">
+                    {entry.fields.title}
+                  </h1>
+                ) : null }
+                <div className="page-text" dangerouslySetInnerHTML={markdown(entry.fields.text)} />
               </div>
             </header>
           </div>
