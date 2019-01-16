@@ -5,7 +5,12 @@ import './Loading.scss'
 
 class Loading extends React.Component {
   render() {
-    return <div className="loading-screen">{this.props.message}</div>
+    return <div className="loading">
+      <div className="loading-inner">
+        <i className="loading-icon"></i>
+        <p className="loading-message">{this.props.message}</p>
+      </div>
+    </div>
   }
 }
 

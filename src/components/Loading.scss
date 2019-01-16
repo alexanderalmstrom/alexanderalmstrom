@@ -3,7 +3,7 @@
 @import '../stylesheets/variables';
 @import '../stylesheets/mixins';
 
-.loading-screen {
+.loading {
   position: fixed;
   top: 0;
   left: 0;
@@ -13,7 +13,64 @@
   align-items: center;
   justify-content: center;
   color: $black;
-  @include h4;
-  font-weight: 500;
-  letter-spacing: -0.1rem;
+  text-align: center;
+}
+
+.loading-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    margin: 0;
+    border-top: 1.6rem solid;
+    border-bottom: 1.6rem solid;
+    border-left: 0.8rem solid;
+    border-right: 0.8rem solid;
+    border-color: $black transparent transparent transparent;
+    animation: loadingSpin 1s infinite;
+    transform-origin: 0.8rem 0.6rem;
+  }
+}
+
+.loading-message {
+  font-size: 1.4rem;
+}
+
+@keyframes loadingSpin {
+  0% {
+    transform: rotate3d(0, 1, 0, 180deg);
+    animation-timing-function: cubic-bezier(0.8, 0.4, 0.2, 0.6);
+  }
+
+  50% {
+    transform: rotate3d(0, 0, 0, 360deg);
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.8, 1);
+  }
+
+  50% {
+    transform: rotate3d(1, 1, 0, 540deg);
+    animation-timing-function: cubic-bezier(0.8, 0.4, 0.2, 0.6);
+  }
+
+  75% {
+    transform: rotate3d(0, 1, 0, 720deg);
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.8, 1);
+  }
+
+  100% {
+    transform: rotate3d(0, 1, 0, 900deg);
+    animation-timing-function: cubic-bezier(0.8, 0.4, 0.2, 0.6);
+  }
 }
