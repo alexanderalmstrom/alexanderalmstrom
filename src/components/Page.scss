@@ -30,6 +30,7 @@
 }
 
 .page-image {
+  @include animate('down'); 
   margin-bottom: 4rem;
   padding-left: 0;
   padding-right: 0;
@@ -43,12 +44,17 @@
     @include column(4);
   }
 
+  .page--is-loaded & {
+    @include animate-in;
+  }
+
   img {
     width: 100%;
   }
 }
 
 .page-content {
+  @include animate('down');
   padding-left: $grid-gutter * 2;
   padding-right: $grid-gutter * 2;
 
@@ -59,6 +65,13 @@
   @include media(md) {
     @include column(8);
   }
+
+  .page--is-loaded & {
+    @include animate-in;
+  }
+}
+
+.page-title {
 }
 
 .page-text {

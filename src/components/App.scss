@@ -2,11 +2,3 @@
 
 @import '../stylesheets/variables';
 @import '../stylesheets/mixins';
-
-.route-container {
-  position: relative;
-
-  > div {
-    position: absolute;
-  }
-}
