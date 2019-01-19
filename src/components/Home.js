@@ -21,7 +21,7 @@ class Home extends React.Component {
     const { entries } = this.props.projects
 
     return (
-      <section className="projects">
+      <div className="home">
         <div className="container projects-container">
           {entries ? (
             Object.keys(entries).map((id, index) => {
@@ -31,7 +31,7 @@ class Home extends React.Component {
             <Loading />
           )}
         </div>
-      </section>
+      </div>
     )
   }
 }

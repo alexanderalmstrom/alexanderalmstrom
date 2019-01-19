@@ -37,11 +37,3 @@
   @include h6;
   margin-bottom: 1rem;
 }
-
-.card {
-  @include animate('down');
-}
-
-.card--is-loaded {
-  @include animate-in;
-}

@@ -13,30 +13,14 @@ import './Project.scss'
 class Project extends React.Component {
   constructor(props) {
     super(props)
-
-    this.state = {
-      isLoaded: false
-    }
   }
 
   componentDidMount() {
-    document.querySelector('body').classList.add('view--is-project')
-
     if (!this.props.projects.entries.length) {
       this.props.loadProjects()
     }
 
     window.scrollTo(0, 0)
-  }
-
-  componentWillUnmount() {
-    document.querySelector('body').classList.remove('view--is-project')
-  }
-
-  handleLodaded(e) {
-    setTimeout(() => {
-      this.setState({ isLoaded: true })
-    }, 100)
   }
 
   render() {
@@ -47,10 +31,8 @@ class Project extends React.Component {
 
     const { blocks } = entry.fields
 
-    const { isLoaded } = this.state
-
     return (
-      <article className={`project ${isLoaded ? 'project--is-loaded' : ''}`}>
+      <div className="project">
         {!this.props.projects.fetching ? (
           <div className="container project-container">
             <Helmet>
@@ -65,7 +47,6 @@ class Project extends React.Component {
                   <Image
                     image={entry.fields.image}
                     width={800}
-                    onLoad={this.handleLodaded.bind(this)}
                   />
                 ) : null}
               </div>
@@ -87,7 +68,7 @@ class Project extends React.Component {
         ) : (
           <Loading />
         )}
-      </article>
+      </div>
     )
   }
 }

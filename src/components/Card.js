@@ -11,18 +11,6 @@ import './Card.scss'
 class Card extends React.Component {
   constructor(props) {
     super(props)
-
-    this.state = {
-      isLoaded: false
-    }
-  }
-
-  componentDidMount() {}
-
-  handleLoaded(e) {
-    setTimeout(() => {
-      this.setState({ isLoaded: true })
-    }, 100)
   }
 
   render() {
@@ -30,17 +18,14 @@ class Card extends React.Component {
 
     if (!entry || !entry.fields) return null
 
-    const { isLoaded } = this.state
-
     return (
-      <div className={`card ${isLoaded ? 'card--is-loaded' : ''}`}>
+      <div className="card">
         <Link to={`/${basename}/${entry.fields.slug}`} className="card-link">
           <div className="card-image">
             {entry.fields.image ? (
               <Image
                 image={entry.fields.image}
                 width={800}
-                onLoad={this.handleLoaded.bind(this)}
               />
             ) : null}
           </div>

@@ -13,10 +13,6 @@ import './Page.scss'
 class Page extends React.Component {
   constructor(props) {
     super(props)
-
-    this.state = {
-      isLoaded: false
-    }
   }
 
   componentDidMount() {
@@ -27,22 +23,14 @@ class Page extends React.Component {
     window.scrollTo(0, 0)
   }
 
-  handleLodaded(e) {
-    setTimeout(() => {
-      this.setState({ isLoaded: true })
-    }, 100)
-  }
-
   render() {
     const { match, page } = this.props
     const entry = page.entry
 
     if (!entry || !entry.fields) return null
 
-    const { isLoaded } = this.state
-
     return (
-      <article className={`page ${isLoaded ? 'page--is-loaded' : ''}`}>
+      <div className="page">
         {!this.props.page.fetching ? (
           <div className="container page-container">
             <Helmet>
@@ -57,7 +45,6 @@ class Page extends React.Component {
                   <Image
                     image={entry.fields.image}
                     width={800}
-                    onLoad={this.handleLodaded.bind(this)}
                   />
                 </div>
               ) : null}
@@ -74,7 +61,7 @@ class Page extends React.Component {
         ) : (
           <Loading />
         )}
-      </article>
+      </div>
     )
   }
 }
