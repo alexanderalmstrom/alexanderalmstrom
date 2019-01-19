@@ -43,7 +43,7 @@ class Page extends React.Component {
 
     return (
       <article className={`page ${isLoaded ? 'page--is-loaded' : ''}`}>
-        {!this.props.page.fetching ? (
+        {!this.props.page.entry.fetching ? (
           <div className="container page-container">
             <Helmet>
               <title>
