@@ -62,12 +62,13 @@ class Page extends React.Component {
                 </div>
               ) : null}
               <div className="page-content">
-                { entry.fields.title ? (
-                  <h1 className="page-title">
-                    {entry.fields.title}
-                  </h1>
-                ) : null }
-                <div className="page-text" dangerouslySetInnerHTML={markdown(entry.fields.text)} />
+                {entry.fields.title ? (
+                  <h1 className="page-title">{entry.fields.title}</h1>
+                ) : null}
+                <div
+                  className="page-text"
+                  dangerouslySetInnerHTML={markdown(entry.fields.text)}
+                />
               </div>
             </header>
           </div>

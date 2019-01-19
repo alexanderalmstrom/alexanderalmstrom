@@ -13,7 +13,6 @@
 }
 
 .container.page-container {
-
 }
 
 .page-header {
@@ -30,7 +29,7 @@
 }
 
 .page-image {
-  @include animate('down'); 
+  @include animate('down');
   margin-bottom: 4rem;
   padding-left: 0;
   padding-right: 0;

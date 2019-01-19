@@ -19,7 +19,9 @@ class Column extends React.Component {
 
     if (!content) return null
 
-    return <div className="column" dangerouslySetInnerHTML={markdown(content)} />
+    return (
+      <div className="column" dangerouslySetInnerHTML={markdown(content)} />
+    )
   }
 }
 
