@@ -20,7 +20,6 @@ const RouteContainer = posed.div({
   enter: {
     opacity: 1,
     delay: 300,
-    beforeChildren: true,
     transition: {
       ease: [0.2, 0.4, 0.6, 1]
     }
