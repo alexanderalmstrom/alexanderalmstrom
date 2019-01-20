@@ -1,6 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import qs from 'query-string'
+
+import { markdown } from '../services/helpers'
+
+import ImageContentful from './ImageContentful'
 
 import './Image.scss'
 
@@ -9,60 +12,27 @@ class Image extends React.Component {
     super(props)
   }
 
-  componentDidMount() {}
-
   render() {
-    const { image, ...rest } = this.props
+    const { entry } = this.props
 
-    const query = {
-      fm: rest.format,
-      q: rest.quality,
-      w: rest.width,
-      h: rest.height
-    }
+    if (!entry || !entry.fields) return null
 
-    const jpg = qs.stringify(query)
-    const webp = qs.stringify(Object.assign(query, { fm: 'webp' }))
+    const { image } = entry.fields
+
+    if (!image) return null
 
     return (
-      <div className={rest.className}>
-        {image && image.fields ? (
-          <picture>
-            <source
-              type="image/webp"
-              srcSet={`${image.fields.file.url}?${webp}`}
-            />
-            <source
-              type="image/jpeg"
-              srcSet={`${image.fields.file.url}?${jpg}&fl=progressive`}
-            />
-            <img
-              className="image"
-              src={`${image.fields.file.url}?${jpg}&fl=progressive`}
-              alt={image.title}
-              onLoad={this.props.onLoad}
-            />
-          </picture>
-        ) : null}
+      <div className="image">
+        <ImageContentful
+          image={image}
+          width={1280} />
       </div>
     )
   }
 }
 
-Image.defaultProps = {
-  format: 'jpg',
-  quality: 70,
-  width: 1100
-}
-
 Image.propTypes = {
-  image: PropTypes.object.isRequired,
-  className: PropTypes.string,
-  format: PropTypes.string,
-  quality: PropTypes.number,
-  width: PropTypes.number,
-  height: PropTypes.number,
-  onLoad: PropTypes.func
+  entry: PropTypes.object
 }
 
 export default Image

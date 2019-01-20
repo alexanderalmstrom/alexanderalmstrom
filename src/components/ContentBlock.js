@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import Column from './Column'
+import Image from './Image'
 
 class Block extends React.Component {
   constructor(props) {
@@ -23,6 +24,9 @@ class Block extends React.Component {
                 switch (entry.sys.contentType.sys.id) {
                   case 'column':
                     return <Column key={index} entry={entry} />
+                    break
+                  case 'image':
+                    return <Image key={index} entry={entry} />
                     break
                   default:
                     return null

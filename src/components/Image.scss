@@ -2,3 +2,8 @@
 
 @import '../stylesheets/variables';
 @import '../stylesheets/mixins';
+
+.image {
+  @include column(12);
+  margin-bottom: 4rem;
+}

@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet'
 import { connectComponent } from '../connect'
 
 import Loading from './Loading'
-import Image from './Image'
+import ImageContentful from './ImageContentful'
 import Block from './Block'
 
 import './Project.scss'
@@ -13,30 +13,14 @@ import './Project.scss'
 class Project extends React.Component {
   constructor(props) {
     super(props)
-
-    this.state = {
-      isLoaded: false
-    }
   }
 
   componentDidMount() {
-    document.querySelector('body').classList.add('view--is-project')
-
     if (!this.props.projects.entries.length) {
       this.props.loadProjects()
     }
 
     window.scrollTo(0, 0)
-  }
-
-  componentWillUnmount() {
-    document.querySelector('body').classList.remove('view--is-project')
-  }
-
-  handleLodaded(e) {
-    setTimeout(() => {
-      this.setState({ isLoaded: true })
-    }, 100)
   }
 
   render() {
@@ -47,10 +31,8 @@ class Project extends React.Component {
 
     const { blocks } = entry.fields
 
-    const { isLoaded } = this.state
-
     return (
-      <article className={`project ${isLoaded ? 'project--is-loaded' : ''}`}>
+      <article className="project">
         {!this.props.projects.fetching ? (
           <div className="container project-container">
             <Helmet>
@@ -60,15 +42,6 @@ class Project extends React.Component {
               <meta name="description" content={entry.fields.description} />
             </Helmet>
             <header className="project-header">
-              <div className="project-image">
-                {entry.fields.image ? (
-                  <Image
-                    image={entry.fields.image}
-                    width={800}
-                    onLoad={this.handleLodaded.bind(this)}
-                  />
-                ) : null}
-              </div>
               <div className="project-content">
                 <h1 className="project-name">{entry.fields.name}</h1>
                 <p className="project-description">
@@ -76,7 +49,7 @@ class Project extends React.Component {
                 </p>
               </div>
             </header>
-            <section className="product-section">
+            <section className="project-section">
               {blocks
                 ? blocks.map((entry, index) => {
                     return <Block key={index} entry={entry} />

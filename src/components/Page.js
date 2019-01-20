@@ -6,7 +6,7 @@ import { connectComponent } from '../connect'
 import { markdown } from '../services/helpers'
 
 import Loading from './Loading'
-import Image from './Image'
+import ImageContentful from './ImageContentful'
 
 import './Page.scss'
 
@@ -54,7 +54,7 @@ class Page extends React.Component {
             <header className="page-header">
               {entry.fields.image ? (
                 <div className="page-image">
-                  <Image
+                  <ImageContentful
                     image={entry.fields.image}
                     width={800}
                     onLoad={this.handleLodaded.bind(this)}

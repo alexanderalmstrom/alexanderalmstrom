@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 import { connectComponent } from '../connect'
 
-import Image from './Image'
+import ImageContentful from './ImageContentful'
 
 import './Card.scss'
 
@@ -37,7 +37,7 @@ class Card extends React.Component {
         <Link to={`/${basename}/${entry.fields.slug}`} className="card-link">
           <div className="card-image">
             {entry.fields.image ? (
-              <Image
+              <ImageContentful
                 image={entry.fields.image}
                 width={800}
                 onLoad={this.handleLoaded.bind(this)}
