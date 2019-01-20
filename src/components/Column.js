@@ -15,12 +15,12 @@ class Column extends React.Component {
 
     if (!entry || !entry.fields) return null
 
-    const { content } = entry.fields
+    const { content, size } = entry.fields
 
     if (!content) return null
 
     return (
-      <div className="column" dangerouslySetInnerHTML={markdown(content)} />
+      <div className={`column col-${size ? size : 12}`} dangerouslySetInnerHTML={markdown(content)} />
     )
   }
 }

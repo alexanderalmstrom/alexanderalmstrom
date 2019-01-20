@@ -119,6 +119,8 @@
   max-width: $max-width;
   margin-left: auto;
   margin-right: auto;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 @mixin column($size, $gutter: $grid-gutter) {

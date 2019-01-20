@@ -1,10 +1,22 @@
 // Block.scss
 
+@import '../stylesheets/variables';
+@import '../stylesheets/mixins';
+
 .blocks {
-  margin-bottom: 8rem;
+  margin-bottom: 4rem;
+
+  @include media(md) {
+    margin-bottom: 8rem;
+  }
 }
 
 .block {
-  margin-top: 8rem;
-  margin-bottom: 8rem;
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+
+  @include media(md) {
+    margin-top: 8rem;
+    margin-bottom: 8rem;
+  }
 }

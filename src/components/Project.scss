@@ -17,8 +17,7 @@
 
 .project-header {
   margin-top: 4rem;
-  padding-left: $grid-gutter * 2;
-  padding-right: $grid-gutter * 2;
+  @include column(12);
 
   @include media(sm) {
     @include column(8);
@@ -26,4 +25,22 @@
     margin-right: auto;
     text-align: center;
   }
+}
+
+.project-name {
+  margin-bottom: 0;
+}
+
+.project-section {
+  ul {
+    list-style: none;
+    padding-left: 0;
+  }
+}
+
+.project-footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4rem;
 }

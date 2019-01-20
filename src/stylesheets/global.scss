@@ -50,3 +50,17 @@ a {
     text-decoration: none;
   }
 }
+
+strong {
+  color: $black;
+}
+
+ul {
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
+
+li {
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}

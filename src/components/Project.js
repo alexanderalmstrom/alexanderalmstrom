@@ -62,13 +62,6 @@ class Project extends React.Component {
             </Helmet>
             <header className="project-header">
               <h1 className="project-name">{entry.fields.name}</h1>
-              <div
-                className="project-description"
-                dangerouslySetInnerHTML={markdown(entry.fields.description)}
-              />
-              { entry.fields.url ? (
-                <a className="btn" href={entry.fields.url} target="_blank">Visit site</a>
-              ) : null }
             </header>
             <section className="project-section">
               {blocks
@@ -77,6 +70,11 @@ class Project extends React.Component {
                   })
                 : null}
             </section>
+            <footer className="project-footer">
+              { entry.fields.url ? (
+                <a className="btn" href={entry.fields.url} target="_blank">Visit site</a>
+              ) : null }
+            </footer>
           </div>
         ) : <NotFound /> }
       </article>
