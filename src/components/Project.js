@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
 
 import { connectComponent } from '../connect'
+import { markdown } from '../services/helpers'
 
 import Loading from './Loading'
 import ImageContentful from './ImageContentful'
@@ -42,12 +43,12 @@ class Project extends React.Component {
               <meta name="description" content={entry.fields.description} />
             </Helmet>
             <header className="project-header">
-              <div className="project-content">
-                <h1 className="project-name">{entry.fields.name}</h1>
-                <p className="project-description">
-                  {entry.fields.description}
-                </p>
-              </div>
+              <h1 className="project-name">{entry.fields.name}</h1>
+              <div
+                className="project-description"
+                dangerouslySetInnerHTML={markdown(entry.fields.description)}
+              />
+              <a className="btn" href={entry.fields.url} target="_blank">Visit site</a>
             </header>
             <section className="project-section">
               {blocks

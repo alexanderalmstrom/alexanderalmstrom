@@ -10,17 +10,7 @@
 }
 
 .project-header {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
   margin-top: 4rem;
-
-  @include media(sm) {
-    flex-direction: row-reverse;
-  }
-}
-
-.project-content {
   padding-left: $grid-gutter * 2;
   padding-right: $grid-gutter * 2;
 
