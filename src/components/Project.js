@@ -48,7 +48,9 @@ class Project extends React.Component {
                 className="project-description"
                 dangerouslySetInnerHTML={markdown(entry.fields.description)}
               />
-              <a className="btn" href={entry.fields.url} target="_blank">Visit site</a>
+              { entry.fields.url ? (
+                <a className="btn" href={entry.fields.url} target="_blank">Visit site</a>
+              ) : null }
             </header>
             <section className="project-section">
               {blocks
