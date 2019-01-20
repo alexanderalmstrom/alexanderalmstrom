@@ -9,10 +9,10 @@ class Image extends React.Component {
     super(props)
   }
 
-  componentDidMount() {}
-
   render() {
     const { image, ...rest } = this.props
+
+    if (!image || !image.fields) return null
 
     const query = {
       fm: rest.format,
@@ -25,25 +25,21 @@ class Image extends React.Component {
     const webp = qs.stringify(Object.assign(query, { fm: 'webp' }))
 
     return (
-      <div className={rest.className}>
-        {image && image.fields ? (
-          <picture>
-            <source
-              type="image/webp"
-              srcSet={`${image.fields.file.url}?${webp}`}
-            />
-            <source
-              type="image/jpeg"
-              srcSet={`${image.fields.file.url}?${jpg}&fl=progressive`}
-            />
-            <img
-              src={`${image.fields.file.url}?${jpg}&fl=progressive`}
-              alt={image.title}
-              onLoad={this.props.onLoad}
-            />
-          </picture>
-        ) : null}
-      </div>
+      <picture className="image-contentful">
+        <source
+          type="image/webp"
+          srcSet={`${image.fields.file.url}?${webp}`}
+        />
+        <source
+          type="image/jpeg"
+          srcSet={`${image.fields.file.url}?${jpg}&fl=progressive`}
+        />
+        <img
+          src={`${image.fields.file.url}?${jpg}&fl=progressive`}
+          alt={image.title}
+          onLoad={this.props.onLoad}
+        />
+      </picture>
     )
   }
 }

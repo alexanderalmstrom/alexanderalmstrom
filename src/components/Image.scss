@@ -6,4 +6,9 @@
 .image {
   @include column(12);
   margin-bottom: 4rem;
+  @include animate('down');
+
+  &.is-loaded {
+    @include animate-in;
+  }
 }

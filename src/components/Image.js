@@ -10,6 +10,16 @@ import './Image.scss'
 class Image extends React.Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      isLoaded: false
+    }
+  }
+
+  handleLoaded () {
+    setTimeout(() => {
+      this.setState({ isLoaded: true })
+    }, 100)
   }
 
   render() {
@@ -22,10 +32,12 @@ class Image extends React.Component {
     if (!image) return null
 
     return (
-      <div className="image">
+      <div className={`image ${this.state.isLoaded ? 'is-loaded' : ''}`}>
         <ImageContentful
           image={image}
-          width={1280} />
+          width={1280}
+          onLoad={this.handleLoaded.bind(this)}
+          />
       </div>
     )
   }

@@ -13,23 +13,23 @@ class Home extends React.Component {
     super(props)
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.props.loadProjects()
   }
 
   render() {
-    const { entries } = this.props.projects
+    const { projects } = this.props
+
+    if (projects && projects.fetching) return <Loading />
 
     return (
       <section className="projects">
         <div className="container projects-container">
-          {entries ? (
-            Object.keys(entries).map((id, index) => {
-              return <Card key={index} basename="project" entry={entries[id]} />
+          {projects && projects.entries ? (
+            Object.keys(projects.entries).map((id, index) => {
+              return <Card key={index} basename="project" entry={projects.entries[id]} />
             })
-          ) : (
-            <Loading />
-          )}
+          ) : null}
         </div>
       </section>
     )

@@ -43,7 +43,7 @@
     @include column(4);
   }
 
-  .page--is-loaded & {
+  .is-loaded & {
     @include animate-in;
   }
 
@@ -65,7 +65,7 @@
     @include column(8);
   }
 
-  .page--is-loaded & {
+  .is-loaded & {
     @include animate-in;
   }
 }

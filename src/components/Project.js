@@ -6,6 +6,7 @@ import { connectComponent } from '../connect'
 import { markdown } from '../services/helpers'
 
 import Loading from './Loading'
+import NotFound from './NotFound'
 import ImageContentful from './ImageContentful'
 import Block from './Block'
 
@@ -14,27 +15,44 @@ import './Project.scss'
 class Project extends React.Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      isLoaded: false
+    }
+  }
+
+  componentWillMount () {
+    if (!Object.keys(this.props.projects.entries).length) {
+      this.props.loadProjects()
+    }
   }
 
   componentDidMount() {
-    if (!this.props.projects.entries.length) {
-      this.props.loadProjects()
-    }
-
     window.scrollTo(0, 0)
+  }
+
+  handleLodaded(e) {
+    setTimeout(() => {
+      this.setState({ isLoaded: true })
+    }, 100)
   }
 
   render() {
     const { match, projects } = this.props
+
+    if (projects && projects.fetching) return <Loading />
+
     const entry = projects.entries[match.params.slug]
 
-    if (!entry || !entry.fields) return null
+    if (!entry || projects.error) return <NotFound />
 
     const { blocks } = entry.fields
 
     return (
-      <article className="project">
-        {!this.props.projects.fetching ? (
+      <article
+        className={`project ${this.state.isLoaded ? 'is-loaded' : ''}`}
+        onLoad={this.handleLodaded.bind(this)}>
+        {entry && entry.fields ? (
           <div className="container project-container">
             <Helmet>
               <title>
@@ -60,9 +78,7 @@ class Project extends React.Component {
                 : null}
             </section>
           </div>
-        ) : (
-          <Loading />
-        )}
+        ) : <NotFound /> }
       </article>
     )
   }

@@ -16,7 +16,6 @@ export const projects = makeReducer(
             return collection
           }, {})
         }
-
       case 'LOAD_PROJECTS_REJECTED':
         return {
           error: true,

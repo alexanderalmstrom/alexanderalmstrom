@@ -6,10 +6,15 @@
 .card {
   @include column(12);
   margin-bottom: $grid-gutter;
+  @include animate('down');
 
   @include media(sm) {
     @include column(6);
     margin-bottom: $grid-gutter * 2;
+  }
+
+  &.is-loaded {
+    @include animate-in;
   }
 }
 
@@ -36,12 +41,4 @@
 .card-name {
   @include h6;
   margin-bottom: 1rem;
-}
-
-.card {
-  @include animate('down');
-}
-
-.card--is-loaded {
-  @include animate-in;
 }

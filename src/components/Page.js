@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet'
 import { connectComponent } from '../connect'
 import { markdown } from '../services/helpers'
 
+import NotFound from './NotFound'
 import Loading from './Loading'
 import ImageContentful from './ImageContentful'
 
@@ -35,15 +36,14 @@ class Page extends React.Component {
 
   render() {
     const { match, page } = this.props
-    const entry = page.entry
 
-    if (!entry || !entry.fields) return null
+    if (page && page.entry.fetching && !page.error) return <Loading />
 
-    const { isLoaded } = this.state
+    const { entry } = page
 
     return (
-      <article className={`page ${isLoaded ? 'page--is-loaded' : ''}`}>
-        {!this.props.page.entry.fetching ? (
+      <article className={`page ${this.state.isLoaded ? 'is-loaded' : ''}`}>
+        {entry && entry.fields ? (
           <div className="container page-container">
             <Helmet>
               <title>
@@ -73,7 +73,7 @@ class Page extends React.Component {
             </header>
           </div>
         ) : (
-          <Loading />
+          <NotFound />
         )}
       </article>
     )

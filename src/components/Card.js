@@ -17,8 +17,6 @@ class Card extends React.Component {
     }
   }
 
-  componentDidMount() {}
-
   handleLoaded(e) {
     setTimeout(() => {
       this.setState({ isLoaded: true })
@@ -30,10 +28,8 @@ class Card extends React.Component {
 
     if (!entry || !entry.fields) return null
 
-    const { isLoaded } = this.state
-
     return (
-      <div className={`card ${isLoaded ? 'card--is-loaded' : ''}`}>
+      <div className={`card ${this.state.isLoaded ? 'is-loaded' : ''}`}>
         <Link to={`/${basename}/${entry.fields.slug}`} className="card-link">
           <div className="card-image">
             {entry.fields.image ? (
