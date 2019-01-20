@@ -37,7 +37,6 @@ class Image extends React.Component {
               srcSet={`${image.fields.file.url}?${jpg}&fl=progressive`}
             />
             <img
-              className="image"
               src={`${image.fields.file.url}?${jpg}&fl=progressive`}
               alt={image.title}
               onLoad={this.props.onLoad}
