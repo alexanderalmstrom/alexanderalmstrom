@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
 
 import { connectComponent } from '../connect'
-import { markdown } from '../services/helpers'
+import { markdown, createEvent } from '../services/helpers'
 
 import Loading from './Loading'
 import NotFound from './NotFound'
@@ -16,25 +16,29 @@ class Project extends React.Component {
   constructor(props) {
     super(props)
 
-    this.state = {
-      isLoaded: false
-    }
+    this.projectLoadedEvent = createEvent('PROJECT_LOADED')
   }
 
   componentWillMount () {
-    if (!Object.keys(this.props.projects.entries).length) {
+    const { projects } = this.props
+
+    if (!Object.keys(projects.entries).length) {
       this.props.loadProjects()
     }
   }
 
   componentDidMount() {
     window.scrollTo(0, 0)
+
+    if (this.props.projects && !this.props.projects.fetching) {
+      document.dispatchEvent(this.projectLoadedEvent)
+    }
   }
 
-  handleLodaded(e) {
-    setTimeout(() => {
-      this.setState({ isLoaded: true })
-    }, 100)
+  componentDidUpdate () {
+    if (Object.keys(this.props.projects.entries).length) {
+      document.dispatchEvent(this.projectLoadedEvent)
+    }
   }
 
   render() {
@@ -50,8 +54,7 @@ class Project extends React.Component {
 
     return (
       <article
-        className={`project ${this.state.isLoaded ? 'is-loaded' : ''}`}
-        onLoad={this.handleLodaded.bind(this)}>
+        className="project">
         {entry && entry.fields ? (
           <div className="container project-container">
             <Helmet>

@@ -124,6 +124,10 @@ if (env == 'production') {
       {
         from: './src/fonts',
         to: 'fonts'
+      },
+      {
+        from: './src/vendor',
+        to: 'vendor'
       }
     ]),
     new MiniCssExtractPlugin({

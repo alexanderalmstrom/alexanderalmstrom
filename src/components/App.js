@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet'
 
 import { connectComponent } from '../connect'
 import * as contentfulService from '../services/contentful'
+import { createEvent } from '../services/helpers'
 
 import Layout from './Layout'
 import Loading from './Loading'
@@ -18,6 +19,8 @@ import './App.scss'
 class App extends React.Component {
   constructor(props) {
     super(props)
+
+    this.appLoadedEvent = createEvent('APP_LOADED')
   }
 
   componentWillMount() {
@@ -27,6 +30,12 @@ class App extends React.Component {
         () => this.props.setAppContentfulState('success'),
         () => this.props.setAppContentfulState('error')
       )
+  }
+
+  componentDidUpdate () {
+    if (this.props.contentful.authState == 'success') {
+      document.dispatchEvent(this.appLoadedEvent)
+    }
   }
 
   render() {
