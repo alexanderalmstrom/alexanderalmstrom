@@ -37,10 +37,7 @@ class Page extends React.Component {
   render() {
     const {
       match,
-      page: {
-        error,
-        entry
-      }
+      page: { error, entry }
     } = this.props
 
     if (error) return <NotFound />

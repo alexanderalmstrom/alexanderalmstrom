@@ -16,7 +16,7 @@ class Image extends React.Component {
     }
   }
 
-  handleLoaded () {
+  handleLoaded() {
     setTimeout(() => {
       this.setState({ isLoaded: true })
     }, 100)
@@ -37,7 +37,7 @@ class Image extends React.Component {
           image={image}
           width={1280}
           onLoad={this.handleLoaded.bind(this)}
-          />
+        />
       </div>
     )
   }

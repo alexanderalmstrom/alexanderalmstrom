@@ -20,7 +20,6 @@
     "body-parser": "^1.18.3",
     "clean-webpack-plugin": "^1.0.0",
     "contentful": "^7.0.3",
-    "contentful-management": "^5.4.0",
     "copy-webpack-plugin": "^4.5.2",
     "css-loader": "^2.0.0",
     "deep-extend": "^0.6.0",

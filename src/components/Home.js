@@ -27,11 +27,17 @@ class Home extends React.Component {
     return (
       <section className="projects">
         <div className="container projects-container">
-          {projects && projects.entries ? (
-            Object.keys(projects.entries).map((id, index) => {
-              return <Card key={index} basename="project" entry={projects.entries[id]} />
-            })
-          ) : null}
+          {projects && projects.entries
+            ? Object.keys(projects.entries).map((id, index) => {
+                return (
+                  <Card
+                    key={index}
+                    basename="project"
+                    entry={projects.entries[id]}
+                  />
+                )
+              })
+            : null}
         </div>
       </section>
     )
