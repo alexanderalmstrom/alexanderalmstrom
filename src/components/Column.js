@@ -20,10 +20,7 @@ class Column extends React.Component {
     if (!content) return null
 
     return (
-      <div
-        className={`column col-${size ? size : 12}`}
-        dangerouslySetInnerHTML={markdown(content)}
-      />
+      <div className={`column col-${size ? size : 12}`} dangerouslySetInnerHTML={markdown(content)} />
     )
   }
 }

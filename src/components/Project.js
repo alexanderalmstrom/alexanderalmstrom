@@ -21,7 +21,7 @@ class Project extends React.Component {
     }
   }
 
-  componentWillMount() {
+  componentWillMount () {
     const { projects } = this.props
 
     if (!Object.keys(projects.entries).length) {
@@ -42,7 +42,11 @@ class Project extends React.Component {
   render() {
     const {
       match,
-      projects: { error, fetching, entries }
+      projects: {
+        error,
+        fetching,
+        entries
+      }
     } = this.props
 
     if (fetching) return <Loading />
@@ -76,9 +80,7 @@ class Project extends React.Component {
                 : null}
             </section>
           </div>
-        ) : (
-          <NotFound />
-        )}
+        ) : <NotFound /> }
       </article>
     )
   }

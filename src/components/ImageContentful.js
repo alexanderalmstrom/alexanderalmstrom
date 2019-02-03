@@ -26,7 +26,10 @@ class Image extends React.Component {
 
     return (
       <picture className="image-contentful">
-        <source type="image/webp" srcSet={`${image.fields.file.url}?${webp}`} />
+        <source
+          type="image/webp"
+          srcSet={`${image.fields.file.url}?${webp}`}
+        />
         <source
           type="image/jpeg"
           srcSet={`${image.fields.file.url}?${jpg}&fl=progressive`}
