@@ -36,7 +36,7 @@ class Image extends React.Component {
         />
         <img
           src={`${image.fields.file.url}?${jpg}&fl=progressive`}
-          alt={image.title}
+          alt={image.fields.title}
           onLoad={this.props.onLoad}
         />
       </picture>
