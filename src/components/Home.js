@@ -20,7 +20,9 @@ class Home extends React.Component {
   render() {
     const { projects } = this.props
 
-    if (projects && projects.fetching) return <Loading />
+    if (!projects) return null
+
+    if (projects.fetching) return <Loading />
 
     return (
       <section className="projects">

@@ -35,11 +35,17 @@ class Page extends React.Component {
   }
 
   render() {
-    const { match, page } = this.props
+    const {
+      match,
+      page: {
+        error,
+        entry
+      }
+    } = this.props
 
-    if (page && page.entry.fetching && !page.error) return <Loading />
+    if (error) return <NotFound />
 
-    const { entry } = page
+    if (entry.fetching) return <Loading />
 
     return (
       <article className={`page ${this.state.isLoaded ? 'is-loaded' : ''}`}>
