@@ -47,7 +47,7 @@ class App extends React.Component {
         {this.props.contentful.authState == 'success' ? (
           <Router>
             <Helmet>
-              <title>{this.props.contentful.space.name}</title>
+              <title>{this.props.contentful.space.name} - Frontend Developer & Designer</title>
               <meta name="description" content="" />
             </Helmet>
             <Layout>
