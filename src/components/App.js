@@ -48,7 +48,7 @@ class App extends React.Component {
           <Router>
             <Helmet>
               <title>{this.props.contentful.space.name} - Frontend Developer & Designer</title>
-              <meta name="description" content="" />
+              <meta name="description" content="Frontend Developer and Designer from Stockholm, Sweden. I create pixel perfect and toughtful UX design and techincal solutions to clients like Vässla, Kenza Zouiten and IvyRevel." />
             </Helmet>
             <Layout>
               <Switch>
