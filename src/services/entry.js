@@ -4,7 +4,7 @@ export function getEntries(content_type) {
   return getClient()
     .getEntries({
       content_type: content_type,
-      order: 'sys.createdAt',
+      order: '-sys.createdAt',
       include: 2
     })
     .then(payload => {
