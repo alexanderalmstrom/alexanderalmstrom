@@ -79,11 +79,6 @@ class Project extends React.Component {
                   })
                 : null}
             </section>
-            <footer className="project-footer">
-              { entry.fields.url ? (
-                <a className="btn" href={entry.fields.url} target="_blank">Visit site</a>
-              ) : null }
-            </footer>
           </div>
         ) : <NotFound /> }
       </article>
