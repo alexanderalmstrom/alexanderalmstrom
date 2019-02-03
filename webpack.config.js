@@ -126,6 +126,10 @@ if (env == 'production') {
         to: 'fonts'
       },
       {
+        from: './src/static',
+        to: ''
+      },
+      {
         from: './src/vendor',
         to: 'vendor'
       }
