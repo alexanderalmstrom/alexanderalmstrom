@@ -54,8 +54,6 @@
 
 .page-content {
   @include animate('down');
-  padding-left: $grid-gutter * 2;
-  padding-right: $grid-gutter * 2;
 
   @include media(sm) {
     @include column(6);

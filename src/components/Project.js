@@ -16,7 +16,9 @@ class Project extends React.Component {
   constructor(props) {
     super(props)
 
-    this.projectLoadedEvent = createEvent('PROJECT_LOADED')
+    this.state = {
+      isLoaded: false
+    }
   }
 
   componentWillMount () {
@@ -29,32 +31,36 @@ class Project extends React.Component {
 
   componentDidMount() {
     window.scrollTo(0, 0)
-
-    if (this.props.projects && !this.props.projects.fetching) {
-      document.dispatchEvent(this.projectLoadedEvent)
-    }
   }
 
-  componentDidUpdate () {
-    if (Object.keys(this.props.projects.entries).length) {
-      document.dispatchEvent(this.projectLoadedEvent)
-    }
+  handleLodaded(e) {
+    setTimeout(() => {
+      this.setState({ isLoaded: true })
+    }, 100)
   }
 
   render() {
-    const { match, projects } = this.props
+    const {
+      match,
+      projects: {
+        error,
+        fetching,
+        entries
+      }
+    } = this.props
 
-    if (projects && projects.fetching) return <Loading />
+    if (fetching) return <Loading />
 
-    const entry = projects.entries[match.params.slug]
+    const entry = entries[match.params.slug]
 
-    if (!entry || projects.error) return <NotFound />
+    if (!entry || error) return <NotFound />
 
     const { blocks } = entry.fields
 
     return (
       <article
-        className="project">
+        onLoad={this.handleLodaded.bind(this)}
+        className={`project ${this.state.isLoaded ? 'is-loaded' : ''}`}>
         {entry && entry.fields ? (
           <div className="container project-container">
             <Helmet>

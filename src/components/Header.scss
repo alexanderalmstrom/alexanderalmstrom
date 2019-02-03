@@ -22,12 +22,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-left: $grid-gutter * 2;
-    padding-right: $grid-gutter * 2;
+    padding-left: $grid-gutter * 1.5;
+    padding-right: $grid-gutter * 1.5;
 
     @include media(sm) {
-      padding-left: $grid-gutter * 2.7;
-      padding-right: $grid-gutter * 3;
+      padding-left: 5.5rem;
+      padding-right: $grid-gutter * 2;
     }
   }
 }
@@ -92,6 +92,11 @@
 
   ul {
     list-style: none;
+    margin-bottom: 0;
+  }
+
+  li {
+    margin-bottom: 0;
   }
 
   .nav-link {

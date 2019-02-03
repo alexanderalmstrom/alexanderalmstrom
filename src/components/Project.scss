@@ -4,8 +4,14 @@
 @import '../stylesheets/mixins';
 
 .project {
+  @include animate('down');
+
   @include media(sm) {
     margin-bottom: 4rem;
+  }
+
+  &.is-loaded {
+    @include animate-in;
   }
 }
 
