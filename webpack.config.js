@@ -33,10 +33,19 @@ const config = {
     disableHostCheck: true,
     port: 5000,
     hot: true,
-    historyApiFallback: true
+    historyApiFallback: true,
+    before: function(app, server) {
+      app.get('/*.css', function(req, res) {
+        res.set('Content-Type', 'text/css')
+        res.end()
+      })
+    }
   },
 
   optimization: {
+    minimizer: [
+      new OptimizeCSSAssetsPlugin()
+    ],
     splitChunks: {
       cacheGroups: {
         vendors: {
@@ -142,13 +151,16 @@ if (env == 'production') {
       },
       {
         from: './src/static',
+        to: 'static'
+      },
+      {
+        from: './src/vendor',
         to: ''
       }
     ]),
     new MiniCssExtractPlugin({
       filename: '[name].[contenthash].css'
     }),
-    new OptimizeCSSAssetsPlugin(),
     new ManifestPlugin({
       basePath: '/',
       filter: function (file) {

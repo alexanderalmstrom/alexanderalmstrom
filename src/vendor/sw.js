@@ -6,12 +6,12 @@ self.addEventListener('install', function(e) {
       return cache.addAll([
         '/',
         '/index.html',
+        '/fonts.css',
         '/app.css',
         '/site.css',
         '/vendors.js',
         '/app.js',
-        '/site.js',
-        '/webfont.js'
+        '/site.js'
       ])
     })
   )
