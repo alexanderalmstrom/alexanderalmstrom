@@ -7,6 +7,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="/app.css" />
     <link rel="stylesheet" href="/site.css" />
+    <script>
+      WebFontConfig = {
+        custom: {
+          families: ['Circular:n4,n5,n8'],
+          urls: ['/fonts.css']
+        }
+      };
+      (function(d) {
+        var wf = d.createElement('script'), s = d.scripts[0];
+        wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js';
+        wf.async = true;
+        s.parentNode.insertBefore(wf, s);
+      })(document);
+    </script>
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -23,7 +37,11 @@
     <script async src="/site.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(function() { console.log("Service Worker Registered") })
+        navigator.serviceWorker.register('/sw.js').then(
+          function () {
+            console.log("Service Worker Registered");
+          }
+        );
       }
     </script>
   </body>

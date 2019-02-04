@@ -16,7 +16,8 @@ const config = {
 
   entry: {
     app: './src/app.js',
-    site: './src/site.js'
+    site: './src/site.js',
+    fonts: './src/fonts.css'
   },
 
   output: {
@@ -58,6 +59,20 @@ const config = {
             cacheDirectory: true
           }
         }
+      },
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: env == 'development' ? 'style-loader' : MiniCssExtractPlugin.loader
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: env == 'development' ? true : false
+            }
+          }
+        ]
       },
       {
         test: /\.scss$/,
