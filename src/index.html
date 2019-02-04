@@ -2,10 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <link rel="preload" href="/fonts.css" as="style" />
-    <link rel="preload" href="/fonts/CircularStd-Book.woff2" as="font" />
-    <link rel="preload" href="/fonts/CircularStd-Medium.woff2" as="font" />
-    <link rel="preload" href="/fonts/CircularStd-Black.woff2" as="font" />
+    <link rel="preload" href="/fonts.css" as="style" crossorigin />
+    <link rel="preload" href="/fonts/CircularStd-Book.woff2" as="font" crossorigin />
+    <link rel="preload" href="/fonts/CircularStd-Medium.woff2" as="font" crossorigin />
+    <link rel="preload" href="/fonts/CircularStd-Black.woff2" as="font" crossorigin />
     <title>Alexander Almström - Frontend Developer & Designer</title>
     <meta name="description" content="Frontend Developer and Designer from Stockholm, Sweden. I create pixel perfect and toughtful UX design and techincal solutions to clients like Vässla, Kenza Zouiten and IvyRevel." />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -27,7 +27,7 @@
       };
       (function(d) {
         var wf = d.createElement('script'), s = d.scripts[0];
-        wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+        wf.src = '/webfont.js';
         wf.async = true;
         s.parentNode.insertBefore(wf, s);
       })(document);
