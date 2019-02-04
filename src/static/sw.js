@@ -10,7 +10,8 @@ self.addEventListener('install', function(e) {
         '/site.css',
         '/vendors.js',
         '/app.js',
-        '/site.js'
+        '/site.js',
+        'https://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js'
       ])
     })
   )
