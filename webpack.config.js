@@ -5,6 +5,7 @@ const Dotenv = require('dotenv-webpack')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const ManifestPlugin = require('webpack-manifest-plugin')
 const RevPlugin = require('./lib/RevPlugin')
@@ -44,7 +45,8 @@ const config = {
 
   optimization: {
     minimizer: [
-      new OptimizeCSSAssetsPlugin()
+      new OptimizeCSSAssetsPlugin(),
+      new TerserPlugin()
     ],
     splitChunks: {
       cacheGroups: {
@@ -131,6 +133,7 @@ if (env == 'production') {
   config.output.filename = '[name].[contenthash].js'
 
   config.plugins.push(
+    new webpack.HashedModuleIdsPlugin(),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env),
       'process.env.CONTENTFUL_SPACE_ID': JSON.stringify(process.env.CONTENTFUL_SPACE_ID),
