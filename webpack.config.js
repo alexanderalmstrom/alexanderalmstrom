@@ -128,10 +128,6 @@ if (env == 'production') {
       {
         from: './src/static',
         to: ''
-      },
-      {
-        from: './src/vendor',
-        to: 'vendor'
       }
     ]),
     new MiniCssExtractPlugin({
@@ -147,7 +143,8 @@ if (env == 'production') {
     new RevPlugin({
       manifest: path.resolve(__dirname, 'build', 'manifest.json'),
       files: [
-        path.resolve(__dirname, 'build', 'index.html')
+        path.resolve(__dirname, 'build', 'index.html'),
+        path.resolve(__dirname, 'build', 'sw.js')
       ]
     })
   )

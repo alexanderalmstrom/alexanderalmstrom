@@ -32,7 +32,7 @@ class App extends React.Component {
       )
   }
 
-  componentDidUpdate () {
+  componentDidUpdate() {
     if (this.props.contentful.authState == 'success') {
       document.dispatchEvent(this.appLoadedEvent)
     }
@@ -47,8 +47,14 @@ class App extends React.Component {
         {this.props.contentful.authState == 'success' ? (
           <Router>
             <Helmet>
-              <title>{this.props.contentful.space.name} - Frontend Developer & Designer</title>
-              <meta name="description" content="Frontend Developer and Designer from Stockholm, Sweden. I create pixel perfect and toughtful UX design and techincal solutions to clients like Vässla, Kenza Zouiten and IvyRevel." />
+              <title>
+                {this.props.contentful.space.name} - Frontend Developer &
+                Designer
+              </title>
+              <meta
+                name="description"
+                content="Frontend Developer and Designer from Stockholm, Sweden. I create pixel perfect and toughtful UX design and techincal solutions to clients like Vässla, Kenza Zouiten and IvyRevel."
+              />
             </Helmet>
             <Layout>
               <Switch>

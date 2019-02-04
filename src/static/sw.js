@@ -5,7 +5,12 @@ self.addEventListener('install', function(e) {
     caches.open('alexanderalmstrom').then(function(cache) {
       return cache.addAll([
         '/',
-        '/index.html'
+        '/index.html',
+        '/app.css',
+        '/site.css',
+        '/vendors.js',
+        '/app.js',
+        '/site.js'
       ])
     })
   )
