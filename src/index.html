@@ -9,8 +9,6 @@
     <title>Alexander Almström - Frontend Developer & Designer</title>
     <meta name="description" content="Frontend Developer and Designer from Stockholm, Sweden. I create pixel perfect and toughtful UX design and techincal solutions to clients like Vässla, Kenza Zouiten and IvyRevel." />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="/app.css" />
-    <link rel="stylesheet" href="/site.css" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -18,27 +16,16 @@
     <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#000000" />
     <meta name="msapplication-TileColor" content="#000000" />
     <meta name="theme-color" content="#ffffff" />
-    <script>
-      WebFontConfig = {
-        custom: {
-          families: ['Circular:n4,n5,n8'],
-          urls: ['/fonts.css']
-        }
-      };
-      (function(d) {
-        var wf = d.createElement('script'), s = d.scripts[0];
-        wf.src = '/webfont.js';
-        wf.async = true;
-        s.parentNode.insertBefore(wf, s);
-      })(document);
-    </script>
+    <link rel="stylesheet" href="/fonts.css" />
+    <link rel="stylesheet" href="/app.css" />
+    <link rel="stylesheet" href="/site.css" />
   </head>
   <body>
     <div id="app"></div>
     <noscript>You need to activate JavaScript in your browser to view this site.</noscript>
-    <script async src="/vendors.js"></script>
-    <script async src="/app.js"></script>
-    <script async src="/site.js"></script>
+    <script src="/vendors.js"></script>
+    <script src="/app.js"></script>
+    <script src="/site.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').then(
