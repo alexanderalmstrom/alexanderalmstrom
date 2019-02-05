@@ -152,7 +152,7 @@ if (env == 'production') {
       },
       {
         from: './src/static',
-        to: 'static'
+        to: ''
       },
       {
         from: './src/vendor',
