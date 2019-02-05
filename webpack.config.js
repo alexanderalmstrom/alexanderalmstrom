@@ -46,7 +46,11 @@ const config = {
   optimization: {
     minimizer: [
       new OptimizeCSSAssetsPlugin(),
-      new TerserPlugin()
+      new TerserPlugin({
+        cache: true,
+        parallel: true,
+        sourceMap: env == 'development' ? true : false
+      })
     ],
     splitChunks: {
       cacheGroups: {
