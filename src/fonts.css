@@ -1,20 +1,4 @@
 @font-face {
-  font-family: 'Apercu';
-  font-display: fallback;
-  font-style: normal;
-  font-weight: 400;
-  src: local('Apercu'), url('/fonts/Apercu-Regular.woff') format('woff');
-}
-
-@font-face {
-  font-family: 'Apercu';
-  font-display: fallback;
-  font-style: normal;
-  font-weight: 600;
-  src: local('Apercu'), url('/fonts/Apercu-Medium.woff') format('woff');
-}
-
-@font-face {
   font-family: 'Circular';
   font-display: fallback;
   font-style: normal;
