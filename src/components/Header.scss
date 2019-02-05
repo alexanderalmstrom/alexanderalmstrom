@@ -68,6 +68,7 @@
   align-items: center;
   justify-content: center;
   z-index: -1;
+  letter-spacing: 0.02rem;
 
   @include media(sm) {
     display: flex;

@@ -16,7 +16,7 @@ class Block extends React.Component {
     if (!entry || !entry.fields) return null
 
     return (
-      <div className="blocks">
+      <>
         {(() => {
           switch (entry.sys.contentType.sys.id) {
             case 'content_block':
@@ -26,7 +26,7 @@ class Block extends React.Component {
               return null
           }
         })()}
-      </div>
+      </>
     )
   }
 }

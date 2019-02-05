@@ -34,13 +34,7 @@ const config = {
     disableHostCheck: true,
     port: 5000,
     hot: true,
-    historyApiFallback: true,
-    before: function(app, server) {
-      app.get('/*.css', function(req, res) {
-        res.set('Content-Type', 'text/css')
-        res.end()
-      })
-    }
+    historyApiFallback: true
   },
 
   optimization: {
