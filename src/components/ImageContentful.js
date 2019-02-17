@@ -43,8 +43,8 @@ class Image extends React.Component {
 
 Image.defaultProps = {
   format: 'jpg',
-  quality: 70,
-  width: 1100
+  quality: 90,
+  width: 1280
 }
 
 Image.propTypes = {

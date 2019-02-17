@@ -12,7 +12,24 @@ class Image extends React.Component {
     super(props)
 
     this.state = {
-      isLoaded: false
+      isLoaded: false,
+      width: 1920
+    }
+  }
+
+  componentDidMount () {
+    const { entry } = this.props
+
+    if (!entry || !entry.fields) return null
+
+    const { size } = entry.fields
+
+    if (!size) return
+
+    if (size <= 6) {
+      this.setState({ width: 960 })
+    } else if (size <= 9) {
+      this.setState({ width: 1280 })
     }
   }
 
@@ -27,15 +44,15 @@ class Image extends React.Component {
 
     if (!entry || !entry.fields) return null
 
-    const { image } = entry.fields
+    const { image, size } = entry.fields
 
     if (!image) return null
 
     return (
-      <div className={`image ${this.state.isLoaded ? 'is-loaded' : ''}`}>
+      <div className={`image col-${size ? size : 12} ${this.state.isLoaded ? 'is-loaded' : ''}`}>
         <ImageContentful
           image={image}
-          width={1280}
+          width={this.state.width}
           onLoad={this.handleLoaded.bind(this)}
         />
       </div>
