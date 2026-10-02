@@ -9,7 +9,7 @@ import Card from './Card'
 import './Home.scss'
 
 const DESCRIPTION =
-  'Frontend Developer and Designer from Stockholm, Sweden. I create pixel perfect and toughtful UX design and techincal solutions to clients like Vässla, Kenza Zouiten and IvyRevel.'
+  'Senior Frontend Engineer and UI/UX Designer from Stockholm, Sweden. I craft web and e-commerce solutions with attention to detail.'
 
 class Home extends React.Component {
   componentDidMount() {
@@ -46,7 +46,7 @@ class Home extends React.Component {
     return (
       <>
         <DocumentMeta
-          title={`${this.props.contentful.space.name} - Frontend Developer & Designer`}
+          title={`${this.props.contentful.space.name} - Senior Frontend Engineer / Designer`}
           description={DESCRIPTION}
         />
         {this.renderProjects()}

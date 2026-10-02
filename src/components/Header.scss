@@ -44,7 +44,7 @@
   }
 
   svg {
-    fill: $black;
+    fill: $color-foreground;
     width: 100%;
     height: 100%;
   }
@@ -52,7 +52,7 @@
 
 .site-title,
 .site-name {
-  color: $black;
+  color: $color-foreground;
   font-weight: 500;
 }
 

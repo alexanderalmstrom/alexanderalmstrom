@@ -19,3 +19,8 @@ $dark-gray: #888;
 $gray: #ddd;
 $light-gray: #f3f3f3;
 $blue: #0000ff;
+
+// Theme colors (resolved at runtime, see global.scss)
+$color-background: var(--color-background);
+$color-foreground: var(--color-foreground);
+$color-muted: var(--color-muted);
