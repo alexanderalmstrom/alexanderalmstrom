@@ -16,7 +16,7 @@ class Header extends React.Component {
     return (
       <header className="header">
         <div className="site-title">
-          <span>Frontend Developer / Designer</span>
+          <span>Senior Frontend Engineer / Designer</span>
         </div>
         <div className="container">
           <Link className="site-brand" to="/">
