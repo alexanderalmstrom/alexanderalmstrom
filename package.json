@@ -4,6 +4,7 @@
   "author": "Alexander Almström <info@alexanderalmstrom.com>",
   "main": "server.js",
   "license": "MIT",
+  "packageManager": "pnpm@11.17.0",
   "engines": {
     "node": ">=22.15.0"
   },

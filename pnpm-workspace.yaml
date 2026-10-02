@@ -1,0 +1,14 @@
+# No dependency needs to run install scripts here: @parcel/watcher ships
+# prebuilt binaries and is only pulled in for `sass --watch`, and
+# core-js-pure's postinstall just prints a funding notice. pnpm 11 treats
+# skipped build scripts as a fatal error by default, so downgrade it to a
+# warning rather than granting the scripts permission to run.
+strictDepBuilds: false
+
+ignoredBuiltDependencies:
+  - '@parcel/watcher'
+  - core-js-pure
+
+allowBuilds:
+  '@parcel/watcher': set this to true or false
+  core-js-pure: set this to true or false
