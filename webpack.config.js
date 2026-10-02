@@ -1,57 +1,66 @@
+require('dotenv').config()
+
 const path = require('path')
-const fs = require('fs')
 const webpack = require('webpack')
-const Dotenv = require('dotenv-webpack')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const TerserPlugin = require('terser-webpack-plugin')
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
-const ManifestPlugin = require('webpack-manifest-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 const RevPlugin = require('./lib/RevPlugin')
 
-const env = process.env.NODE_ENV
+const env = process.env.NODE_ENV || 'development'
+const isProduction = env == 'production'
+const sourceMap = !isProduction
+
+// css-loader resolves root-relative url() references as modules. Fonts and
+// static assets are copied to the build root and referenced absolutely at
+// runtime, so leave those URLs untouched.
+const cssLoaderOptions = {
+  sourceMap,
+  url: {
+    filter: (url) => !url.startsWith('/'),
+  },
+}
 
 const config = {
-  mode: env,
+  mode: isProduction ? 'production' : 'development',
+
+  devtool: isProduction ? false : 'eval-cheap-module-source-map',
 
   entry: {
     app: './src/app.js',
     site: './src/site.js',
-    fonts: './src/fonts.css'
+    fonts: './src/fonts.css',
   },
 
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'build'),
-    publicPath: '/'
+    publicPath: '/',
+    clean: isProduction,
   },
 
   devServer: {
-    contentBase: path.resolve(__dirname, 'src'),
-    watchContentBase: true,
+    static: {
+      directory: path.resolve(__dirname, 'src'),
+      watch: true,
+    },
     host: '0.0.0.0',
-    disableHostCheck: true,
-    port: 5000,
+    allowedHosts: 'all',
+    port: 3000,
     hot: true,
-    historyApiFallback: true
+    historyApiFallback: true,
   },
 
   optimization: {
-    minimizer: [
-      new OptimizeCSSAssetsPlugin(),
-      new TerserPlugin({
-        cache: true,
-        parallel: true,
-        sourceMap: env == 'development' ? true : false
-      })
-    ],
+    minimizer: ['...', new CssMinimizerPlugin()],
     splitChunks: {
       cacheGroups: {
         vendors: {
           test: /[\\/]node_modules[\\/]/,
           chunks: 'all',
-          name: 'vendors'
+          name: 'vendors',
         },
       },
     },
@@ -65,116 +74,105 @@ const config = {
         use: {
           loader: 'babel-loader',
           options: {
-            cacheDirectory: true
-          }
-        }
+            cacheDirectory: true,
+          },
+        },
       },
       {
         test: /\.css$/,
         use: [
-          {
-            loader: env == 'development' ? 'style-loader' : MiniCssExtractPlugin.loader
-          },
+          isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
           {
             loader: 'css-loader',
-            options: {
-              sourceMap: env == 'development' ? true : false
-            }
-          }
-        ]
+            options: cssLoaderOptions,
+          },
+        ],
       },
       {
         test: /\.scss$/,
         use: [
-          {
-            loader: env == 'development' ? 'style-loader' : MiniCssExtractPlugin.loader
-          },
+          isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
           {
             loader: 'css-loader',
-            options: {
-              sourceMap: env == 'development' ? true : false
-            }
+            options: cssLoaderOptions,
           },
           {
             loader: 'sass-loader',
             options: {
-              includePaths: ['node_modules'],
-              sourceMap: env == 'development' ? true : false
-            }
-          }
-        ]
+              sourceMap,
+              sassOptions: {
+                loadPaths: ['node_modules'],
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.svg$/,
         use: [
           {
-            loader: 'babel-loader'
+            loader: '@svgr/webpack',
+            options: {
+              // SVGO drops viewBox when it matches the width/height, which
+              // breaks scaling for icons sized in CSS.
+              svgoConfig: {
+                plugins: [
+                  {
+                    name: 'preset-default',
+                    params: { overrides: { removeViewBox: false } },
+                  },
+                ],
+              },
+            },
           },
-          {
-            loader: 'react-svg-loader'
-          }
-        ]
-      }
-    ]
+        ],
+      },
+    ],
   },
 
   plugins: [
-    new Dotenv()
-  ]
+    new webpack.EnvironmentPlugin({
+      CONTENTFUL_SPACE_ID: '',
+      CONTENTFUL_ACCESS_TOKEN: '',
+      CONTENTFUL_PREVIEW_ACCESS_TOKEN: '',
+      CONTENTFUL_PREVIEW: '',
+      CONTENTFUL_ENVIRONMENT: '',
+    }),
+  ],
 }
 
-if (env == 'development') {
-  config.plugins.push(new webpack.HotModuleReplacementPlugin())
+if (!isProduction) {
+  config.plugins.push(new ReactRefreshWebpackPlugin())
 }
 
-if (env == 'production') {
+if (isProduction) {
   config.output.filename = '[name].[contenthash].js'
 
   config.plugins.push(
-    new webpack.HashedModuleIdsPlugin(),
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(env),
-      'process.env.CONTENTFUL_SPACE_ID': JSON.stringify(process.env.CONTENTFUL_SPACE_ID),
-      'process.env.CONTENTFUL_ACCESS_TOKEN': JSON.stringify(process.env.CONTENTFUL_ACCESS_TOKEN),
-      'process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN': JSON.stringify(process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN),
-      'process.env.CONTENTFUL_PREVIEW': JSON.stringify(process.env.CONTENTFUL_PREVIEW),
-      'process.env.CONTENTFUL_ENVIRONMENT': JSON.stringify(process.env.CONTENTFUL_ENVIRONMENT)
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: './src/index.html', to: '' },
+        { from: './src/fonts', to: 'fonts' },
+        { from: './src/static', to: '' },
+        { from: './src/vendor', to: '' },
+      ],
     }),
-    new CleanWebpackPlugin('build'),
-    new CopyWebpackPlugin([
-      {
-        from: './src/index.html',
-        to: ''
-      },
-      {
-        from: './src/fonts',
-        to: 'fonts'
-      },
-      {
-        from: './src/static',
-        to: ''
-      },
-      {
-        from: './src/vendor',
-        to: ''
-      }
-    ]),
     new MiniCssExtractPlugin({
-      filename: '[name].[contenthash].css'
+      filename: '[name].[contenthash].css',
     }),
-    new ManifestPlugin({
+    new WebpackManifestPlugin({
       basePath: '/',
       filter: function (file) {
         return file.isChunk
-      }
+      },
     }),
     new RevPlugin({
       manifest: path.resolve(__dirname, 'build', 'manifest.json'),
       files: [
         path.resolve(__dirname, 'build', 'index.html'),
-        path.resolve(__dirname, 'build', 'sw.js')
-      ]
-    })
+        path.resolve(__dirname, 'build', 'sw.js'),
+      ],
+    }),
   )
 }
 

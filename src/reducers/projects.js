@@ -1,11 +1,11 @@
 import { makeReducer } from './util'
 
 export const projects = makeReducer(
-  function(action) {
+  function (action) {
     switch (action.type) {
       case 'LOAD_PROJECTS_PENDING':
         return {
-          fetching: true
+          fetching: true,
         }
 
       case 'LOAD_PROJECTS_FULFILLED':
@@ -14,14 +14,14 @@ export const projects = makeReducer(
           entries: action.payload.reduce((collection, entry) => {
             collection[entry.fields.slug] = entry
             return collection
-          }, {})
+          }, {}),
         }
       case 'LOAD_PROJECTS_REJECTED':
         return {
           error: true,
-          fetching: false
+          fetching: false,
         }
     }
   },
-  { entries: [] }
+  { entries: [] },
 )

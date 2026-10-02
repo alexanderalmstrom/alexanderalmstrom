@@ -1,4 +1,4 @@
 // ImageContentful.scss
 
-@import '../stylesheets/variables';
-@import '../stylesheets/mixins';
+@use '../stylesheets/variables' as *;
+@use '../stylesheets/mixins' as *;

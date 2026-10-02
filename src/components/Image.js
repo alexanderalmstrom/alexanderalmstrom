@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
 import { markdown } from '../services/helpers'
 
@@ -13,11 +12,11 @@ class Image extends React.Component {
 
     this.state = {
       isLoaded: false,
-      width: 1920
+      width: 1920,
     }
   }
 
-  componentDidMount () {
+  componentDidMount() {
     const { entry } = this.props
 
     if (!entry || !entry.fields) return null
@@ -49,7 +48,8 @@ class Image extends React.Component {
     if (!image) return null
 
     return (
-      <div className={`image col-${size ? size : 12} ${this.state.isLoaded ? 'is-loaded' : ''}`}>
+      <div
+        className={`image col-${size ? size : 12} ${this.state.isLoaded ? 'is-loaded' : ''}`}>
         <ImageContentful
           image={image}
           width={this.state.width}
@@ -58,10 +58,6 @@ class Image extends React.Component {
       </div>
     )
   }
-}
-
-Image.propTypes = {
-  entry: PropTypes.object
 }
 
 export default Image

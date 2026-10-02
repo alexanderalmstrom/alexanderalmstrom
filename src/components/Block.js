@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
 import ContentBlock from './ContentBlock'
 
@@ -29,10 +28,6 @@ class Block extends React.Component {
       </>
     )
   }
-}
-
-Block.propTypes = {
-  entry: PropTypes.object
 }
 
 export default Block

@@ -7,7 +7,7 @@ import { page } from './page'
 const rootReducer = combineReducers({
   contentful,
   projects,
-  page
+  page,
 })
 
 export default rootReducer

@@ -1,7 +1,7 @@
 // buttons.scss
 
-@import './variables';
-@import './mixins';
+@use './variables' as *;
+@use './mixins' as *;
 
 button {
   outline: none;
@@ -26,7 +26,9 @@ button {
   text-decoration: none;
   font-weight: bold;
   font-size: 1.8rem;
-  transition: background-color 0.3s, color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 
   &:hover {
     background-color: $black;

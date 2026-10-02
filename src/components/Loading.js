@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
 import './Loading.scss'
 
@@ -17,11 +16,7 @@ class Loading extends React.Component {
 }
 
 Loading.defaultProps = {
-  message: 'Loading'
-}
-
-Loading.propTypes = {
-  message: PropTypes.string
+  message: 'Loading',
 }
 
 export default Loading

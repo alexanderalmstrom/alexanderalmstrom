@@ -1,47 +1,36 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { AppContainer } from 'react-hot-loader'
+import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
-import { createStore, applyMiddleware, compose } from 'redux'
+import { configureStore } from '@reduxjs/toolkit'
 import promiseMiddleware from 'redux-promise-middleware'
-import thunk from 'redux-thunk'
-import { createLogger } from 'redux-logger'
 
-import reducers from './reducers/index'
+import reducer from './reducers/index'
 import App from './components/App'
 
-function configureStore() {
-  const middleware = applyMiddleware(promiseMiddleware(), thunk, createLogger())
-
-  const enhancer = compose(middleware)
-
-  const store = createStore(reducers, enhancer)
-
-  if (module.hot) {
-    module.hot.accept('./reducers', () => {
-      const nextRootReducer = require('./reducers/index')
-      store.replaceReducer(nextRootReducer)
-    })
-  }
-
-  return store
+function createAppStore() {
+  // redux-promise-middleware 6 exports the middleware itself rather than a
+  // factory, so it is passed through uncalled.
+  // Contentful entries hold resolved links, which makes them non-plain and
+  // circular, so Redux Toolkit's development-only state checks are turned off.
+  return configureStore({
+    reducer,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: false,
+        immutableCheck: false,
+      }).concat(promiseMiddleware),
+  })
 }
 
-const render = Component => {
-  ReactDOM.render(
-    <Provider store={configureStore()} key={Math.random()}>
-      <AppContainer>
-        <Component />
-      </AppContainer>
-    </Provider>,
-    document.getElementById('app')
-  )
-}
+const store = createAppStore()
 
-render(App)
+createRoot(document.getElementById('app')).render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+)
 
 if (module.hot) {
-  module.hot.accept('./components/App', () => {
-    render(App)
+  module.hot.accept('./reducers/index', () => {
+    store.replaceReducer(require('./reducers/index').default)
   })
 }

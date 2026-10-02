@@ -1,55 +1,49 @@
 # alexanderalmstrom.com
 
-1. Edit `.env.example` with your Contentful space id and token. Rename it to `.env`. Or copy the content of  `.env.example` and create a new `.env` file.
+1. Copy `.env.example` to `.env` and replace the corresponding values for Contentful space id and access token.
 
 ## Install
 
-Install npm dependencies.
+Install dependencies.
 
-```
-yarn install
+```bash
+pnpm install
 ```
 
 ## Development
 
 Run webpack dev server.
 
-```
-yarn run start
+```bash
+pnpm run dev
 ```
 
 ## Build
 
 Create a `build` directory with bundled assets.
 
-```
-yarn run build
+```bash
+pnpm run build
 ```
 
 ## Server
 
-A static node express server for testing.
+A static node express server for testing. Requires `pnpm run build` first, since it serves the `build` directory.
 
-```
-yarn run server:dev
-```
-
-or
-
-```
-yarn run server:prod
+```bash
+pnpm run start
 ```
 
 ## Deploy to Netlify
 
 Install netlify-cli.
 
-```
+```bash
 npm install netlify-cli -g
 ```
 
 Deploy app.
 
-```
+```bash
 netlify deploy
 ```

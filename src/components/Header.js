@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 
 import { connectComponent } from '../connect'
@@ -40,7 +39,5 @@ class Header extends React.Component {
     )
   }
 }
-
-Header.propTypes = {}
 
 export default connectComponent(Header)

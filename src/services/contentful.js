@@ -29,7 +29,7 @@ export function initClient() {
 
   client = createClient(config)
 
-  space = client.getSpace().then(space => {
+  space = client.getSpace().then((space) => {
     auth = true
     return space
   })

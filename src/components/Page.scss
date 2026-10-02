@@ -1,7 +1,7 @@
 // Page.scss
 
-@import '../stylesheets/variables';
-@import '../stylesheets/mixins';
+@use '../stylesheets/variables' as *;
+@use '../stylesheets/mixins' as *;
 
 .page {
   margin-top: -10rem;
