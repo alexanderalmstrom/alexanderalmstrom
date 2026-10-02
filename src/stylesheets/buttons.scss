@@ -12,8 +12,8 @@ button {
   }
 
   &:disabled {
-    background-color: rgba($gray, 0.5);
-    color: $black;
+    background-color: $color-muted;
+    color: $color-foreground;
     cursor: default;
     pointer-events: none;
   }
@@ -22,7 +22,7 @@ button {
 .btn {
   display: inline-block;
   padding: 1.5rem 3rem;
-  border: 4px solid $black;
+  border: 4px solid $color-foreground;
   text-decoration: none;
   font-weight: bold;
   font-size: 1.8rem;
@@ -31,7 +31,7 @@ button {
     color 0.3s;
 
   &:hover {
-    background-color: $black;
-    color: $white;
+    background-color: $color-foreground;
+    color: $color-background;
   }
 }
