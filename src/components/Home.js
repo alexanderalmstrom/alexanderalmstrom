@@ -1,23 +1,22 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
 import { connectComponent } from '../connect'
 
+import DocumentMeta from './DocumentMeta'
 import Loading from './Loading'
 import Card from './Card'
 
 import './Home.scss'
 
-class Home extends React.Component {
-  constructor(props) {
-    super(props)
-  }
+const DESCRIPTION =
+  'Frontend Developer and Designer from Stockholm, Sweden. I create pixel perfect and toughtful UX design and techincal solutions to clients like Vässla, Kenza Zouiten and IvyRevel.'
 
-  componentWillMount() {
+class Home extends React.Component {
+  componentDidMount() {
     this.props.loadProjects()
   }
 
-  render() {
+  renderProjects() {
     const { projects } = this.props
 
     if (!projects) return null
@@ -42,11 +41,18 @@ class Home extends React.Component {
       </section>
     )
   }
-}
 
-Home.propTypes = {
-  projects: PropTypes.object,
-  loadProjects: PropTypes.func
+  render() {
+    return (
+      <>
+        <DocumentMeta
+          title={`${this.props.contentful.space.name} - Frontend Developer & Designer`}
+          description={DESCRIPTION}
+        />
+        {this.renderProjects()}
+      </>
+    )
+  }
 }
 
 export default connectComponent(Home)

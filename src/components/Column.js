@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
 import { markdown } from '../services/helpers'
 
@@ -26,10 +25,6 @@ class Column extends React.Component {
       />
     )
   }
-}
-
-Column.propTypes = {
-  entry: PropTypes.object
 }
 
 export default Column

@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
 import Column from './Column'
 import Image from './Image'
@@ -37,10 +36,6 @@ class Block extends React.Component {
       </div>
     )
   }
-}
-
-Block.propTypes = {
-  entry: PropTypes.object
 }
 
 export default Block

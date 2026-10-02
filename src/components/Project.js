@@ -1,13 +1,11 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import { Helmet } from 'react-helmet'
 
 import { connectComponent } from '../connect'
-import { markdown, createEvent } from '../services/helpers'
+import { withParams } from '../withParams'
 
+import DocumentMeta from './DocumentMeta'
 import Loading from './Loading'
 import NotFound from './NotFound'
-import ImageContentful from './ImageContentful'
 import Block from './Block'
 
 import './Project.scss'
@@ -21,15 +19,13 @@ class Project extends React.Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { projects } = this.props
 
     if (!Object.keys(projects.entries).length) {
       this.props.loadProjects()
     }
-  }
 
-  componentDidMount() {
     window.scrollTo(0, 0)
   }
 
@@ -41,13 +37,13 @@ class Project extends React.Component {
 
   render() {
     const {
-      match,
+      params,
       projects: { error, fetching, entries }
     } = this.props
 
     if (fetching) return <Loading />
 
-    const entry = entries[match.params.slug]
+    const entry = entries[params.slug]
 
     if (!entry || error) return <NotFound />
 
@@ -59,12 +55,10 @@ class Project extends React.Component {
         className={`project ${this.state.isLoaded ? 'is-loaded' : ''}`}>
         {entry && entry.fields ? (
           <div className="container project-container">
-            <Helmet>
-              <title>
-                {entry.fields.name} - {this.props.contentful.space.name}
-              </title>
-              <meta name="description" content={entry.fields.description} />
-            </Helmet>
+            <DocumentMeta
+              title={`${entry.fields.name} - ${this.props.contentful.space.name}`}
+              description={entry.fields.description}
+            />
             <header className="project-header">
               <h1 className="project-name">{entry.fields.name}</h1>
             </header>
@@ -84,9 +78,4 @@ class Project extends React.Component {
   }
 }
 
-Project.propTypes = {
-  projects: PropTypes.object,
-  loadProjects: PropTypes.func
-}
-
-export default connectComponent(Project)
+export default connectComponent(withParams(Project))

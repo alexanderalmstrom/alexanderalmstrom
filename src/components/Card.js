@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 
 import { connectComponent } from '../connect'
@@ -47,11 +46,6 @@ class Card extends React.Component {
       </div>
     )
   }
-}
-
-Card.propTypes = {
-  entry: PropTypes.object.isRequired,
-  basename: PropTypes.string.isRequired
 }
 
 export default connectComponent(Card)

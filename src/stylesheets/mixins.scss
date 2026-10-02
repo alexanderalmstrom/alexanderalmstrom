@@ -1,5 +1,8 @@
 // mixins.scss
 
+@use 'sass:math';
+@use './variables' as *;
+
 @mixin h1 {
   font-size: 4rem;
 
@@ -124,8 +127,8 @@
 }
 
 @mixin column($size, $gutter: $grid-gutter) {
-  max-width: ($size / $grid-columns) * 100%;
-  flex: ($size / $grid-columns) * 100% 0 0;
+  max-width: math.div($size, $grid-columns) * 100%;
+  flex: math.div($size, $grid-columns) * 100% 0 0;
 
   @include gutter($grid-gutter);
 }

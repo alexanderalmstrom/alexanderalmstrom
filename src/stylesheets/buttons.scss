@@ -1,7 +1,7 @@
 // buttons.scss
 
-@import './variables';
-@import './mixins';
+@use './variables' as *;
+@use './mixins' as *;
 
 button {
   outline: none;

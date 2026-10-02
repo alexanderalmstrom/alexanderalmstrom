@@ -1,7 +1,7 @@
 // typo.scss
 
-@import './variables';
-@import './mixins';
+@use './variables' as *;
+@use './mixins' as *;
 
 h1,
 h2,

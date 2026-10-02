@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import qs from 'query-string'
 
 import './ImageContentful.scss'
@@ -45,16 +44,6 @@ Image.defaultProps = {
   format: 'jpg',
   quality: 90,
   width: 1280
-}
-
-Image.propTypes = {
-  image: PropTypes.object.isRequired,
-  className: PropTypes.string,
-  format: PropTypes.string,
-  quality: PropTypes.number,
-  width: PropTypes.number,
-  height: PropTypes.number,
-  onLoad: PropTypes.func
 }
 
 export default Image

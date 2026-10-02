@@ -1,8 +1,8 @@
 // index.scss
 
-@import './global';
-@import './typo';
-@import './grid';
-@import './states';
-@import './buttons';
-@import './modals';
+@use './global';
+@use './typo';
+@use './grid';
+@use './states';
+@use './buttons';
+@use './modals';

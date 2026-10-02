@@ -1,10 +1,10 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import { Helmet } from 'react-helmet'
 
 import { connectComponent } from '../connect'
+import { withParams } from '../withParams'
 import { markdown } from '../services/helpers'
 
+import DocumentMeta from './DocumentMeta'
 import NotFound from './NotFound'
 import Loading from './Loading'
 import ImageContentful from './ImageContentful'
@@ -21,9 +21,9 @@ class Page extends React.Component {
   }
 
   componentDidMount() {
-    const { match } = this.props
+    const { params } = this.props
 
-    this.props.loadPage(match.params.slug)
+    this.props.loadPage(params.slug)
 
     window.scrollTo(0, 0)
   }
@@ -36,7 +36,6 @@ class Page extends React.Component {
 
   render() {
     const {
-      match,
       page: { error, entry }
     } = this.props
 
@@ -48,12 +47,10 @@ class Page extends React.Component {
       <article className={`page ${this.state.isLoaded ? 'is-loaded' : ''}`}>
         {entry && entry.fields ? (
           <div className="container page-container">
-            <Helmet>
-              <title>
-                {entry.fields.name} - {this.props.contentful.space.name}
-              </title>
-              <meta name="description" content={entry.fields.description} />
-            </Helmet>
+            <DocumentMeta
+              title={`${entry.fields.name} - ${this.props.contentful.space.name}`}
+              description={entry.fields.description}
+            />
             <header className="page-header">
               {entry.fields.image ? (
                 <div className="page-image">
@@ -83,9 +80,4 @@ class Page extends React.Component {
   }
 }
 
-Page.propTypes = {
-  page: PropTypes.object,
-  loadPage: PropTypes.func
-}
-
-export default connectComponent(Page)
+export default connectComponent(withParams(Page))

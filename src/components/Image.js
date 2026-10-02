@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
 import { markdown } from '../services/helpers'
 
@@ -58,10 +57,6 @@ class Image extends React.Component {
       </div>
     )
   }
-}
-
-Image.propTypes = {
-  entry: PropTypes.object
 }
 
 export default Image

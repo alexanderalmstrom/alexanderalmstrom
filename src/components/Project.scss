@@ -1,7 +1,7 @@
 // Project.scss
 
-@import '../stylesheets/variables';
-@import '../stylesheets/mixins';
+@use '../stylesheets/variables' as *;
+@use '../stylesheets/mixins' as *;
 
 .project {
   @include animate('down');
