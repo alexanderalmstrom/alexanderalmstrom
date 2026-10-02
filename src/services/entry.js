@@ -5,9 +5,9 @@ export function getEntries(content_type) {
     .getEntries({
       content_type: content_type,
       order: ['-fields.date'],
-      include: 2
+      include: 2,
     })
-    .then(payload => {
+    .then((payload) => {
       return payload.items
     })
 }
@@ -17,9 +17,9 @@ export function getEntryBySlug(content_type, slug) {
     .getEntries({
       content_type: content_type,
       'fields.slug': slug,
-      include: 2
+      include: 2,
     })
-    .then(payload => {
+    .then((payload) => {
       if (!payload.items.length) {
         throw new Error('Entry not found')
       }

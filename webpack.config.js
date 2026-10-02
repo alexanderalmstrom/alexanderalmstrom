@@ -19,8 +19,8 @@ const sourceMap = !isProduction
 const cssLoaderOptions = {
   sourceMap,
   url: {
-    filter: url => !url.startsWith('/')
-  }
+    filter: (url) => !url.startsWith('/'),
+  },
 }
 
 const config = {
@@ -31,26 +31,26 @@ const config = {
   entry: {
     app: './src/app.js',
     site: './src/site.js',
-    fonts: './src/fonts.css'
+    fonts: './src/fonts.css',
   },
 
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'build'),
     publicPath: '/',
-    clean: isProduction
+    clean: isProduction,
   },
 
   devServer: {
     static: {
       directory: path.resolve(__dirname, 'src'),
-      watch: true
+      watch: true,
     },
     host: '0.0.0.0',
     allowedHosts: 'all',
     port: 5000,
     hot: true,
-    historyApiFallback: true
+    historyApiFallback: true,
   },
 
   optimization: {
@@ -60,10 +60,10 @@ const config = {
         vendors: {
           test: /[\\/]node_modules[\\/]/,
           chunks: 'all',
-          name: 'vendors'
-        }
-      }
-    }
+          name: 'vendors',
+        },
+      },
+    },
   },
 
   module: {
@@ -74,9 +74,9 @@ const config = {
         use: {
           loader: 'babel-loader',
           options: {
-            cacheDirectory: true
-          }
-        }
+            cacheDirectory: true,
+          },
+        },
       },
       {
         test: /\.css$/,
@@ -84,9 +84,9 @@ const config = {
           isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
           {
             loader: 'css-loader',
-            options: cssLoaderOptions
-          }
-        ]
+            options: cssLoaderOptions,
+          },
+        ],
       },
       {
         test: /\.scss$/,
@@ -94,18 +94,18 @@ const config = {
           isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
           {
             loader: 'css-loader',
-            options: cssLoaderOptions
+            options: cssLoaderOptions,
           },
           {
             loader: 'sass-loader',
             options: {
               sourceMap,
               sassOptions: {
-                loadPaths: ['node_modules']
-              }
-            }
-          }
-        ]
+                loadPaths: ['node_modules'],
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.svg$/,
@@ -119,15 +119,15 @@ const config = {
                 plugins: [
                   {
                     name: 'preset-default',
-                    params: { overrides: { removeViewBox: false } }
-                  }
-                ]
-              }
-            }
-          }
-        ]
-      }
-    ]
+                    params: { overrides: { removeViewBox: false } },
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    ],
   },
 
   plugins: [
@@ -136,9 +136,9 @@ const config = {
       CONTENTFUL_ACCESS_TOKEN: '',
       CONTENTFUL_PREVIEW_ACCESS_TOKEN: '',
       CONTENTFUL_PREVIEW: '',
-      CONTENTFUL_ENVIRONMENT: ''
-    })
-  ]
+      CONTENTFUL_ENVIRONMENT: '',
+    }),
+  ],
 }
 
 if (!isProduction) {
@@ -154,25 +154,25 @@ if (isProduction) {
         { from: './src/index.html', to: '' },
         { from: './src/fonts', to: 'fonts' },
         { from: './src/static', to: '' },
-        { from: './src/vendor', to: '' }
-      ]
+        { from: './src/vendor', to: '' },
+      ],
     }),
     new MiniCssExtractPlugin({
-      filename: '[name].[contenthash].css'
+      filename: '[name].[contenthash].css',
     }),
     new WebpackManifestPlugin({
       basePath: '/',
       filter: function (file) {
         return file.isChunk
-      }
+      },
     }),
     new RevPlugin({
       manifest: path.resolve(__dirname, 'build', 'manifest.json'),
       files: [
         path.resolve(__dirname, 'build', 'index.html'),
-        path.resolve(__dirname, 'build', 'sw.js')
-      ]
-    })
+        path.resolve(__dirname, 'build', 'sw.js'),
+      ],
+    }),
   )
 }
 

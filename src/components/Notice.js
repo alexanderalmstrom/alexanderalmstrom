@@ -9,7 +9,7 @@ class Notice extends React.Component {
 }
 
 Notice.defaultProps = {
-  message: 'Something went wrong.'
+  message: 'Something went wrong.',
 }
 
 export default Notice

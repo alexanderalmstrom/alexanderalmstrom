@@ -12,7 +12,7 @@ class Card extends React.Component {
     super(props)
 
     this.state = {
-      isLoaded: false
+      isLoaded: false,
     }
   }
 

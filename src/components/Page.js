@@ -16,7 +16,7 @@ class Page extends React.Component {
     super(props)
 
     this.state = {
-      isLoaded: false
+      isLoaded: false,
     }
   }
 
@@ -36,7 +36,7 @@ class Page extends React.Component {
 
   render() {
     const {
-      page: { error, entry }
+      page: { error, entry },
     } = this.props
 
     if (error) return <NotFound />

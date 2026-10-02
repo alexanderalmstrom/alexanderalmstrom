@@ -15,7 +15,7 @@ class Project extends React.Component {
     super(props)
 
     this.state = {
-      isLoaded: false
+      isLoaded: false,
     }
   }
 
@@ -38,7 +38,7 @@ class Project extends React.Component {
   render() {
     const {
       params,
-      projects: { error, fetching, entries }
+      projects: { error, fetching, entries },
     } = this.props
 
     if (fetching) return <Loading />

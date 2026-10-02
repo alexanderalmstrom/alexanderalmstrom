@@ -16,7 +16,7 @@ class Loading extends React.Component {
 }
 
 Loading.defaultProps = {
-  message: 'Loading'
+  message: 'Loading',
 }
 
 export default Loading

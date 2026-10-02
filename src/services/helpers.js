@@ -5,8 +5,8 @@ export function markdown(content) {
 
   return {
     __html: marked.parse(content, {
-      breaks: true
-    })
+      breaks: true,
+    }),
   }
 }
 

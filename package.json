@@ -16,7 +16,7 @@
     "start": "NODE_ENV=development webpack serve",
     "build": "NODE_ENV=production webpack",
     "server": "node server.js",
-    "format": "prettier --write \"src/**/*.{js,scss,json,md}\"",
+    "format": "prettier --write \"src/**/*.{js,scss,json,md}\" webpack.config.js server.js \"lib/**/*.js\"",
     "stats": "webpack --profile --json > stats.json"
   },
   "dependencies": {

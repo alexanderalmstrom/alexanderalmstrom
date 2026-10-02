@@ -15,7 +15,7 @@ function cloneSpecificValue(val) {
 }
 
 function deepCloneArray(arr) {
-  return arr.map(item => {
+  return arr.map((item) => {
     if (typeof item !== 'object' || item === null) return item
 
     if (Array.isArray(item)) return deepCloneArray(item)
@@ -33,12 +33,16 @@ function safeGetProperty(object, property) {
 export function deepExtend(target, ...sources) {
   if (typeof target !== 'object' || target === null) return false
 
-  sources.forEach(source => {
-    if (typeof source !== 'object' || source === null || Array.isArray(source)) {
+  sources.forEach((source) => {
+    if (
+      typeof source !== 'object' ||
+      source === null ||
+      Array.isArray(source)
+    ) {
       return
     }
 
-    Object.keys(source).forEach(key => {
+    Object.keys(source).forEach((key) => {
       const src = safeGetProperty(target, key)
       const val = safeGetProperty(source, key)
 
@@ -51,7 +55,11 @@ export function deepExtend(target, ...sources) {
         target[key] = deepCloneArray(val)
       } else if (isSpecificValue(val)) {
         target[key] = cloneSpecificValue(val)
-      } else if (typeof src !== 'object' || src === null || Array.isArray(src)) {
+      } else if (
+        typeof src !== 'object' ||
+        src === null ||
+        Array.isArray(src)
+      ) {
         target[key] = deepExtend({}, val)
       } else {
         target[key] = deepExtend(src, val)

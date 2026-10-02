@@ -13,11 +13,11 @@ function createAppStore() {
   // circular, so Redux Toolkit's development-only state checks are turned off.
   return configureStore({
     reducer,
-    middleware: getDefaultMiddleware =>
+    middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: false,
-        immutableCheck: false
-      }).concat(promiseMiddleware)
+        immutableCheck: false,
+      }).concat(promiseMiddleware),
   })
 }
 
@@ -26,7 +26,7 @@ const store = createAppStore()
 createRoot(document.getElementById('app')).render(
   <Provider store={store}>
     <App />
-  </Provider>
+  </Provider>,
 )
 
 if (module.hot) {

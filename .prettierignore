@@ -1,1 +1,3 @@
 src/static/
+src/vendor/cache-polyfill.js
+build/

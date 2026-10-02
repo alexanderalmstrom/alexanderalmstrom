@@ -23,12 +23,10 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    contentfulService
-      .initClient()
-      .then(
-        () => this.props.setAppContentfulState('success'),
-        () => this.props.setAppContentfulState('error')
-      )
+    contentfulService.initClient().then(
+      () => this.props.setAppContentfulState('success'),
+      () => this.props.setAppContentfulState('error'),
+    )
   }
 
   componentDidUpdate() {

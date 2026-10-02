@@ -17,7 +17,7 @@ class Image extends React.Component {
       fm: rest.format,
       q: rest.quality,
       w: rest.width,
-      h: rest.height
+      h: rest.height,
     }
 
     const jpg = qs.stringify(query)
@@ -43,7 +43,7 @@ class Image extends React.Component {
 Image.defaultProps = {
   format: 'jpg',
   quality: 90,
-  width: 1280
+  width: 1280,
 }
 
 export default Image

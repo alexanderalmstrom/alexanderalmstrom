@@ -1,14 +1,14 @@
 import { makeReducer } from './util'
 
 export const contentful = makeReducer(
-  function(action) {
+  function (action) {
     switch (action.type) {
       case 'LOADED_CONTENTFUL_FULFILLED':
         return {
           authState: action.meta.authState,
-          space: action.payload
+          space: action.payload,
         }
     }
   },
-  { authState: 'loading' }
+  { authState: 'loading' },
 )
