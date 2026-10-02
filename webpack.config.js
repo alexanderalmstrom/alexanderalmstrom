@@ -48,7 +48,7 @@ const config = {
     },
     host: '0.0.0.0',
     allowedHosts: 'all',
-    port: 5000,
+    port: 3000,
     hot: true,
     historyApiFallback: true,
   },

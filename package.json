@@ -14,9 +14,9 @@
     "not op_mini all"
   ],
   "scripts": {
-    "start": "NODE_ENV=development webpack serve",
+    "dev": "NODE_ENV=development webpack serve",
     "build": "NODE_ENV=production webpack",
-    "server": "node server.js",
+    "start": "node server.js",
     "format": "prettier --write \"src/**/*.{js,scss,json,md}\" webpack.config.js server.js \"lib/**/*.js\"",
     "stats": "webpack --profile --json > stats.json"
   },
