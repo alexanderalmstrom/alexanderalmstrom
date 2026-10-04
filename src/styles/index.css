@@ -1,0 +1,244 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Circular';
+  font-display: fallback;
+  font-style: normal;
+  font-weight: 400;
+  src:
+    local('Circular'),
+    url('/fonts/CircularStd-Book.woff2') format('woff2'),
+    url('/fonts/CircularStd-Book.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Circular';
+  font-display: fallback;
+  font-style: normal;
+  font-weight: 500;
+  src:
+    local('Circular'),
+    url('/fonts/CircularStd-Medium.woff2') format('woff2'),
+    url('/fonts/CircularStd-Medium.woff') format('woff');
+}
+
+@theme {
+  --font-sans: 'Circular', 'Helvetica Neue', Arial, sans-serif;
+
+  --breakpoint-*: initial;
+  --breakpoint-sm: 48rem;
+  --breakpoint-md: 62rem;
+  --breakpoint-lg: 75rem;
+
+  /* Dark is the default theme; light is only used when the user prefers it
+     (see the :root override below). */
+  --color-background: #000;
+  --color-foreground: #fff;
+  --color-muted: rgb(136 136 136 / 0.5);
+
+  --default-transition-timing-function: ease;
+
+  --animate-loading-spin: loading-spin 1s infinite;
+
+  @keyframes loading-spin {
+    0% {
+      transform: rotate3d(0, 1, 0, 180deg);
+      animation-timing-function: cubic-bezier(0.2, 0.4, 0.6, 0.8);
+    }
+
+    50% {
+      transform: rotate3d(0, 0, 0, 360deg);
+      animation-timing-function: cubic-bezier(0.6, 0.2, 0.8, 1);
+    }
+
+    50% {
+      transform: rotate3d(1, 1, 0, 540deg);
+      animation-timing-function: cubic-bezier(0.2, 0.4, 0.6, 0.8);
+    }
+
+    75% {
+      transform: rotate3d(0, 1, 0, 720deg);
+      animation-timing-function: cubic-bezier(0.6, 0.2, 0.8, 1);
+    }
+
+    100% {
+      transform: rotate3d(0, 1, 0, 900deg);
+      animation-timing-function: cubic-bezier(0.2, 0.4, 0.6, 0.8);
+    }
+  }
+}
+
+/* Element-level styles. Page and project copy is Markdown from Contentful
+   rendered as raw HTML, so it cannot carry utility classes. */
+@layer base {
+  :root {
+    color-scheme: dark;
+
+    @media (prefers-color-scheme: light) {
+      color-scheme: light;
+      --color-background: #fff;
+      --color-foreground: #000;
+      --color-muted: rgb(221 221 221 / 0.5);
+    }
+  }
+
+  html {
+    min-height: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-weight: 400;
+    font-size: 0.875rem;
+    line-height: 1.3;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    letter-spacing: 0.3px;
+
+    @media (width >= theme(--breakpoint-sm)) {
+      font-size: 1rem;
+    }
+  }
+
+  img {
+    width: auto;
+  }
+
+  a {
+    color: var(--color-foreground);
+    transition: color 0.2s;
+    text-decoration: underline;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  strong {
+    color: var(--color-foreground);
+    font-weight: 600;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0 0 1.875rem 0;
+    line-height: 1.3;
+    font-weight: 500;
+    color: var(--color-foreground);
+    letter-spacing: -2px;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    line-height: 1;
+
+    @media (width >= theme(--breakpoint-md)) {
+      font-size: 3.4375rem;
+    }
+
+    @media (width >= theme(--breakpoint-lg)) {
+      font-size: 4.375rem;
+    }
+  }
+
+  h2 {
+    font-size: 2.5rem;
+    line-height: 1.1;
+
+    @media (width >= theme(--breakpoint-md)) {
+      font-size: 3.125rem;
+    }
+
+    @media (width >= theme(--breakpoint-lg)) {
+      font-size: 3.75rem;
+    }
+  }
+
+  h3 {
+    font-size: 1.875rem;
+    line-height: 1.2;
+
+    @media (width >= theme(--breakpoint-md)) {
+      font-size: 2.5rem;
+    }
+
+    @media (width >= theme(--breakpoint-lg)) {
+      font-size: 3.125rem;
+    }
+  }
+
+  h4 {
+    font-size: 1.25rem;
+    letter-spacing: 0;
+
+    @media (width >= theme(--breakpoint-md)) {
+      font-size: 2.25rem;
+    }
+  }
+
+  h5 {
+    font-size: 1.25rem;
+    letter-spacing: 0;
+
+    @media (width >= theme(--breakpoint-md)) {
+      font-size: 1.5rem;
+    }
+
+    @media (width >= theme(--breakpoint-lg)) {
+      font-size: 1.75rem;
+    }
+  }
+
+  h6 {
+    font-size: 1rem;
+    letter-spacing: 0;
+
+    @media (width >= theme(--breakpoint-md)) {
+      font-size: 1.125rem;
+    }
+
+    @media (width >= theme(--breakpoint-lg)) {
+      font-size: 1.25rem;
+    }
+  }
+
+  p {
+    margin: 0 0 1.875rem 0;
+    line-height: 1.7;
+  }
+
+  /* Preflight strips list, quote and rule styling; restore the browser
+     defaults the Markdown content relies on. */
+  ul {
+    margin: 0 0 1.25rem 0;
+    padding-left: 40px;
+    list-style: disc;
+  }
+
+  ol {
+    margin: 1em 0;
+    padding-left: 40px;
+    list-style: decimal;
+  }
+
+  li {
+    line-height: 1.5;
+    margin-bottom: 0.3125rem;
+  }
+
+  blockquote {
+    margin: 1em 40px;
+  }
+
+  pre {
+    margin: 1em 0;
+  }
+
+  hr {
+    margin: 0.5em 0;
+  }
+}

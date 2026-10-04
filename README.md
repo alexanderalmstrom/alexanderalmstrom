@@ -12,10 +12,16 @@ pnpm install
 
 ## Development
 
-Run webpack dev server.
+Run the Vite dev server on port 3000.
 
 ```bash
 pnpm run dev
+```
+
+Type check the TypeScript sources.
+
+```bash
+pnpm run typecheck
 ```
 
 ## Build
