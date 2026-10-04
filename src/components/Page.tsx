@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { loadPage } from '../actions'
-import { useAppDispatch, useAppSelector } from '../hooks/store'
+import { usePage, useSpace } from '../hooks/queries'
 import { useLoaded } from '../hooks/useLoaded'
 import { animateDown } from '../lib/animate'
 import { markdown } from '../services/helpers'
@@ -15,34 +14,30 @@ import ImageContentful from './ImageContentful'
 
 export default function Page() {
   const { slug } = useParams()
-  const dispatch = useAppDispatch()
-  const { error, entry } = useAppSelector((state) => state.page)
-  const spaceName = useAppSelector((state) => state.contentful.space?.name)
+  const { data: entry, isPending, isError } = usePage(slug)
+  const { data: space } = useSpace()
   const [isLoaded, handleLoaded] = useLoaded()
 
   useEffect(() => {
-    if (slug) dispatch(loadPage(slug))
-
     window.scrollTo(0, 0)
-    // Only on mount, as before the move to hooks.
   }, [])
 
-  if (error) return <NotFound />
+  if (isError) return <NotFound />
 
-  if (entry.fetching) return <Loading />
+  if (isPending) return <Loading />
 
   return (
     <article className="-mt-25 sm:mt-0 sm:mb-10">
       {entry.fields ? (
         <Container>
           <DocumentMeta
-            title={`${entry.fields.name} - ${spaceName}`}
+            title={`${entry.fields.name} - ${space?.name}`}
             description={entry.fields.description}
           />
           <header className="flex w-full flex-row-reverse flex-wrap items-center">
             {entry.fields.image ? (
               <div
-                className={`mb-10 w-full flex-none sm:mb-0 sm:w-6/12 sm:px-7.5 md:w-4/12 [&_img]:w-full ${animateDown(isLoaded)}`}>
+                className={`mb-10 w-full flex-none sm:mb-0 sm:w-6/12 sm:px-8 md:w-4/12 [&_img]:w-full ${animateDown(isLoaded)}`}>
                 <ImageContentful
                   image={entry.fields.image}
                   width={800}
@@ -51,7 +46,7 @@ export default function Page() {
               </div>
             ) : null}
             <div
-              className={`w-full flex-none px-7.5 sm:w-6/12 md:w-8/12 ${animateDown(isLoaded)}`}>
+              className={`w-full flex-none px-8 sm:w-6/12 md:w-8/12 ${animateDown(isLoaded)}`}>
               {entry.fields.title ? <h1>{entry.fields.title}</h1> : null}
               <div
                 className="sm:pr-15"

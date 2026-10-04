@@ -1,9 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
-import { setAppContentfulState } from '../actions'
-import { useAppDispatch, useAppSelector } from '../hooks/store'
-import * as contentfulService from '../services/contentful'
+import { useSpace } from '../hooks/queries'
 import { createEvent } from '../services/helpers'
 
 import Layout from './Layout'
@@ -17,28 +15,20 @@ import Page from './Page'
 const appLoadedEvent = createEvent('APP_LOADED')
 
 export default function App() {
-  const dispatch = useAppDispatch()
-  const authState = useAppSelector((state) => state.contentful.authState)
+  const { status } = useSpace()
 
   useEffect(() => {
-    contentfulService.initClient().then(
-      () => dispatch(setAppContentfulState('success')),
-      () => dispatch(setAppContentfulState('error')),
-    )
-  }, [dispatch])
-
-  useEffect(() => {
-    if (authState == 'success') {
+    if (status == 'success') {
       document.dispatchEvent(appLoadedEvent)
     }
-  }, [authState])
+  }, [status])
 
   return (
     <div>
-      {authState == 'error' ? (
+      {status == 'error' ? (
         <Notice message="Error when establishing connection with Contentful" />
       ) : null}
-      {authState == 'success' ? (
+      {status == 'success' ? (
         <Router>
           <Layout>
             <Routes>
@@ -50,7 +40,7 @@ export default function App() {
           </Layout>
         </Router>
       ) : null}
-      {authState == 'loading' ? <Loading /> : null}
+      {status == 'pending' ? <Loading /> : null}
     </div>
   )
 }

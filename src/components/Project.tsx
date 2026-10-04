@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { loadProjects } from '../actions'
-import { useAppDispatch, useAppSelector } from '../hooks/store'
+import { useProjects, useSpace } from '../hooks/queries'
 import { useLoaded } from '../hooks/useLoaded'
 import { animateDown } from '../lib/animate'
 
@@ -14,25 +13,19 @@ import Block from './Block'
 
 export default function Project() {
   const { slug } = useParams()
-  const dispatch = useAppDispatch()
-  const { error, fetching, entries } = useAppSelector((state) => state.projects)
-  const spaceName = useAppSelector((state) => state.contentful.space?.name)
+  const { data: projects = [], isPending } = useProjects()
+  const { data: space } = useSpace()
   const [isLoaded, handleLoaded] = useLoaded()
 
   useEffect(() => {
-    if (!Object.keys(entries).length) {
-      dispatch(loadProjects())
-    }
-
     window.scrollTo(0, 0)
-    // Only on mount, as before the move to hooks.
   }, [])
 
-  if (fetching) return <Loading />
+  if (isPending) return <Loading />
 
-  const entry = slug ? entries[slug] : undefined
+  const entry = projects.find((entry) => entry.fields.slug === slug)
 
-  if (!entry || error) return <NotFound />
+  if (!entry) return <NotFound />
 
   const { blocks } = entry.fields
 
@@ -42,10 +35,10 @@ export default function Project() {
       className={`sm:mb-10 ${animateDown(isLoaded)}`}>
       <Container>
         <DocumentMeta
-          title={`${entry.fields.name} - ${spaceName}`}
+          title={`${entry.fields.name} - ${space?.name}`}
           description={entry.fields.description}
         />
-        <header className="mt-10 w-full flex-none px-7.5 sm:mx-auto sm:w-8/12 sm:text-center">
+        <header className="mt-10 w-full flex-none px-8 sm:mx-auto sm:w-8/12 sm:text-center">
           <h1 className="mb-0">{entry.fields.name}</h1>
         </header>
         <section className="[&_ul]:list-none [&_ul]:pl-0">

@@ -1,14 +1,14 @@
 import { createClient } from 'contentful'
-import type { ContentfulClientApi, CreateClientParams, Space } from 'contentful'
+import type { ContentfulClientApi, CreateClientParams } from 'contentful'
 import qs from 'query-string'
 
 type Client = ContentfulClientApi<'WITHOUT_UNRESOLVABLE_LINKS'>
 
 let client: Client | undefined
-let space: Promise<Space> | undefined
-let auth = false
 
-export function initClient() {
+export function getClient() {
+  if (client) return client
+
   const {
     CONTENTFUL_SPACE_ID,
     CONTENTFUL_ACCESS_TOKEN,
@@ -38,22 +38,7 @@ export function initClient() {
 
   client = createClient(config).withoutUnresolvableLinks
 
-  space = client.getSpace().then((space) => {
-    auth = true
-    return space
-  })
-
-  return space
-}
-
-export function getClient() {
-  if (!auth || !client) throw new Error('Contentful client is not initialized')
-
   return client
-}
-
-export function getSpace() {
-  return auth ? space : undefined
 }
 
 export function isPreview() {

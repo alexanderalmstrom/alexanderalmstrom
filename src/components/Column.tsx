@@ -15,7 +15,7 @@ export default function Column({ entry }: ColumnProps) {
 
   return (
     <div
-      className={`${columnClass(size)} px-7.5`}
+      className={`${columnClass(size)} px-8`}
       dangerouslySetInnerHTML={markdown(content)}
     />
   )
