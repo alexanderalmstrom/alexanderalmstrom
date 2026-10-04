@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { loadPage } from '../actions'
-import { useAppDispatch, useAppSelector } from '../hooks/store'
+import { usePage, useSpace } from '../hooks/queries'
 import { useLoaded } from '../hooks/useLoaded'
 import { animateDown } from '../lib/animate'
 import { markdown } from '../services/helpers'
@@ -15,28 +14,24 @@ import ImageContentful from './ImageContentful'
 
 export default function Page() {
   const { slug } = useParams()
-  const dispatch = useAppDispatch()
-  const { error, entry } = useAppSelector((state) => state.page)
-  const spaceName = useAppSelector((state) => state.contentful.space?.name)
+  const { data: entry, isPending, isError } = usePage(slug)
+  const { data: space } = useSpace()
   const [isLoaded, handleLoaded] = useLoaded()
 
   useEffect(() => {
-    if (slug) dispatch(loadPage(slug))
-
     window.scrollTo(0, 0)
-    // Only on mount, as before the move to hooks.
   }, [])
 
-  if (error) return <NotFound />
+  if (isError) return <NotFound />
 
-  if (entry.fetching) return <Loading />
+  if (isPending) return <Loading />
 
   return (
     <article className="-mt-25 sm:mt-0 sm:mb-10">
       {entry.fields ? (
         <Container>
           <DocumentMeta
-            title={`${entry.fields.name} - ${spaceName}`}
+            title={`${entry.fields.name} - ${space?.name}`}
             description={entry.fields.description}
           />
           <header className="flex w-full flex-row-reverse flex-wrap items-center">

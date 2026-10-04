@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
 
-import { useAppSelector } from '../hooks/store'
+import { useSpace } from '../hooks/queries'
 
 import Logo from '../images/logo.svg?react'
 
 export default function Header() {
-  const spaceName = useAppSelector((state) => state.contentful.space?.name)
+  const { data: space } = useSpace()
 
   return (
     <header className="fixed z-1000 flex h-25 w-full items-center text-[1rem] sm:h-30">
@@ -19,7 +19,7 @@ export default function Header() {
           <Logo className="size-full fill-foreground" />
         </Link>
         <div className="hidden font-medium text-foreground">
-          <span>{spaceName}</span>
+          <span>{space?.name}</span>
         </div>
         <nav className="sm:mr-7.5">
           <ul className="mb-0 list-none">
