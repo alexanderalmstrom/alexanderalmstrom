@@ -22,7 +22,7 @@ export default function Home() {
         <Loading />
       ) : (
         <section>
-          <Container>
+          <Container className="xl:mt-10">
             {projects.map((entry, index) => {
               return <Card key={index} basename="project" entry={entry} />
             })}

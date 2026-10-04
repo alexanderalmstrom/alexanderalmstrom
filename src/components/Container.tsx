@@ -15,7 +15,7 @@ export default function Container({
   return (
     <div
       className={`mx-auto flex w-full max-w-360 flex-wrap ${
-        nested ? '' : 'sm:pr-7.5 sm:pl-30'
+        nested ? '' : 'sm:pr-8 sm:pl-30'
       } ${className}`}>
       {children}
     </div>

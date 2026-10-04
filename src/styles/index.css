@@ -29,6 +29,7 @@
   --breakpoint-sm: 48rem;
   --breakpoint-md: 62rem;
   --breakpoint-lg: 75rem;
+  --breakpoint-xl: 90.9375rem;
 
   /* Dark is the default theme; light is only used when the user prefers it
      (see the :root override below). */

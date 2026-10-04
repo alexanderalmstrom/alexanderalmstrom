@@ -18,7 +18,7 @@ export default function Card({ entry, basename }: CardProps) {
 
   return (
     <div
-      className={`mb-6 w-full flex-none px-8 sm:mb-15 sm:w-6/12 ${animateDown(isLoaded)}`}>
+      className={`mb-6 w-full flex-none px-8 sm:w-6/12 sm:px-4 xl:mb-15 xl:px-8 ${animateDown(isLoaded)}`}>
       <Link
         to={`/${basename}/${entry.fields.slug}`}
         className="block no-underline hover:text-inherit">
