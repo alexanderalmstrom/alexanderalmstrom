@@ -8,52 +8,39 @@
   "engines": {
     "node": ">=22.15.0"
   },
-  "browserslist": [
-    "defaults",
-    "not dead",
-    "not op_mini all"
-  ],
   "scripts": {
-    "dev": "NODE_ENV=development webpack serve",
-    "build": "NODE_ENV=production webpack",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
     "start": "node server.js",
-    "format": "prettier --write \"src/**/*.{js,scss,json,md}\" webpack.config.js server.js \"lib/**/*.js\"",
-    "stats": "webpack --profile --json > stats.json"
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,css,json,md}\" vite.config.mts server.js"
   },
   "dependencies": {
-    "@babel/core": "^8.0.6",
-    "@babel/preset-env": "^8.0.6",
-    "@babel/preset-react": "^8.0.1",
-    "@pmmmwh/react-refresh-webpack-plugin": "^0.6.3",
     "@reduxjs/toolkit": "^2.13.0",
-    "@svgr/webpack": "^8.1.0",
-    "babel-loader": "^10.1.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
     "contentful": "^11.12.10",
-    "copy-webpack-plugin": "^14.0.0",
-    "css-loader": "^7.1.5",
-    "css-minimizer-webpack-plugin": "^8.0.0",
     "dotenv": "^18.0.5",
     "express": "^5.2.1",
     "marked": "^18.0.14",
-    "mini-css-extract-plugin": "^2.10.2",
     "morgan": "^1.12.1",
     "query-string": "^9.5.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-redux": "^9.3.0",
-    "react-refresh": "^0.19.0",
     "react-router-dom": "^7.18.4",
     "redux": "^5.0.1",
     "redux-promise-middleware": "^6.2.0",
-    "sass": "^1.105.1",
-    "sass-loader": "^17.0.1",
-    "style-loader": "^4.0.0",
-    "webpack": "^5.111.1",
-    "webpack-cli": "^7.2.3",
-    "webpack-dev-server": "^6.0.0",
-    "webpack-manifest-plugin": "^6.0.1"
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2",
+    "vite-plugin-svgr": "^5.2.0"
   },
   "devDependencies": {
-    "prettier": "^3.9.9"
+    "prettier": "^3.9.9",
+    "prettier-plugin-tailwindcss": "^0.8.1"
   }
 }

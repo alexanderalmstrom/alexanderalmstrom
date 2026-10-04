@@ -1,8 +1,0 @@
-// Column.scss
-
-@use '../stylesheets/variables' as *;
-@use '../stylesheets/mixins' as *;
-
-.column {
-  @include column(12);
-}
