@@ -38,7 +38,7 @@ export default function Project() {
           title={`${entry.fields.name} - ${space?.name}`}
           description={entry.fields.description}
         />
-        <header className="mt-10 w-full flex-none px-7.5 sm:mx-auto sm:w-8/12 sm:text-center">
+        <header className="mt-10 w-full flex-none px-8 sm:mx-auto sm:w-8/12 sm:text-center">
           <h1 className="mb-0">{entry.fields.name}</h1>
         </header>
         <section className="[&_ul]:list-none [&_ul]:pl-0">

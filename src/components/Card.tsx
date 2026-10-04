@@ -18,7 +18,7 @@ export default function Card({ entry, basename }: CardProps) {
 
   return (
     <div
-      className={`mb-7.5 w-full flex-none px-7.5 sm:mb-15 sm:w-6/12 ${animateDown(isLoaded)}`}>
+      className={`mb-6 w-full flex-none px-8 sm:mb-15 sm:w-6/12 ${animateDown(isLoaded)}`}>
       <Link
         to={`/${basename}/${entry.fields.slug}`}
         className="block no-underline hover:text-inherit">
@@ -31,10 +31,8 @@ export default function Card({ entry, basename }: CardProps) {
             />
           ) : null}
         </div>
-        <div className="mt-5">
-          <h2 className="mb-2.5 text-[1rem] tracking-normal md:text-[1.125rem] lg:text-[1.25rem]">
-            {entry.fields.name}
-          </h2>
+        <div className="mt-3">
+          <h2 className="mb-3 text-lg">{entry.fields.name}</h2>
         </div>
       </Link>
     </div>

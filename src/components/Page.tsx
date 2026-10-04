@@ -37,7 +37,7 @@ export default function Page() {
           <header className="flex w-full flex-row-reverse flex-wrap items-center">
             {entry.fields.image ? (
               <div
-                className={`mb-10 w-full flex-none sm:mb-0 sm:w-6/12 sm:px-7.5 md:w-4/12 [&_img]:w-full ${animateDown(isLoaded)}`}>
+                className={`mb-10 w-full flex-none sm:mb-0 sm:w-6/12 sm:px-8 md:w-4/12 [&_img]:w-full ${animateDown(isLoaded)}`}>
                 <ImageContentful
                   image={entry.fields.image}
                   width={800}
@@ -46,7 +46,7 @@ export default function Page() {
               </div>
             ) : null}
             <div
-              className={`w-full flex-none px-7.5 sm:w-6/12 md:w-8/12 ${animateDown(isLoaded)}`}>
+              className={`w-full flex-none px-8 sm:w-6/12 md:w-8/12 ${animateDown(isLoaded)}`}>
               {entry.fields.title ? <h1>{entry.fields.title}</h1> : null}
               <div
                 className="sm:pr-15"

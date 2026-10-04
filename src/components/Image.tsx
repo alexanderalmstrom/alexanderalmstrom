@@ -30,7 +30,7 @@ export default function Image({ entry }: ImageProps) {
 
   return (
     <div
-      className={`${columnClass(size)} sm:mb-7.5 sm:px-7.5 ${animateDown(isLoaded)}`}>
+      className={`${columnClass(size)} sm:mb-6 sm:px-8 ${animateDown(isLoaded)}`}>
       <ImageContentful
         image={image}
         width={imageWidth(size)}
