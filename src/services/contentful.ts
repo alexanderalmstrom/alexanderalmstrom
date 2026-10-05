@@ -23,6 +23,9 @@ export function getClient() {
   const config: CreateClientParams = {
     space: CONTENTFUL_SPACE_ID,
     accessToken: CONTENTFUL_ACCESS_TOKEN,
+    // Retries are handled by the query client instead.
+    retryOnError: false,
+    timeout: 10000,
   }
 
   if (CONTENTFUL_PREVIEW_ACCESS_TOKEN && isPreview()) {

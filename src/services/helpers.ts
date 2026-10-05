@@ -21,3 +21,8 @@ export function createEvent(
 ) {
   return new CustomEvent(name, params)
 }
+
+// iPhones and iPads count as Apple devices too.
+export function isApple() {
+  return /Mac|iPhone|iPad|iPod/.test(navigator.userAgent)
+}

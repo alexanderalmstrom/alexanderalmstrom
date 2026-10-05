@@ -9,6 +9,12 @@ type Query<Skeleton extends EntrySkeletonType> = EntriesQueries<
   'WITHOUT_UNRESOLVABLE_LINKS'
 >
 
+export class EntryNotFoundError extends Error {
+  constructor() {
+    super('Entry not found')
+  }
+}
+
 export function getEntries<Skeleton extends EntrySkeletonType>(
   content_type: Skeleton['contentTypeId'],
 ) {
@@ -35,7 +41,7 @@ export function getEntryBySlug<Skeleton extends EntrySkeletonType>(
     } as Query<Skeleton>)
     .then((payload) => {
       if (!payload.items.length) {
-        throw new Error('Entry not found')
+        throw new EntryNotFoundError()
       }
 
       return payload.items[0]
