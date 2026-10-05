@@ -79,8 +79,8 @@ const theme = `
 `
 
 // The far sky, painted per pixel: the band of our own galaxy seen from the
-// inside, with dark lanes of dust and a haze of faint stars along it, and
-// in front of that the earth and the moon.
+// inside, with dark lanes of dust and a haze of faint stars along it, now
+// and then a shooting star, and in front of that the earth and the moon.
 const sky = `
   precision highp float;
 
@@ -126,6 +126,36 @@ const sky = `
     }
 
     return value;
+  }
+
+  // A shooting star: a small streak that crosses a bit of the sky in about
+  // half a second and burns out. Each of the few there are comes back after a wait
+  // of its own, from another place and in another direction every time.
+  float meteor(vec2 point, vec2 edge, float which) {
+    float wait = 25.0 + which * 17.0;
+    // None of them is in the sky at the moment the page opens.
+    float clock = uSeconds + wait * (0.3 + which * 0.25);
+    float run = floor(clock / wait);
+    float age = (clock - run * wait) / 0.6;
+
+    if (age > 1.0) return 0.0;
+
+    vec2 seed = vec2(run, which * 7.0 + 1.0);
+    // It starts in the upper part of the sky and falls to either side.
+    vec2 from = edge * vec2(hash(seed) * 2.0 - 1.0, 0.2 + 0.8 * hash(seed + 3.0));
+    float slope = 0.5 + 0.9 * hash(seed + 5.0);
+    vec2 way = vec2(cos(slope) * (hash(seed + 9.0) < 0.5 ? -1.0 : 1.0), -sin(slope));
+    vec2 head = from + way * (0.22 + 0.15 * hash(seed + 11.0)) * age;
+
+    // How far behind the head a pixel is, and how far off its path.
+    vec2 back = point - head;
+    float behind = max(-dot(back, way), 0.0);
+    float aside = length(back + way * behind);
+    float width = 0.9 * uPixelRatio / min(uResolution.x, uResolution.y);
+    float tail = smoothstep(0.07, 0.0, behind);
+
+    return exp(-aside * aside / (width * width)) * tail * tail
+      * smoothstep(0.0, 0.15, age) * smoothstep(1.0, 0.5, age);
   }
 
   // Towards the sun, which is up to the left and a little behind the camera.
@@ -237,6 +267,9 @@ const sky = `
 
     light += vec3(0.85, 0.9, 1.0) * step(1.0 - chance, hash(cell))
       * exp(-reach * reach * 2.2) * hash(cell + 7.0) * 0.75;
+
+    light += vec3(0.9, 0.95, 1.0) * 0.8
+      * (meteor(point, edge, 0.0) + meteor(point, edge, 1.0) + meteor(point, edge, 2.0));
 
     gl_FragColor = expose(light, uLight);
 
