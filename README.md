@@ -40,6 +40,14 @@ A static node express server for testing. Requires `pnpm run build` first, since
 pnpm run start
 ```
 
+## Migrations
+
+Changes to the Contentful content model live in `migrations`. Running one requires a Contentful management token.
+
+```bash
+npx contentful-cli space migration --space-id <space_id> --environment-id master --management-token <token> migrations/0_0_2.js
+```
+
 ## Deploy to Netlify
 
 Install netlify-cli.

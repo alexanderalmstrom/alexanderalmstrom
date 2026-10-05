@@ -4,27 +4,43 @@ import { useSpace } from '../hooks/queries'
 
 import Logo from '../images/logo.svg?react'
 
+// Seconds between the logo, the title and the navigation starting to roll in.
+const STAGGER = 0.08
+
+// Each part rolls in through a mask when the site opens, like the heading of
+// a hero: its parent hides the overflow and the part itself rises into it.
 export default function Header() {
   const { data: space } = useSpace()
 
   return (
     <header className="fixed z-1000 flex h-25 w-full items-center sm:h-30">
       <div className="fixed inset-y-0 left-0 -z-1 hidden h-full w-30 flex-nowrap items-center justify-center font-medium text-foreground sm:flex">
-        <span className="block origin-center transform-[rotate(-90deg)_translateY(50%)_translateX(-18%)] whitespace-nowrap">
-          Senior Frontend Engineer / Designer
+        {/* The title is turned a quarter, so what rises from below its
+            baseline comes in from the right on screen. */}
+        <span className="block flex-none origin-center transform-[rotate(-90deg)_translateY(50%)_translateX(-18%)] overflow-hidden whitespace-nowrap">
+          <span
+            className="block motion-safe:animate-rise"
+            style={{ animationDelay: `${STAGGER}s` }}>
+            Senior Frontend Engineer / Designer
+          </span>
         </span>
       </div>
       <div className="relative mx-auto flex w-full flex-wrap items-center justify-between px-12 sm:pr-16 sm:pl-16">
-        <Link className="block size-7.5 no-underline sm:size-10" to="/">
-          <Logo className="size-full fill-foreground" />
+        <Link
+          className="block size-7.5 overflow-hidden no-underline sm:size-10"
+          to="/">
+          <Logo className="size-full fill-foreground motion-safe:animate-rise" />
         </Link>
         <div className="hidden font-medium text-foreground">
           <span>{space?.name}</span>
         </div>
         <nav className="sm:mr-7.5">
           <ul className="mb-0 list-none">
-            <li className="mb-0">
-              <Link className="no-underline" to="/page/about">
+            <li className="mb-0 overflow-hidden">
+              <Link
+                className="block no-underline motion-safe:animate-rise"
+                style={{ animationDelay: `${STAGGER * 2}s` }}
+                to="/page/about">
                 About
               </Link>
             </li>

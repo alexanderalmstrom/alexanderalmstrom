@@ -33,7 +33,7 @@ export default function Hero({ entry }: HeroProps) {
   const { parts, byLine } = splitHeading(heading ?? '')
 
   return (
-    <div className="mb-10 w-full sm:px-8">
+    <div className="sm:mb-16 w-full sm:px-16">
       <div className="relative flex min-h-[70svh] items-end overflow-hidden bg-black">
         {file?.contentType.startsWith('video/') ? (
           <video
@@ -45,7 +45,7 @@ export default function Hero({ entry }: HeroProps) {
             playsInline
           />
         ) : (
-          <div className="[&_img]:size-full [&_img]:object-cover [&_picture]:absolute [&_picture]:inset-0">
+          <div className="[&_img]:h-full [&_img]:object-cover [&_picture]:absolute [&_picture]:inset-0">
             <ImageContentful
               image={asset}
               width={1920}

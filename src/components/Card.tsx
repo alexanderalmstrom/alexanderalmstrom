@@ -39,7 +39,7 @@ export default function Card({ entry, basename, loading }: CardProps) {
         to={`/${basename}/${slug}`}
         className="group relative block no-underline hover:text-inherit">
         {image ? (
-          <div className="overflow-hidden bg-black [&_img]:w-full [&_img]:transition-[scale,opacity] [&_img]:duration-500 group-hover:[&_img]:scale-100 group-hover:[&_img]:opacity-100 can-hover:[&_img]:scale-103 can-hover:[&_img]:opacity-90">
+          <div className="overflow-hidden bg-black [&_img]:transition-[scale,opacity] [&_img]:duration-500 group-hover:[&_img]:scale-100 group-hover:[&_img]:opacity-100 can-hover:[&_img]:scale-103 can-hover:[&_img]:opacity-90">
             <ImageContentful
               image={image}
               width={1170}
