@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useState, useSyncExternalStore } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 
 import { cn } from '../lib/cn'
@@ -210,14 +210,36 @@ function Heading() {
   ))
 }
 
+const LIGHT = '(prefers-color-scheme: light)'
+
+// Whether the visitor has the light theme, kept up to date if they switch.
+function useLightTheme() {
+  return useSyncExternalStore(
+    (notify) => {
+      const theme = window.matchMedia(LIGHT)
+
+      theme.addEventListener('change', notify)
+
+      return () => theme.removeEventListener('change', notify)
+    },
+    () => window.matchMedia(LIGHT).matches,
+  )
+}
+
 export default function NotFound() {
+  // Space is dark, so the sky is left out on the light theme. It is not
+  // just hidden: its maps of the earth and the moon are never fetched.
+  const light = useLightTheme()
+
   return (
     // Clipped sideways, so a letter that floats past the edge of the screen
     // does not make the page scroll.
     <div className="overflow-x-clip">
       <Container className="mt-10">
         <DocumentMeta title="Page not found" />
-        <Starfield className="pointer-events-none fixed inset-0 -z-1 size-full motion-safe:animate-dawn" />
+        {light ? null : (
+          <Starfield className="pointer-events-none fixed inset-0 -z-1 size-full motion-safe:animate-dawn" />
+        )}
         <div className="relative w-full flex-none px-8 lg:w-10/12 lg:px-16">
           <Telemetry />
           <h1 className="text-[3.25rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[7.5rem]">

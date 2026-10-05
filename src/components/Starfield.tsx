@@ -67,14 +67,13 @@ function globe() {
   return matrix
 }
 
-// What makes the theme colours: light given off by the sky on the dark
-// theme, and the same light as ink on the light one.
-const theme = `
-  vec4 expose(vec3 light, float light_theme) {
+// Light given off by the sky as a colour to lay over the black behind it:
+// the brighter it is, the more it covers.
+const exposure = `
+  vec4 expose(vec3 light) {
     float alpha = clamp(max(light.r, max(light.g, light.b)), 0.0, 1.0);
-    vec3 hue = light / max(alpha, 0.001);
 
-    return vec4(mix(hue, hue * 0.3, light_theme) * alpha, alpha);
+    return vec4(light / max(alpha, 0.001) * alpha, alpha);
   }
 `
 
@@ -87,7 +86,6 @@ const sky = `
   uniform vec2 uResolution;
   uniform float uPixelRatio;
   uniform float uSeconds;
-  uniform float uLight;
 
   uniform sampler2D uDay;
   uniform sampler2D uNight;
@@ -96,7 +94,7 @@ const sky = `
   uniform mat3 uGlobe;
   uniform float uDawn;
 
-  ${theme}
+  ${exposure}
 
   float hash(vec2 point) {
     return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453);
@@ -271,7 +269,7 @@ const sky = `
     light += vec3(0.9, 0.95, 1.0) * 0.8
       * (meteor(point, edge, 0.0) + meteor(point, edge, 1.0) + meteor(point, edge, 2.0));
 
-    gl_FragColor = expose(light, uLight);
+    gl_FragColor = expose(light);
 
     // The earth rises over the bottom of the screen, the moon far behind
     // it. Neither is there until their maps are.
@@ -339,13 +337,12 @@ const starVertex = `
 const starFragment = `
   precision highp float;
 
-  uniform float uLight;
 
   varying float vLight;
   varying float vBright;
   varying vec3 vColor;
 
-  ${theme}
+  ${exposure}
 
   void main() {
     vec2 point = (gl_PointCoord - 0.5) * 2.0;
@@ -357,7 +354,7 @@ const starFragment = `
     float spikes = exp(-abs(point.x) * 26.0) * exp(-abs(point.y) * 3.5)
       + exp(-abs(point.y) * 26.0) * exp(-abs(point.x) * 3.5);
 
-    gl_FragColor = expose(vColor * vLight * (glow + spikes * vBright * 0.6), uLight);
+    gl_FragColor = expose(vColor * vLight * (glow + spikes * vBright * 0.6));
   }
 `
 
@@ -494,7 +491,6 @@ export default function Starfield({ className }: StarfieldProps) {
       globe(),
     )
 
-    const light = window.matchMedia('(prefers-color-scheme: light)')
     const still = window.matchMedia('(prefers-reduced-motion: reduce)')
     const start = performance.now()
     let frame = 0
@@ -532,7 +528,6 @@ export default function Starfield({ className }: StarfieldProps) {
       const shared = {
         uSeconds: (performance.now() - start) / 1000,
         uPixelRatio: ratio,
-        uLight: light.matches ? 1 : 0,
       }
 
       gl!.clearColor(0, 0, 0, 0)
