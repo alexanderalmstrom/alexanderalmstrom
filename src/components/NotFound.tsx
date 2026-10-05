@@ -217,7 +217,7 @@ export default function NotFound() {
     <div className="overflow-x-clip">
       <Container className="mt-10">
         <DocumentMeta title="Page not found" />
-        <Starfield className="pointer-events-none fixed inset-0 -z-1 size-full" />
+        <Starfield className="pointer-events-none fixed inset-0 -z-1 size-full motion-safe:animate-dawn" />
         <div className="relative w-full flex-none px-8 lg:w-10/12 lg:px-16">
           <Telemetry />
           <h1 className="text-[3.25rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[7.5rem]">
