@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { usePage, useSpace } from '../hooks/queries'
@@ -19,10 +18,6 @@ export default function Page() {
   const { data: entry, isPending, isError } = usePage(slug)
   const { data: space } = useSpace()
   const [isLoaded, handleLoaded] = useLoaded()
-
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
 
   if (isError) return <NotFound />
 
