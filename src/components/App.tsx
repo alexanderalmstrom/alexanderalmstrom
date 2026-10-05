@@ -2,20 +2,23 @@ import { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 import { useSpace } from '../hooks/queries'
-import { createEvent } from '../services/helpers'
+import { createEvent, isApple } from '../services/helpers'
 
 import Layout from './Layout'
 import Loading from './Loading'
-import Notice from './Notice'
+import BlueScreen from './BlueScreen'
 import NotFound from './NotFound'
 import Home from './Home'
 import Project from './Project'
 import Page from './Page'
+import SadMac from './SadMac'
 
 const appLoadedEvent = createEvent('APP_LOADED')
 
+const ErrorScreen = isApple() ? SadMac : BlueScreen
+
 export default function App() {
-  const { status } = useSpace()
+  const { status, refetch } = useSpace()
 
   useEffect(() => {
     if (status == 'success') {
@@ -25,9 +28,7 @@ export default function App() {
 
   return (
     <div>
-      {status == 'error' ? (
-        <Notice message="Error when establishing connection with Contentful" />
-      ) : null}
+      {status == 'error' ? <ErrorScreen onRestart={() => refetch()} /> : null}
       {status == 'success' ? (
         <Router>
           <Layout>
