@@ -11,7 +11,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div>
       <Header />
-      <main className="mb-5 pt-25 sm:pt-30">{children}</main>
+      <main className="mb-6 pt-25 sm:pt-30">{children}</main>
       <Footer />
     </div>
   )

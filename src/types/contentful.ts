@@ -40,6 +40,17 @@ export type ContentBlockSkeleton = EntrySkeletonType<
   'content_block'
 >
 
+export type HeroSkeleton = EntrySkeletonType<
+  {
+    // An image or a video.
+    asset?: EntryFieldTypes.AssetLink
+    heading?: EntryFieldTypes.Text
+  },
+  'hero'
+>
+
+export type BlockSkeleton = ContentBlockSkeleton | HeroSkeleton
+
 export type ProjectSkeleton = EntrySkeletonType<
   {
     name: EntryFieldTypes.Symbol
@@ -47,9 +58,7 @@ export type ProjectSkeleton = EntrySkeletonType<
     date?: EntryFieldTypes.Date
     description?: EntryFieldTypes.Text
     image?: EntryFieldTypes.AssetLink
-    blocks?: EntryFieldTypes.Array<
-      EntryFieldTypes.EntryLink<ContentBlockSkeleton>
-    >
+    blocks?: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<BlockSkeleton>>
   },
   'project'
 >
@@ -62,6 +71,7 @@ export type PageSkeleton = EntrySkeletonType<
     description?: EntryFieldTypes.Text
     text?: EntryFieldTypes.Text
     image?: EntryFieldTypes.AssetLink
+    blocks?: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<BlockSkeleton>>
   },
   'page'
 >
@@ -69,6 +79,8 @@ export type PageSkeleton = EntrySkeletonType<
 export type ColumnEntry = Resolved<ColumnSkeleton>
 export type ImageEntry = Resolved<ImageSkeleton>
 export type ContentBlockEntry = Resolved<ContentBlockSkeleton>
+export type HeroEntry = Resolved<HeroSkeleton>
+export type BlockEntry = Resolved<BlockSkeleton>
 export type ProjectEntry = Resolved<ProjectSkeleton>
 export type PageEntry = Resolved<PageSkeleton>
 export type ImageAsset = Asset<Modifiers, string>
