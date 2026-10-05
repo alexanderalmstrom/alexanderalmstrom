@@ -66,6 +66,7 @@ export default function ImageContentful({
       <source type="image/webp" srcSet={srcSet('webp')} sizes={sizes} />
       {/* A failed image is shown as well, so its alt text is not left hidden. */}
       <img
+        className="w-full"
         src={url(format, largest)}
         srcSet={srcSet(format)}
         sizes={sizes}

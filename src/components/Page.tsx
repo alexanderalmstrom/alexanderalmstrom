@@ -32,18 +32,22 @@ export default function Page() {
             title={`${entry.fields.name} - ${space?.name}`}
             description={entry.fields.description}
           />
-          {entry.fields.blocks?.map((entry, index) => {
-            return (
-              <Block
-                key={index}
-                entry={entry}
-                loading={index == eagerBlock ? 'eager' : 'lazy'}
-              />
-            )
-          })}
+          {entry.fields.blocks?.length ? (
+            <section className="w-full flex-none [&_ul]:list-none [&_ul]:pl-0">
+              {entry.fields.blocks.map((entry, index) => {
+                return (
+                  <Block
+                    key={index}
+                    entry={entry}
+                    loading={index == eagerBlock ? 'eager' : 'lazy'}
+                  />
+                )
+              })}
+            </section>
+          ) : null}
           <header className="flex w-full flex-row-reverse flex-wrap items-start gap-y-8 sm:gap-y-16">
             {entry.fields.image ? (
-              <div className="w-full flex-none sm:mb-0 sm:px-32 md:w-6/12 md:px-16 lg:w-4/12 xl:px-16 [&_img]:w-full">
+              <div className="w-full flex-none sm:mb-0 sm:px-32 md:w-6/12 md:px-16 lg:w-4/12 xl:px-16">
                 {/* The full container from sm, half from md and a third from
                     lg, minus the column's side padding (see lib/grid). */}
                 <ImageContentful
