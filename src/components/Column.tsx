@@ -16,7 +16,7 @@ export default function Column({ entry }: ColumnProps) {
 
   return (
     <div
-      className={cn(columnClass(size), 'px-8')}
+      className={cn(columnClass(size), 'px-8 motion-safe:animate-settle')}
       dangerouslySetInnerHTML={markdown(content)}
     />
   )

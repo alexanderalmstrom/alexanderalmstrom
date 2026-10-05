@@ -17,7 +17,7 @@ export default function Container({
   return (
     <div
       className={cn(
-        'mx-auto flex w-full max-w-360 flex-wrap',
+        'mx-auto flex w-full max-w-400 flex-wrap',
         !nested && 'sm:pr-8 sm:pl-30',
         className,
       )}>
