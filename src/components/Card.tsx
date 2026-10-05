@@ -46,7 +46,7 @@ export default function Card({ entry, basename }: CardProps) {
           )}>
           <h2
             className={cn(
-              'mb-0 text-xl text-white xl:text-3xl',
+              'mb-0 text-xl md:text-2xl text-white xl:text-3xl',
               image &&
                 'transition-[translate] duration-500 group-hover:translate-y-0 group-focus-visible:translate-y-0 can-hover:translate-y-3',
             )}>
