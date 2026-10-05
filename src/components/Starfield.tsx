@@ -204,10 +204,10 @@ const sky = `
     }
 
     vec3 normal = vec3(disc, sqrt(1.0 - reach * reach));
-    // The earth turns very slowly, once in half an hour, and the clouds a
+    // The earth turns very slowly, once in a little over twenty minutes, and the clouds a
     // little faster than the ground under them.
     vec2 at = chart(uGlobe * normal);
-    vec2 turn = vec2(uSeconds / 1800.0, 0.0);
+    vec2 turn = vec2(uSeconds / 1350.0, 0.0);
     vec3 map = texture2D(uDay, at - turn).rgb;
     vec3 ground = pow(map, vec3(2.2));
     vec3 cities = pow(texture2D(uNight, at - turn).rgb, vec3(2.2));
@@ -275,8 +275,15 @@ const sky = `
 
     // The earth rises over the bottom of the screen, the moon far behind
     // it. Neither is there until their maps are.
-    vec4 rock = moon(point, vec2(edge.x * -0.05, -edge.y + 0.52), 0.026);
-    vec4 globe = earth(point, vec2(edge.x * 0.6, -edge.y - 0.22), 0.62) * uDawn;
+    vec2 home = vec2(edge.x * 0.6, -edge.y - 0.22);
+    // The moon goes around the earth very slowly, once an hour: over the
+    // top of it to the right, and then out of sight behind it.
+    float orbit = -uSeconds / 3600.0 * 6.2831853;
+    vec2 away = vec2(edge.x * -0.05, -edge.y + 0.52) - home;
+    vec2 around = home + mat2(cos(orbit), sin(orbit), -sin(orbit), cos(orbit)) * away;
+
+    vec4 rock = moon(point, around, 0.026);
+    vec4 globe = earth(point, home, 0.62) * uDawn;
 
     gl_FragColor = mix(gl_FragColor, vec4(rock.rgb, 1.0), rock.a * uDawn);
     gl_FragColor = globe + gl_FragColor * (1.0 - globe.a);
