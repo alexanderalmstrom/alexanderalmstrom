@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { useProjects, useSpace } from '../hooks/queries'
@@ -17,10 +16,6 @@ export default function Project() {
   const { data: projects = [], isPending } = useProjects()
   const { data: space } = useSpace()
   const [isLoaded, handleLoaded] = useLoaded()
-
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
 
   if (isPending) return <Loading />
 

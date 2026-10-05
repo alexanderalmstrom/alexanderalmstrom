@@ -126,10 +126,6 @@
     }
   }
 
-  img {
-    width: auto;
-  }
-
   a {
     color: var(--color-foreground);
     transition: color 0.2s;

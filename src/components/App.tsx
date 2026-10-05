@@ -1,5 +1,10 @@
 import { useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import {
+  createBrowserRouter,
+  Outlet,
+  RouterProvider,
+  ScrollRestoration,
+} from 'react-router-dom'
 
 import { useSpace } from '../hooks/queries'
 import { createEvent, isApple } from '../services/helpers'
@@ -17,6 +22,29 @@ const appLoadedEvent = createEvent('APP_LOADED')
 
 const ErrorScreen = isApple() ? SadMac : BlueScreen
 
+// ScrollRestoration scrolls to the top on a new navigation and back to where
+// the visitor was on back and forward. It needs a data router to work.
+function Root() {
+  return (
+    <Layout>
+      <Outlet />
+      <ScrollRestoration />
+    </Layout>
+  )
+}
+
+const router = createBrowserRouter([
+  {
+    element: <Root />,
+    children: [
+      { path: '/', element: <Home /> },
+      { path: '/project/:slug', element: <Project /> },
+      { path: '/page/:slug', element: <Page /> },
+      { path: '*', element: <NotFound /> },
+    ],
+  },
+])
+
 export default function App() {
   const { status, refetch } = useSpace()
 
@@ -29,18 +57,7 @@ export default function App() {
   return (
     <div>
       {status == 'error' ? <ErrorScreen onRestart={() => refetch()} /> : null}
-      {status == 'success' ? (
-        <Router>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/project/:slug" element={<Project />} />
-              <Route path="/page/:slug" element={<Page />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-        </Router>
-      ) : null}
+      {status == 'success' ? <RouterProvider router={router} /> : null}
       {status == 'pending' ? <Loading /> : null}
     </div>
   )
