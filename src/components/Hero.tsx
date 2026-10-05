@@ -1,6 +1,7 @@
 import { Fragment } from 'react'
 
 import { cn } from '../lib/cn'
+import { columnSizes } from '../lib/grid'
 import type { HeroEntry } from '../types/contentful'
 
 import ImageContentful from './ImageContentful'
@@ -44,8 +45,13 @@ export default function Hero({ entry }: HeroProps) {
             playsInline
           />
         ) : (
-          <div className="[&_img]:absolute [&_img]:inset-0 [&_img]:size-full [&_img]:object-cover">
-            <ImageContentful image={asset} width={1920} />
+          <div className="[&_img]:size-full [&_img]:object-cover [&_picture]:absolute [&_picture]:inset-0">
+            <ImageContentful
+              image={asset}
+              width={1920}
+              sizes={columnSizes()}
+              loading="eager"
+            />
           </div>
         )}
         {heading ? (

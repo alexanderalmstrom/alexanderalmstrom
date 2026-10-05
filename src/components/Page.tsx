@@ -1,9 +1,7 @@
 import { useParams } from 'react-router-dom'
 
 import { usePage, useSpace } from '../hooks/queries'
-import { useLoaded } from '../hooks/useLoaded'
-import { animateDown } from '../lib/animate'
-import { cn } from '../lib/cn'
+import { firstImageBlock } from '../lib/blocks'
 import { markdown } from '../services/helpers'
 
 import Block from './Block'
@@ -17,11 +15,14 @@ export default function Page() {
   const { slug } = useParams()
   const { data: entry, isPending, isError } = usePage(slug)
   const { data: space } = useSpace()
-  const [isLoaded, handleLoaded] = useLoaded()
 
   if (isError) return <NotFound />
 
   if (isPending) return <Loading />
+
+  // The first images on the page should not wait for lazy loading. That is
+  // the header image unless a block above it shows one.
+  const eagerBlock = firstImageBlock(entry.fields?.blocks)
 
   return (
     <article className="-mt-25 sm:mt-0 sm:mb-10">
@@ -32,32 +33,30 @@ export default function Page() {
             description={entry.fields.description}
           />
           {entry.fields.blocks?.map((entry, index) => {
-            return <Block key={index} entry={entry} />
+            return (
+              <Block
+                key={index}
+                entry={entry}
+                loading={index == eagerBlock ? 'eager' : 'lazy'}
+              />
+            )
           })}
-          <header className="flex w-full flex-row-reverse flex-wrap items-center">
+          <header className="flex w-full flex-row-reverse flex-wrap items-start gap-y-8 sm:gap-y-16">
             {entry.fields.image ? (
-              <div
-                className={cn(
-                  'mb-10 w-full flex-none sm:mb-0 sm:w-6/12 sm:px-8 md:w-4/12 [&_img]:w-full',
-                  animateDown(isLoaded),
-                )}>
+              <div className="w-full flex-none sm:mb-0 sm:px-32 md:w-6/12 md:px-16 lg:w-4/12 xl:px-16 [&_img]:w-full">
+                {/* The full container from sm, half from md and a third from
+                    lg, minus the column's side padding (see lib/grid). */}
                 <ImageContentful
                   image={entry.fields.image}
                   width={800}
-                  onLoad={handleLoaded}
+                  sizes="(min-width: 100rem) 22.17rem, (min-width: 75rem) calc(33.33vw - 11.17rem), (min-width: 62rem) calc(50vw - 12.75rem), (min-width: 48rem) calc(100vw - 25.5rem), 100vw"
+                  loading={eagerBlock == -1 ? 'eager' : 'lazy'}
                 />
               </div>
             ) : null}
-            <div
-              className={cn(
-                'w-full flex-none px-8 sm:w-6/12 md:w-8/12',
-                animateDown(isLoaded),
-              )}>
+            <div className="w-full flex-none px-8 motion-safe:animate-settle md:w-6/12 lg:w-8/12 lg:px-16">
               {entry.fields.title ? <h1>{entry.fields.title}</h1> : null}
-              <div
-                className="sm:pr-15"
-                dangerouslySetInnerHTML={markdown(entry.fields.text)}
-              />
+              <div dangerouslySetInnerHTML={markdown(entry.fields.text)} />
             </div>
           </header>
         </Container>

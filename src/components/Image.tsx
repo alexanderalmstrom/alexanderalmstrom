@@ -1,13 +1,12 @@
-import { useLoaded } from '../hooks/useLoaded'
-import { animateDown } from '../lib/animate'
 import { cn } from '../lib/cn'
-import { columnClass } from '../lib/grid'
+import { columnClass, columnSizes } from '../lib/grid'
 import type { ImageEntry } from '../types/contentful'
 
 import ImageContentful from './ImageContentful'
 
 interface ImageProps {
   entry?: ImageEntry
+  loading?: 'lazy' | 'eager'
 }
 
 function imageWidth(size?: number) {
@@ -20,9 +19,7 @@ function imageWidth(size?: number) {
   return 1920
 }
 
-export default function Image({ entry }: ImageProps) {
-  const [isLoaded, handleLoaded] = useLoaded()
-
+export default function Image({ entry, loading }: ImageProps) {
   if (!entry || !entry.fields) return null
 
   const { image, size } = entry.fields
@@ -30,16 +27,12 @@ export default function Image({ entry }: ImageProps) {
   if (!image) return null
 
   return (
-    <div
-      className={cn(
-        columnClass(size),
-        'sm:mb-6 sm:px-8',
-        animateDown(isLoaded),
-      )}>
+    <div className={cn(columnClass(size), 'sm:mb-6 sm:px-8')}>
       <ImageContentful
         image={image}
         width={imageWidth(size)}
-        onLoad={handleLoaded}
+        sizes={columnSizes(size)}
+        loading={loading}
       />
     </div>
   )

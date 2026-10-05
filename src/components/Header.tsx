@@ -14,7 +14,7 @@ export default function Header() {
           Senior Frontend Engineer / Designer
         </span>
       </div>
-      <div className="relative mx-auto flex w-full flex-wrap items-center justify-between px-12 sm:pr-15 sm:pl-13.75">
+      <div className="relative mx-auto flex w-full flex-wrap items-center justify-between px-12 sm:pr-16 sm:pl-16">
         <Link className="block size-7.5 no-underline sm:size-10" to="/">
           <Logo className="size-full fill-foreground" />
         </Link>

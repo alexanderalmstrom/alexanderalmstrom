@@ -1,57 +1,85 @@
-import type { ReactEventHandler } from 'react'
 import qs from 'query-string'
 
+import { useLoaded } from '../hooks/useLoaded'
+import { animateDown } from '../lib/animate'
+import { cn } from '../lib/cn'
 import type { ImageAsset } from '../types/contentful'
 
 interface ImageContentfulProps {
   image?: ImageAsset
   format?: string
   quality?: number
+  // The largest width that is ever requested.
   width?: number
-  height?: number
-  onLoad?: ReactEventHandler<HTMLImageElement>
+  // How wide the image is displayed, as a sizes attribute.
+  sizes?: string
+  loading?: 'lazy' | 'eager'
+  // Called when the image has loaded or failed. A parent that passes this
+  // animates the image as part of something larger, such as a card, so the
+  // image does not fade in by itself.
+  onLoad?: () => void
 }
 
+// The widths offered in srcSet. The browser picks one from the sizes attribute
+// and the pixel density of the screen.
+const WIDTHS = [320, 480, 640, 800, 960, 1280, 1600, 1920, 2560]
+
+// Each image keeps its own loaded state and fades in when it has loaded. A
+// lazy image only starts loading when it gets close to the viewport, so a
+// state shared by a whole page would wait on images that have not started.
 export default function ImageContentful({
   image,
   format = 'jpg',
   quality = 90,
   width = 1280,
-  height,
+  sizes = '100vw',
+  loading = 'lazy',
   onLoad,
 }: ImageContentfulProps) {
+  const [isLoaded, handleLoaded] = useLoaded()
+
   if (!image || !image.fields || !image.fields.file) return null
 
   const { file } = image.fields
   const original = file.details.image
 
-  // Contentful scales an image down to fit the requested size but never up.
-  // Setting the resulting size on the img reserves its space before it loads,
-  // so the page already has its full height when a scroll position is restored.
-  const scale = original
-    ? Math.min(1, width / original.width, height ? height / original.height : 1)
-    : undefined
+  // Contentful scales an image down to the requested width but never up, so
+  // nothing wider than the original is offered.
+  const largest = original ? Math.min(width, original.width) : width
+  const widths = [...WIDTHS.filter((width) => width < largest), largest]
 
-  const query = {
-    fm: format,
-    q: quality,
-    w: width,
-    h: height,
-  }
+  const url = (fm: string, w: number) =>
+    `${file.url}?${qs.stringify({
+      fm,
+      q: quality,
+      w,
+      fl: fm == 'jpg' ? 'progressive' : undefined,
+    })}`
 
-  const jpg = qs.stringify(query)
-  const webp = qs.stringify({ ...query, fm: 'webp' })
+  const srcSet = (fm: string) =>
+    widths.map((width) => `${url(fm, width)} ${width}w`).join(', ')
 
+  // Setting the size on the img reserves its space before it loads, so the
+  // page already has its full height when a scroll position is restored.
   return (
-    <picture>
-      <source type="image/webp" srcSet={`${file.url}?${webp}`} />
-      <source type="image/jpeg" srcSet={`${file.url}?${jpg}&fl=progressive`} />
+    <picture className={cn('block', !onLoad && animateDown(isLoaded))}>
+      <source type="image/webp" srcSet={srcSet('webp')} sizes={sizes} />
+      {/* A failed image is shown as well, so its alt text is not left hidden. */}
       <img
-        src={`${file.url}?${jpg}&fl=progressive`}
+        src={url(format, largest)}
+        srcSet={srcSet(format)}
+        sizes={sizes}
         alt={image.fields.title}
-        width={scale ? Math.round(original!.width * scale) : undefined}
-        height={scale ? Math.round(original!.height * scale) : undefined}
-        onLoad={onLoad}
+        width={original ? largest : undefined}
+        height={
+          original
+            ? Math.round((original.height * largest) / original.width)
+            : undefined
+        }
+        loading={loading}
+        decoding="async"
+        onLoad={onLoad ?? handleLoaded}
+        onError={onLoad ?? handleLoaded}
       />
     </picture>
   )

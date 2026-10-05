@@ -1,9 +1,7 @@
 import { useParams } from 'react-router-dom'
 
 import { useProjects, useSpace } from '../hooks/queries'
-import { useLoaded } from '../hooks/useLoaded'
-import { animateDown } from '../lib/animate'
-import { cn } from '../lib/cn'
+import { firstImageBlock } from '../lib/blocks'
 
 import Container from './Container'
 import DocumentMeta from './DocumentMeta'
@@ -15,7 +13,6 @@ export default function Project() {
   const { slug } = useParams()
   const { data: projects = [], isPending } = useProjects()
   const { data: space } = useSpace()
-  const [isLoaded, handleLoaded] = useLoaded()
 
   if (isPending) return <Loading />
 
@@ -24,23 +21,30 @@ export default function Project() {
   if (!entry) return <NotFound />
 
   const { blocks } = entry.fields
+  const eagerBlock = firstImageBlock(blocks)
 
   return (
-    <article
-      onLoad={handleLoaded}
-      className={cn('sm:mb-10', animateDown(isLoaded))}>
+    <article className="sm:mb-10">
       <Container>
         <DocumentMeta
           title={`${entry.fields.name} - ${space?.name}`}
           description={entry.fields.description}
         />
-        <header className="mt-10 w-full flex-none px-8 sm:mx-auto sm:w-8/12 sm:text-center">
-          <h1 className="mb-0">{entry.fields.name}</h1>
+        <header className="mt-10 w-full flex-none px-8 motion-safe:animate-settle sm:text-center">
+          <h1 className="mb-0 xl:text-8xl">{entry.fields.name}</h1>
         </header>
         <section className="[&_ul]:list-none [&_ul]:pl-0">
           {blocks
             ? blocks.map((entry, index) => {
-                return <Block key={index} entry={entry} />
+                // The first images are near the top of the page, so they
+                // should not wait for lazy loading.
+                return (
+                  <Block
+                    key={index}
+                    entry={entry}
+                    loading={index == eagerBlock ? 'eager' : 'lazy'}
+                  />
+                )
               })
             : null}
         </section>

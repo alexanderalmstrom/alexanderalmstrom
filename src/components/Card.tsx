@@ -10,11 +10,19 @@ import ImageContentful from './ImageContentful'
 interface CardProps {
   entry?: ProjectEntry
   basename: string
+  loading?: 'lazy' | 'eager'
 }
 
+// How wide a card image is displayed: the viewport minus the grid's padding
+// on small screens, then half of what the container and the grid's padding
+// and gap leave (see Home and Container).
+const SIZES =
+  '(min-width: 100rem) 41.25rem, (min-width: 90.9375rem) calc(50vw - 8.75rem), (min-width: 48rem) calc(50vw - 6.75rem), calc(100vw - 4rem)'
+
 // Two columns from sm up; the widths leave room for the grid's column gap
-// (see Home).
-export default function Card({ entry, basename }: CardProps) {
+// (see Home). The whole card, title included, fades in once its image has
+// loaded.
+export default function Card({ entry, basename, loading }: CardProps) {
   const [isLoaded, handleLoaded] = useLoaded()
 
   if (!entry || !entry.fields) return null
@@ -32,7 +40,13 @@ export default function Card({ entry, basename }: CardProps) {
         className="group relative block no-underline hover:text-inherit">
         {image ? (
           <div className="overflow-hidden bg-black [&_img]:w-full [&_img]:transition-[scale,opacity] [&_img]:duration-500 group-hover:[&_img]:scale-100 group-hover:[&_img]:opacity-100 can-hover:[&_img]:scale-103 can-hover:[&_img]:opacity-90">
-            <ImageContentful image={image} width={1170} onLoad={handleLoaded} />
+            <ImageContentful
+              image={image}
+              width={1170}
+              sizes={SIZES}
+              loading={loading}
+              onLoad={handleLoaded}
+            />
           </div>
         ) : null}
         {/* Without an image the title sits on a dark tile of its own. With
@@ -46,7 +60,7 @@ export default function Card({ entry, basename }: CardProps) {
           )}>
           <h2
             className={cn(
-              'mb-0 text-xl md:text-2xl text-white xl:text-3xl',
+              'mb-0 text-xl text-white md:text-2xl xl:text-3xl',
               image &&
                 'transition-[translate] duration-500 group-hover:translate-y-0 group-focus-visible:translate-y-0 can-hover:translate-y-3',
             )}>

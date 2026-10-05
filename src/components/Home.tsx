@@ -25,7 +25,16 @@ export default function Home() {
           <Container className="xl:mt-10">
             <div className="flex w-full flex-wrap gap-x-8 gap-y-8 px-8 sm:px-4 xl:mb-12 xl:gap-x-16 xl:gap-y-15 xl:px-8">
               {projects.map((entry, index) => {
-                return <Card key={index} basename="project" entry={entry} />
+                // The first row is above the fold, so it should not wait
+                // for lazy loading.
+                return (
+                  <Card
+                    key={index}
+                    basename="project"
+                    entry={entry}
+                    loading={index < 2 ? 'eager' : 'lazy'}
+                  />
+                )
               })}
             </div>
           </Container>
