@@ -23,9 +23,11 @@ export default function Home() {
       ) : (
         <section>
           <Container className="xl:mt-10">
-            {projects.map((entry, index) => {
-              return <Card key={index} basename="project" entry={entry} />
-            })}
+            <div className="flex w-full flex-wrap gap-x-8 gap-y-8 px-8 sm:px-4 xl:mb-12 xl:gap-x-16 xl:gap-y-15 xl:px-8">
+              {projects.map((entry, index) => {
+                return <Card key={index} basename="project" entry={entry} />
+              })}
+            </div>
           </Container>
         </section>
       )}

@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { useProjects, useSpace } from '../hooks/queries'
 import { useLoaded } from '../hooks/useLoaded'
 import { animateDown } from '../lib/animate'
+import { cn } from '../lib/cn'
 
 import Container from './Container'
 import DocumentMeta from './DocumentMeta'
@@ -32,7 +33,7 @@ export default function Project() {
   return (
     <article
       onLoad={handleLoaded}
-      className={`sm:mb-10 ${animateDown(isLoaded)}`}>
+      className={cn('sm:mb-10', animateDown(isLoaded))}>
       <Container>
         <DocumentMeta
           title={`${entry.fields.name} - ${space?.name}`}

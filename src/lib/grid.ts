@@ -1,3 +1,5 @@
+import { cn } from './cn'
+
 // Full width on small screens, then a share of the 12 column grid. The sizes
 // come from Contentful, so every class has to be spelled out for Tailwind to
 // find it.
@@ -17,5 +19,5 @@ const columns: Record<number, string> = {
 }
 
 export function columnClass(size: number = 12) {
-  return `w-full flex-none ${columns[size] ?? columns[12]}`
+  return cn('w-full flex-none', columns[size] ?? columns[12])
 }

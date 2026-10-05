@@ -4,8 +4,10 @@ import { useParams } from 'react-router-dom'
 import { usePage, useSpace } from '../hooks/queries'
 import { useLoaded } from '../hooks/useLoaded'
 import { animateDown } from '../lib/animate'
+import { cn } from '../lib/cn'
 import { markdown } from '../services/helpers'
 
+import Block from './Block'
 import Container from './Container'
 import DocumentMeta from './DocumentMeta'
 import NotFound from './NotFound'
@@ -34,10 +36,16 @@ export default function Page() {
             title={`${entry.fields.name} - ${space?.name}`}
             description={entry.fields.description}
           />
+          {entry.fields.blocks?.map((entry, index) => {
+            return <Block key={index} entry={entry} />
+          })}
           <header className="flex w-full flex-row-reverse flex-wrap items-center">
             {entry.fields.image ? (
               <div
-                className={`mb-10 w-full flex-none sm:mb-0 sm:w-6/12 sm:px-8 md:w-4/12 [&_img]:w-full ${animateDown(isLoaded)}`}>
+                className={cn(
+                  'mb-10 w-full flex-none sm:mb-0 sm:w-6/12 sm:px-8 md:w-4/12 [&_img]:w-full',
+                  animateDown(isLoaded),
+                )}>
                 <ImageContentful
                   image={entry.fields.image}
                   width={800}
@@ -46,7 +54,10 @@ export default function Page() {
               </div>
             ) : null}
             <div
-              className={`w-full flex-none px-8 sm:w-6/12 md:w-8/12 ${animateDown(isLoaded)}`}>
+              className={cn(
+                'w-full flex-none px-8 sm:w-6/12 md:w-8/12',
+                animateDown(isLoaded),
+              )}>
               {entry.fields.title ? <h1>{entry.fields.title}</h1> : null}
               <div
                 className="sm:pr-15"

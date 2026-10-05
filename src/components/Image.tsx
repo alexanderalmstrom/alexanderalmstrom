@@ -1,5 +1,6 @@
 import { useLoaded } from '../hooks/useLoaded'
 import { animateDown } from '../lib/animate'
+import { cn } from '../lib/cn'
 import { columnClass } from '../lib/grid'
 import type { ImageEntry } from '../types/contentful'
 
@@ -30,7 +31,11 @@ export default function Image({ entry }: ImageProps) {
 
   return (
     <div
-      className={`${columnClass(size)} sm:mb-6 sm:px-8 ${animateDown(isLoaded)}`}>
+      className={cn(
+        columnClass(size),
+        'sm:mb-6 sm:px-8',
+        animateDown(isLoaded),
+      )}>
       <ImageContentful
         image={image}
         width={imageWidth(size)}

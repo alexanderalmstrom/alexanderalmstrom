@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 
+import { cn } from '../lib/cn'
+
 interface ContainerProps {
   children?: ReactNode
   className?: string
@@ -9,14 +11,16 @@ interface ContainerProps {
 
 export default function Container({
   children,
-  className = '',
+  className,
   nested = false,
 }: ContainerProps) {
   return (
     <div
-      className={`mx-auto flex w-full max-w-360 flex-wrap ${
-        nested ? '' : 'sm:pr-8 sm:pl-30'
-      } ${className}`}>
+      className={cn(
+        'mx-auto flex w-full max-w-360 flex-wrap',
+        !nested && 'sm:pr-8 sm:pl-30',
+        className,
+      )}>
       {children}
     </div>
   )

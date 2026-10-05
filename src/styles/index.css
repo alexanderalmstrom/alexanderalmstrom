@@ -22,6 +22,9 @@
     url('/fonts/CircularStd-Medium.woff') format('woff');
 }
 
+/* Devices with a real hover state, so not touch screens. */
+@custom-variant can-hover (@media (hover: hover));
+
 @theme {
   --font-sans: 'Circular', 'Helvetica Neue', Arial, sans-serif;
 
@@ -40,6 +43,18 @@
   --default-transition-timing-function: ease;
 
   --animate-loading-spin: loading-spin 1s infinite;
+  --animate-rise: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  /* Starts just below the mask, including its descender padding. */
+  @keyframes rise {
+    from {
+      translate: 0 120%;
+    }
+
+    to {
+      translate: 0 0;
+    }
+  }
 
   @keyframes loading-spin {
     0% {

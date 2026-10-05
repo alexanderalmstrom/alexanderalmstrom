@@ -1,3 +1,4 @@
+import { cn } from '../lib/cn'
 import { columnClass } from '../lib/grid'
 import { markdown } from '../services/helpers'
 import type { ColumnEntry } from '../types/contentful'
@@ -15,7 +16,7 @@ export default function Column({ entry }: ColumnProps) {
 
   return (
     <div
-      className={`${columnClass(size)} px-8`}
+      className={cn(columnClass(size), 'px-8')}
       dangerouslySetInnerHTML={markdown(content)}
     />
   )
