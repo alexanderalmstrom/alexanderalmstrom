@@ -26,6 +26,40 @@ const FACING = { latitude: 40, longitude: 14 }
 const DAWN = 2
 const ARRIVAL = 5
 
+// Where the earth is and how large: its middle as a part of the way from
+// the middle of the screen to the right edge, and how far it lies below the
+// bottom edge, that and its radius measured in the short side of the screen.
+// On an upright screen, such as a phone, it sits nearer the middle and a
+// little to the left instead, which brings its night side with the lights
+// of the cities into view.
+const EARTH = { right: 0.6, upright: -0.3, below: 0.22, radius: 0.62 }
+
+// How far to the right the earth is on a screen of the given shape, going
+// evenly from the one place to the other between upright and wide. The
+// shader works this out the same way.
+function aside(width: number, height: number) {
+  const shape = Math.min(Math.max((width / height - 0.8) / 0.6, 0), 1)
+  const wide = shape * shape * (3 - 2 * shape)
+
+  return EARTH.upright + (EARTH.right - EARTH.upright) * wide
+}
+
+// How quickly the earth loses the spin it is thrown with; higher is sooner.
+// What is left when that is gone is the turning it always does.
+const FRICTION = 1.6
+
+// A pointer that rested this many milliseconds before letting go was
+// placing the earth, not spinning it.
+const REST = 80
+
+// The fastest the earth can be thrown, in radians per second: a little
+// over one turn a second.
+const FASTEST = 7
+
+function limit(spin: number) {
+  return Math.max(-FASTEST, Math.min(FASTEST, spin))
+}
+
 // Turns a direction as the camera sees it into a direction on the earth,
 // so that FACING ends up in the middle of what is in view and the earth
 // turns towards the camera and to the right. Laid out column by column, the way WebGL takes a matrix.
@@ -69,6 +103,35 @@ function globe() {
   }
 
   return matrix
+}
+
+// The product of two 3 by 3 matrices, both laid out column by column.
+function multiply(first: ArrayLike<number>, second: ArrayLike<number>) {
+  const product = new Float64Array(9)
+
+  for (let column = 0; column < 3; column++) {
+    for (let row = 0; row < 3; row++) {
+      product[column * 3 + row] =
+        first[row] * second[column * 3] +
+        first[3 + row] * second[column * 3 + 1] +
+        first[6 + row] * second[column * 3 + 2]
+    }
+  }
+
+  return product
+}
+
+// The earth turned as the camera sees it: its near side to the right and
+// downwards by the given angles. Turning the earth one way is turning the
+// camera's directions the other, which is why the angles are negated.
+function turned(orientation: ArrayLike<number>, right: number, down: number) {
+  const [cosDown, sinDown] = [Math.cos(-down), Math.sin(-down)]
+  const [cosRight, sinRight] = [Math.cos(-right), Math.sin(-right)]
+
+  return multiply(
+    multiply(orientation, [1, 0, 0, 0, cosDown, sinDown, 0, -sinDown, cosDown]),
+    [cosRight, 0, -sinRight, 0, 1, 0, sinRight, 0, cosRight],
+  )
 }
 
 // Light given off by the sky as a colour to lay over the black behind it:
@@ -221,11 +284,10 @@ const sky = `
   // cloud straight down to the ground under it: a jagged channel with a
   // couple of forks, which also only go down, in a glow.
   //
-  // Returned are the channel, the glow and how deep inside a storm a place
-  // is. The first two are kept apart since the cloud above them dims the
-  // one and is lit up by the other.
-  vec3 storms(vec3 normal, vec2 disc, vec2 drift) {
-    vec3 total = vec3(0.0);
+  // Returned are the channel and the glow, kept apart since the cloud above
+  // them dims the one and is lit up by the other.
+  vec2 storms(vec3 normal, vec2 disc, vec2 drift) {
+    vec2 total = vec2(0.0);
 
     for (int index = 0; index < 7; index++) {
       float which = float(index);
@@ -260,11 +322,6 @@ const sky = `
 
       // Zero right at the storm, growing with the angle away from it.
       float away = 1.0 - dot(normal, anchor);
-
-      total.z = max(
-        total.z,
-        smoothstep(0.0, 0.15, age) * smoothstep(1.0, 0.85, age) * smoothstep(0.004, 0.0006, away)
-      );
 
       float since = age * life;
       float first = life * 0.3;
@@ -325,7 +382,7 @@ const sky = `
       float glow = 0.35 * exp(-min(channel, forks) * 420.0)
         + 0.6 * exp(-dot(below, below) / 0.00035);
 
-      total.xy += vec2(bolt, glow) * flicker * 2.2;
+      total += vec2(bolt, glow) * flicker * 2.2;
     }
 
     return total;
@@ -374,15 +431,7 @@ const sky = `
 
     ground *= 1.0 - 0.4 * shadow;
 
-    // A thunderstorm makes no clouds of its own. It thickens the ones the
-    // map has there and darkens them where they are thickest, so that they
-    // keep the shapes of real clouds.
-    vec3 weather = storms(normal, disc, turn * 1.2);
-    float depth = weather.z;
-
-    cover = min(cover * (1.0 + 0.6 * depth), 1.0);
-
-    float storm = min(depth * smoothstep(0.35, 0.95, cover) * (0.5 + 0.7 * billows), 1.0);
+    vec2 weather = storms(normal, disc, turn * 1.2);
 
     float sun = dot(normal, SUN);
     float day = smoothstep(-0.12, 0.3, sun);
@@ -392,11 +441,7 @@ const sky = `
     float mirror = max(reflect(-SUN, normal).z, 0.0);
     float glint = (pow(mirror, 70.0) * 0.9 + pow(mirror, 8.0) * 0.07) * sea * (1.0 - cover);
 
-    vec3 lit = mix(
-      ground * 1.25 + glint,
-      mix(vec3(0.92), vec3(0.34, 0.36, 0.42), storm * 0.8),
-      cover
-    );
+    vec3 lit = mix(ground * 1.25 + glint, vec3(0.92), cover);
 
     lit *= 0.2 + 0.8 * clamp(sun, 0.0, 1.0);
     // Sunlight turns red where it reaches the ground at a low angle.
@@ -498,7 +543,11 @@ const sky = `
 
     // The earth rises over the bottom of the screen, the moon far behind
     // it. Neither is lit until their maps are there.
-    vec2 home = vec2(edge.x * 0.6, -edge.y - 0.22);
+    float wide = smoothstep(0.8, 1.4, uResolution.x / uResolution.y);
+    vec2 home = vec2(
+      edge.x * mix(${EARTH.upright.toFixed(2)}, ${EARTH.right.toFixed(2)}, wide),
+      -edge.y - ${EARTH.below}
+    );
     // The moon goes around the earth very slowly, once an hour: over the
     // top of it to the right, and then out of sight behind it.
     float orbit = -uSeconds / 3600.0 * 6.2831853;
@@ -510,7 +559,7 @@ const sky = `
     float settled = 1.0 - pow(1.0 - uArrival, 3.0);
 
     vec4 rock = moon(point, around, 0.026);
-    vec4 globe = earth(point, home - vec2(0.0, 0.32 * (1.0 - settled)), 0.62);
+    vec4 globe = earth(point, home - vec2(0.0, 0.32 * (1.0 - settled)), ${EARTH.radius});
 
     // Both hide the stars behind them from the start, and come out of the
     // dark instead of out of thin air: only their light fades in. The glow
@@ -721,15 +770,140 @@ export default function Starfield({ className }: StarfieldProps) {
     Object.keys(maps).forEach((name, slot) => {
       gl.uniform1i(gl.getUniformLocation(skyProgram, name), slot)
     })
-    gl.uniformMatrix3fv(
-      gl.getUniformLocation(skyProgram, 'uGlobe'),
-      false,
-      globe(),
-    )
 
     const still = window.matchMedia('(prefers-reduced-motion: reduce)')
     const start = performance.now()
     let frame = 0
+
+    // The earth can be turned by dragging it, with a mouse or a finger, and
+    // spun by letting go of it while moving. Where the pointer was last,
+    // and the spin it has, in radians per second to the right and down.
+    let orientation: ArrayLike<number> = globe()
+    let held: { x: number; y: number; at: number } | null = null
+    let spin = { right: 0, down: 0 }
+    let drawn = start
+
+    // The short side of the screen, which the earth is measured in.
+    function side() {
+      return Math.min(canvas!.clientWidth, canvas!.clientHeight)
+    }
+
+    // Where on the screen something is, as both a pointer and a finger say.
+    interface Place {
+      clientX: number
+      clientY: number
+    }
+
+    function over(place: Place) {
+      const x =
+        place.clientX -
+        canvas!.clientWidth *
+          (0.5 + aside(canvas!.clientWidth, canvas!.clientHeight) * 0.5)
+      const y = place.clientY - canvas!.clientHeight - EARTH.below * side()
+
+      return Math.hypot(x, y) < EARTH.radius * side()
+    }
+
+    // Whether the earth can be taken hold of there: not through a link.
+    function free(place: Place, target: EventTarget | null) {
+      return (
+        over(place) &&
+        !(target instanceof Element && target.closest('a, button'))
+      )
+    }
+
+    function hold(place: Place, at: number) {
+      held = { x: place.clientX, y: place.clientY, at }
+      spin = { right: 0, down: 0 }
+    }
+
+    function turnTo(place: Place, at: number) {
+      if (!held) return
+
+      // The ground under the pointer moves as far as the pointer does.
+      const reach = EARTH.radius * side()
+      const right = (place.clientX - held.x) / reach
+      const down = (place.clientY - held.y) / reach
+      const delta = Math.max(at - held.at, 1) / 1000
+
+      orientation = turned(orientation, right, down)
+      // Average over the last few moves, since a single one is jittery.
+      spin = {
+        right: limit(spin.right * 0.6 + (right / delta) * 0.4),
+        down: limit(spin.down * 0.6 + (down / delta) * 0.4),
+      }
+      held = { x: place.clientX, y: place.clientY, at }
+
+      // A sky that holds still is not drawn again by itself.
+      if (still.matches) draw()
+    }
+
+    function letGo(at: number) {
+      if (!held) return
+
+      if (at - held.at > REST) spin = { right: 0, down: 0 }
+
+      held = null
+    }
+
+    // A mouse or a pen drags the earth through pointer events. A finger
+    // does it through touch events further down, since only those can keep
+    // the page from scrolling instead.
+    function grab(event: PointerEvent) {
+      if (event.pointerType == 'touch' || event.button != 0) return
+      if (!free(event, event.target)) return
+
+      // Keeps the drag from selecting the text of the page.
+      event.preventDefault()
+      hold(event, event.timeStamp)
+      document.documentElement.style.cursor = 'grabbing'
+    }
+
+    function drag(event: PointerEvent) {
+      if (event.pointerType == 'touch') return
+
+      if (held) turnTo(event, event.timeStamp)
+      else document.documentElement.style.cursor = over(event) ? 'grab' : ''
+    }
+
+    function release(event: PointerEvent) {
+      if (event.pointerType == 'touch' || !held) return
+
+      letGo(event.timeStamp)
+      document.documentElement.style.cursor = over(event) ? 'grab' : ''
+    }
+
+    function touch(event: TouchEvent) {
+      const finger = event.touches[0]
+
+      // Two fingers are zooming the page, not turning the earth.
+      if (event.touches.length == 1 && free(finger, event.target)) {
+        hold(finger, event.timeStamp)
+      } else {
+        held = null
+      }
+    }
+
+    function swipe(event: TouchEvent) {
+      if (!held) return
+
+      // The page stays where it is while the earth is being turned.
+      event.preventDefault()
+      turnTo(event.touches[0], event.timeStamp)
+    }
+
+    function lift(event: TouchEvent) {
+      letGo(event.timeStamp)
+    }
+
+    window.addEventListener('pointerdown', grab)
+    window.addEventListener('pointermove', drag)
+    window.addEventListener('pointerup', release)
+    window.addEventListener('pointercancel', release)
+    window.addEventListener('touchstart', touch, { passive: true })
+    window.addEventListener('touchmove', swipe, { passive: false })
+    window.addEventListener('touchend', lift)
+    window.addEventListener('touchcancel', lift)
 
     function attribute(
       program: WebGLProgram,
@@ -759,6 +933,24 @@ export default function Starfield({ className }: StarfieldProps) {
         canvas!.width = width
         canvas!.height = height
         gl!.viewport(0, 0, width, height)
+      }
+
+      // Left alone after a throw, the earth spins on and slows down, until
+      // only the turning it always does is left.
+      const now = performance.now()
+      const elapsed = Math.min((now - drawn) / 1000, 0.05)
+
+      drawn = now
+
+      if (!held && Math.abs(spin.right) + Math.abs(spin.down) > 0.0005) {
+        const slowed = Math.exp(-FRICTION * elapsed)
+
+        orientation = turned(
+          orientation,
+          spin.right * elapsed,
+          spin.down * elapsed,
+        )
+        spin = { right: spin.right * slowed, down: spin.down * slowed }
       }
 
       const shared = {
@@ -802,6 +994,11 @@ export default function Starfield({ className }: StarfieldProps) {
         width,
         height,
       )
+      gl!.uniformMatrix3fv(
+        gl!.getUniformLocation(skyProgram!, 'uGlobe'),
+        false,
+        Float32Array.from(orientation),
+      )
       gl!.drawArrays(gl!.TRIANGLES, 0, 3)
 
       // A sky that holds still needs to be drawn only once.
@@ -813,6 +1010,15 @@ export default function Starfield({ className }: StarfieldProps) {
     return () => {
       gone = true
       cancelAnimationFrame(frame)
+      window.removeEventListener('pointerdown', grab)
+      window.removeEventListener('pointermove', drag)
+      window.removeEventListener('pointerup', release)
+      window.removeEventListener('pointercancel', release)
+      window.removeEventListener('touchstart', touch)
+      window.removeEventListener('touchmove', swipe)
+      window.removeEventListener('touchend', lift)
+      window.removeEventListener('touchcancel', lift)
+      document.documentElement.style.cursor = ''
       // Browsers only allow a handful of WebGL contexts at a time.
       gl.getExtension('WEBGL_lose_context')?.loseContext()
     }
