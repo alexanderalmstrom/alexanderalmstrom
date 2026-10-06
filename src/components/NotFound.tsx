@@ -76,6 +76,9 @@ function clock(seconds: number) {
     .join(':')
 }
 
+// Where the mission clock starts, in seconds: at 04:04.
+const START = 4 * 60 + 4
+
 // What the signal can read, in percent: the digits of a 404.
 const LEVELS = [0, 4]
 
@@ -117,7 +120,7 @@ function Roll({ value }: RollProps) {
 // counter, the oxygen sensor answers in code, and now and then one of the
 // values comes through as garbage.
 function Telemetry() {
-  const [seconds, setSeconds] = useState(0)
+  const [seconds, setSeconds] = useState(START)
   const [signal, setSignal] = useState(0)
   const [oxygen, setOxygen] = useState('--')
   const [noise, setNoise] = useState<Noise | null>(null)

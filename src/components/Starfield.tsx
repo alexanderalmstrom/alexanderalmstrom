@@ -27,6 +27,8 @@ const FLIGHT = 260
 const FACING = { latitude: 40, longitude: 14 }
 const DAWN = 2
 const ARRIVAL = 5
+// The sun takes longer than that to drift into its place.
+const SUNRISE = 9
 
 // Where the earth is and how large: its middle as a part of the way from
 // the middle of the screen to the right edge, and how far it lies below the
@@ -36,14 +38,23 @@ const ARRIVAL = 5
 // of the cities into view.
 const EARTH = { right: 0.6, upright: -0.3, below: 0.22, radius: 0.62 }
 
-// How far to the right the earth is on a screen of the given shape, going
-// evenly from the one place to the other between upright and wide. The
-// shader works this out the same way.
-function aside(width: number, height: number) {
-  const shape = Math.min(Math.max((width / height - 0.8) / 0.6, 0), 1)
-  const wide = shape * shape * (3 - 2 * shape)
+// How large the sun is, as its radius measured in the short side of the
+// screen: on a wide screen, where its middle is on the left edge, and on an
+// upright one, where its middle is that far beyond the top left corner.
+const STAR = { radius: 0.11, upright: 0.3, beyond: 0.12 }
 
-  return EARTH.upright + (EARTH.right - EARTH.upright) * wide
+// How wide a screen of the given shape counts as, from 0 for an upright
+// one to 1, going evenly from the one to the other. The shader works this
+// out the same way.
+function wideness(width: number, height: number) {
+  const shape = Math.min(Math.max((width / height - 0.8) / 0.6, 0), 1)
+
+  return shape * shape * (3 - 2 * shape)
+}
+
+// How far to the right the earth is on a screen of the given shape.
+function aside(width: number, height: number) {
+  return EARTH.upright + (EARTH.right - EARTH.upright) * wideness(width, height)
 }
 
 // How quickly the earth loses the spin it is thrown with; higher is sooner.
@@ -123,7 +134,7 @@ function multiply(first: ArrayLike<number>, second: ArrayLike<number>) {
   return product
 }
 
-// The earth turned as the camera sees it: its near side to the right and
+// The earth, or the sun, turned as the camera sees it: its near side to the right and
 // downwards by the given angles. Turning the earth one way is turning the
 // camera's directions the other, which is why the angles are negated.
 function turned(orientation: ArrayLike<number>, right: number, down: number) {
@@ -165,6 +176,9 @@ const sky = `
   uniform mat3 uGlobe;
   uniform float uDawn;
   uniform float uArrival;
+  uniform float uSunrise;
+  uniform float uHeld;
+  uniform mat3 uStar;
 
   ${exposure}
 
@@ -269,9 +283,10 @@ const sky = `
   }
 
   // The moon: bare rock, with no air to soften the edge of its shadow. It
-  // always shows the earth the same side, so the map needs no turning. The
-  // colour comes with how much of the pixel it covers.
-  vec4 moon(vec2 point, vec2 centre, float radius) {
+  // always shows the earth the same side, so the map needs no turning. It
+  // is lit from the given direction. The colour comes with how much of the
+  // pixel it covers.
+  vec4 moon(vec2 point, vec2 centre, float radius, vec3 sunlight) {
     vec2 disc = (point - centre) / radius;
     float reach = length(disc);
 
@@ -279,7 +294,7 @@ const sky = `
 
     vec3 normal = vec3(disc, sqrt(1.0 - reach * reach));
     vec3 stone = pow(texture2D(uMoon, chart(normal)).rgb, vec3(2.2));
-    float day = smoothstep(0.0, 0.12, dot(normal, SUN)) * clamp(dot(normal, SUN), 0.0, 1.0);
+    float day = smoothstep(0.0, 0.12, dot(normal, sunlight)) * clamp(dot(normal, sunlight), 0.0, 1.0);
     // The edge fades out over a pixel or so: crisp, but not a hard line.
     float pixel = 1.2 * uPixelRatio / min(uResolution.x, uResolution.y) / radius;
 
@@ -421,8 +436,9 @@ const sky = `
   // The northern lights: a handful of separate strips of light scattered
   // over the far north, each lying its own way, with its own length, bend
   // and brightness, so that they make no ring around the pole. A strip is
-  // a ribbon of green with a sharp edge on one side and a fade on the
-  // other, where it turns violet, crossed by rays that ripple along it.
+  // a ribbon of green with a crisper edge on one side and a fade on the
+  // other, where it turns violet, crossed by rays that ripple along it,
+  // and it thins out to nothing towards its ends.
   //
   // The strips belong to the ground: they turn with the earth, by the given
   // part of a full turn. The slant is how much more of them there is to
@@ -432,8 +448,11 @@ const sky = `
   // for which the given detail is the measure, are left out. That keeps
   // the horizon smooth.
   vec3 aurora(vec3 place, float turn, float slant, float detail) {
-    // Nothing south of about 46 degrees.
-    if (place.y < 0.72) return vec3(0.0);
+    // Nothing south of about 44 degrees, and what comes near that fades
+    // out before it gets there instead of being cut off.
+    if (place.y < 0.7) return vec3(0.0);
+
+    float north = smoothstep(0.7, 0.8, place.y);
 
     // The top of the world laid out flat, as seen from above the pole, and
     // turned with the ground. One degree is about 0.009 across on it.
@@ -467,19 +486,19 @@ const sky = `
         // coarse: anything finer would be smaller than a pixel on a phone.
         float rays = 0.65 * noise(vec2(along * 55.0 + uSeconds * 0.06, which * 5.0 - uSeconds * 0.04))
           + 0.35 * noise(vec2(along * 125.0 - uSeconds * 0.09, which * 9.0));
-        float curtains = mix(0.95, 0.3 + 1.4 * smoothstep(0.3, 0.72, rays), detail);
+        float curtains = mix(0.95, 0.55 + 0.9 * smoothstep(0.2, 0.8, rays), detail);
         float shimmer = mix(1.0, 0.8 + 0.2 * sin(uSeconds * 1.4 + rays * 20.0), detail);
 
         strips += bright * curtains * shimmer
-          * smoothstep(half_length, half_length * 0.55, abs(along))
+          * smoothstep(half_length, half_length * 0.15, abs(along))
           * (
-            vec3(0.12, 1.0, 0.42) * exp(-across * across / ((across < 0.0 ? 0.00006 : 0.0004) * spread))
+            vec3(0.12, 1.0, 0.42) * exp(-across * across / ((across < 0.0 ? 0.00014 : 0.0005) * spread))
             + vec3(0.6, 0.15, 0.85) * 0.35 * exp(-pow((across - 0.022 * slant) / (0.016 * slant), 2.0))
           );
       }
     }
 
-    return strips * sqrt(slant);
+    return strips * north * sqrt(slant);
   }
 
   // The earth, with its colour already multiplied by how much of the pixel
@@ -501,15 +520,36 @@ const sky = `
 
     if (reach > 0.98) {
       lights = aurora(uGlobe * vec3(disc / reach, 0.0), turn.x, 2.4, 0.0)
-        * (1.0 - 0.7 * grazing) * 0.8;
+        * mix(1.0, 0.3, smoothstep(-0.12, 0.3, dot(vec3(disc / reach, 0.0), SUN))) * 0.8;
     }
 
     if (reach >= 1.0) {
       // Past the edge there is only the thin shell of air, lit from behind,
-      // and the northern lights fading out above it.
+      // and the northern lights above it.
       float glow = exp((1.0 - reach) / 0.012) * grazing * 0.85;
 
-      lights *= exp((1.0 - reach) / 0.009);
+      // They hang there like a curtain of silk: a soft veil whose upper
+      // hem rises and falls gently along the edge, gathered in folds that
+      // sway slowly, each catching the light on one side. It belongs to
+      // the ground and turns with it, and goes from green to violet
+      // towards its hem.
+      vec3 over = uGlobe * vec3(disc / reach, 0.0);
+      float compass = atan(over.z, over.x) + turn.x * 6.2831853;
+      vec2 ring = vec2(cos(compass), sin(compass));
+      float drape = 0.6 * noise(ring * 7.0 + uSeconds * 0.04)
+        + 0.4 * noise(ring * 15.0 - uSeconds * 0.05);
+      float tall = 0.014 + 0.03 * smoothstep(0.15, 0.9, drape);
+      float above = (reach - 1.0) / tall;
+      // The folds lean one way and the other the higher up they are, the
+      // way cloth moves that hangs from one side.
+      float sway = compass + 0.012 * above * sin(compass * 9.0 + uSeconds * 0.35);
+      vec2 hung = vec2(cos(sway), sin(sway));
+      float folds = 0.6 * noise(hung * 30.0 + uSeconds * 0.06)
+        + 0.4 * noise(hung * 62.0 - uSeconds * 0.09);
+      float sheen = 0.5 + 0.75 * smoothstep(0.25, 0.75, folds);
+
+      lights = mix(lights, vec3(0.6, 0.15, 0.85) * lights.g * 0.6, smoothstep(0.4, 1.8, above))
+        * exp(-pow(above, 1.4)) * mix(1.0, sheen, smoothstep(0.0, 0.5, above));
 
       return vec4(
         AIR * glow + lights,
@@ -546,7 +586,9 @@ const sky = `
 
     ground *= 1.0 - 0.4 * shadow;
 
-    vec2 weather = storms(normal, disc, turn * 1.2);
+    // No lightning strikes while the earth is held and turned by hand: the
+    // storms keep their place on the screen, not on the ground.
+    vec2 weather = storms(normal, disc, turn * 1.2) * (1.0 - uHeld);
 
     float sun = dot(normal, SUN);
     float day = smoothstep(-0.12, 0.3, sun);
@@ -597,6 +639,31 @@ const sky = `
       vec4(AIR * rim + lights, clamp(rim + max(lights.r, max(lights.g, lights.b)), 0.0, 1.0)),
       vec4(pow(colour, vec3(1.0 / 2.2)), 1.0),
       smoothstep(1.0, 1.0 - soften, reach)
+    );
+  }
+
+  // The gas on the surface of the sun at a place on it, laid out flat: the
+  // eddies that carry things along with them, the gas itself and the cells
+  // in it, in that order.
+  vec4 seethe(vec2 ground) {
+    // Large slow currents, and smaller eddies that they carry along.
+    // Each goes its own way round, so that nothing ever comes back to
+    // quite where it was.
+    vec2 currents = vec2(
+      clouds(ground + churn(0.09, 0.0)),
+      clouds(ground + 5.2 + churn(0.1, 2.0))
+    );
+    vec2 eddies = vec2(
+      clouds(ground * 1.6 + currents * 3.0 + 1.7 + churn(0.13, 4.0)),
+      clouds(ground * 1.6 + currents * 3.0 + 9.2 + churn(0.15, 1.0))
+    );
+
+    // The gas itself: fine and streaky, drawn out along the eddies. And
+    // finer still, the cells that well up and sink back all over it.
+    return vec4(
+      eddies,
+      smoothstep(0.25, 0.75, clouds(ground * 8.0 + eddies * 6.0 + churn(0.2, 3.0))),
+      smoothstep(0.28, 0.7, simmer(ground * 12.0, 0.8))
     );
   }
 
@@ -668,14 +735,21 @@ const sky = `
     // The sun sits on the left edge of the screen, half out of sight, on
     // the side the earth and the moon are lit from. On an upright screen,
     // such as a phone, it is in the top left corner instead and nearly
-    // three times the size, a quarter of it showing. It arrives with the
-    // earth and the moon, once its photograph is there.
+    // three times the size, with its middle beyond the corner so that less
+    // than a quarter of it shows. It arrives with the earth and the moon,
+    // once its photograph is there, drifting in from the left, or from
+    // the top left on an upright screen, turning as it comes and slowing
+    // down as it gets to its place.
     float wide = smoothstep(0.8, 1.4, uResolution.x / uResolution.y);
+    float risen = 1.0 - pow(1.0 - uSunrise, 3.0);
+    vec2 seat = vec2(-edge.x, edge.y * mix(1.0, 0.5, wide))
+      + vec2(-1.0, 1.0) * mix(${STAR.beyond}, 0.0, wide)
+      + mix(vec2(-0.3, 0.3), vec2(-0.25, 0.0), wide) * (1.0 - risen);
     // Everything about the sun below is measured as if it were always its
     // size on a wide screen, 0.11 across the short side from middle to
     // edge, so the distances to it are scaled to match.
-    vec2 sunward = (point - vec2(-edge.x, edge.y * mix(1.0, 0.5, wide)))
-      * (0.11 / mix(0.3, 0.11, wide));
+    vec2 sunward = (point - seat)
+      * (0.11 / mix(${STAR.upright}, ${STAR.radius}, wide));
     float off = length(sunward);
 
     // Nothing of it reaches the far side of the screen.
@@ -686,6 +760,22 @@ const sky = `
       // flames that stand out from it, is all the photograph's own.
       vec2 frame = 0.5 - sunward / (0.11 / 0.9) * 0.5;
       vec3 disc = vec3(0.0);
+      // The sun spins about its upright axis, faster while it comes and
+      // slowly ever after, the same way round throughout.
+      float yaw = 2.6 * (1.0 - risen) - uSeconds * 0.05;
+      // What stands out from the edge belongs to the place on the ball
+      // that is at the edge right there, and that changes as the sun
+      // turns, by itself or by hand. So that place is found, the way any
+      // place on the ball is further down, and laid out flat the same way,
+      // for the fringe and the gas around the sun to follow.
+      vec3 brim = uStar * vec3(sunward / max(off, 0.0001), 0.0);
+      vec2 lie = (
+        vec2(-brim.x * cos(yaw) + brim.z * sin(yaw), -brim.y)
+        + (brim.z * cos(yaw) + brim.x * sin(yaw)) * vec2(0.6, 0.45)
+      ) * 1.4;
+      // The fringe in the photograph is moved around the edge by it.
+      float shift = 2.4 * (noise(lie * 1.3 + 3.0) - 0.5);
+      vec2 fringe = 0.5 + mat2(cos(shift), sin(shift), -sin(shift), cos(shift)) * (frame - 0.5);
 
       if (max(abs(frame.x - 0.5), abs(frame.y - 0.5)) < 0.5) {
         float middle = length(frame - 0.5);
@@ -697,34 +787,64 @@ const sky = `
 
         // Everything below is laid out on the ball that the sun is and not
         // on the flat disc it looks like, so that it crowds together
-        // towards the edge the way the real surface does.
+        // towards the edge the way the real surface does, and all of it
+        // turns together when the sun does.
         vec2 ball = (frame - 0.5) / 0.452;
         float out_ = min(length(ball), 0.999);
-        vec2 ground = ball * asin(out_) / max(out_, 0.001);
+        float deep = sqrt(1.0 - out_ * out_);
+        // Where on the ball a place is once it has been turned by hand,
+        // which is worked out the way the camera sees it: to the right, up
+        // and towards it. The photograph is laid out the other way round.
+        vec3 seen = uStar * vec3(-ball.x, -ball.y, deep);
+        float across = -seen.x * cos(yaw) + seen.z * sin(yaw);
+        float towards = seen.z * cos(yaw) + seen.x * sin(yaw);
+        // The gas is laid out on the ball without being stretched anywhere:
+        // each half of the ball is flattened around its own middle, and
+        // the two run into each other where they meet. Without that the
+        // gas shows as smudged streaks wherever it is drawn out.
+        float round_ = length(vec2(across, seen.y));
+        float lean = acos(clamp(towards, -1.0, 1.0));
+        vec2 spoke = vec2(across, -seen.y) / max(round_, 0.001);
+        float nearer = smoothstep(-0.3, 0.3, towards);
+        vec4 gases = nearer >= 1.0
+          ? seethe(spoke * lean)
+          : nearer <= 0.0
+            ? seethe(spoke * (lean - 3.14159) + 7.3)
+            : mix(seethe(spoke * (lean - 3.14159) + 7.3), seethe(spoke * lean), nearer);
+        vec2 eddies = gases.xy;
+        float plasma = gases.z;
+        float cells = gases.w;
 
-        // Large slow currents, and smaller eddies that they carry along.
-        // Each goes its own way round, so that nothing ever comes back to
-        // quite where it was.
-        vec2 currents = vec2(
-          clouds(ground + churn(0.09, 0.0)),
-          clouds(ground + 5.2 + churn(0.1, 2.0))
-        );
-        vec2 eddies = vec2(
-          clouds(ground * 1.6 + currents * 3.0 + 1.7 + churn(0.13, 4.0)),
-          clouds(ground * 1.6 + currents * 3.0 + 9.2 + churn(0.15, 1.0))
-        );
-        // The gas itself: fine and streaky, drawn out along the eddies. And
-        // finer still, the cells that well up and sink back all over it.
-        float plasma = smoothstep(0.25, 0.75, clouds(ground * 8.0 + eddies * 6.0 + churn(0.2, 3.0)));
-        float cells = smoothstep(0.28, 0.7, simmer(ground * 12.0, 0.8));
+        // The photograph is wrapped around the ball, and looked up where
+        // the turn has put each place on it.
+        // There is only a photograph of the one side, so the other side is
+        // the same one the other way up, and the two run into each other
+        // where they meet. Neither is looked up right at the edge of the
+        // photograph, which is a bright ring that looks like glass, so the
+        // surface is the same molten stuff all the way out. Past
+        // the edge of the sun it is the fringe of the photograph.
+        float wrapped = smoothstep(1.0, 0.975, length(ball));
+        vec2 stir = (eddies - 0.48) * 0.035 * inside;
+        // A photograph shows the edge of a ball squeezed together, and what
+        // is squeezed there would be drawn out into smears when it is
+        // turned to face the camera. So each half is laid out more evenly
+        // than the photograph has it.
+        float span = min(lean, 3.14159 - lean);
+        vec2 reached = spoke * mix(sin(span), span / 1.5708, 0.6) * 0.42;
+        vec2 front = mix(fringe, 0.5 + reached, wrapped);
+        vec2 back = mix(fringe, 0.5 - reached, wrapped);
 
         // The eddies carry what is in the photograph along with them.
         vec3 photo = pow(
-          texture2D(uSun, frame + (eddies - 0.48) * 0.035 * inside).rgb,
+          mix(
+            texture2D(uSun, back + stir).rgb,
+            texture2D(uSun, front + stir).rgb,
+            smoothstep(-0.3, 0.3, towards)
+          ),
           vec3(2.2)
         );
-        // The gas shades it, less towards the edge and not at all past it.
-        float shading = smoothstep(0.47, 0.44, middle) * (0.5 + 0.5 * inside);
+        // The gas shades it, right up to the edge and not past it.
+        float shading = smoothstep(0.465, 0.45, middle) * (0.8 + 0.2 * inside);
 
         disc = photo * smoothstep(0.5, 0.47, middle)
           * mix(1.0, (0.6 + 0.85 * plasma) * (0.78 + 0.45 * cells), shading);
@@ -740,34 +860,35 @@ const sky = `
       // the edge and fainter further out, which swells and fades a little.
       float beyond = max(off - 0.108, 0.0);
       float pulse = 1.0 + 0.06 * sin(uSeconds * 0.7) + 0.03 * sin(uSeconds * 1.9);
-      float shine = smoothstep(0.094, 0.112, off) * exp(-beyond * 26.0) * 0.38
-        + 0.035 / (off + 0.06) * exp(-off * 3.6);
+      float shine = smoothstep(0.094, 0.112, off) * exp(-beyond * 34.0) * 0.16
+        + 0.022 / (off + 0.06) * exp(-off * 4.5);
 
       // Gas hangs around it, as before but much thinner: a ragged fringe
       // of small jets right at the edge, and beyond that soft wisps, gone
-      // within a fifth of the sun's width. Both move straight outwards and
+      // within a tenth of the sun's width. Both move straight outwards and
       // no other way. All of it is kept much fainter than the sun, so that
       // the edge stays a clean circle.
       float gas = 0.0;
-      float angle = atan(sunward.y, sunward.x);
+      // Where around the edge it is, as a place on the ball.
+      float around_ = lie.x * 1.3 + lie.y * 1.9;
       float past = smoothstep(0.1, 0.116, off);
 
       if (off < 0.3) {
         float wisps = smoothstep(
           0.28,
           0.74,
-          clouds(vec2(angle * 3.5, beyond * 18.0 - uSeconds * 0.12))
+          clouds(vec2(around_ * 2.2, beyond * 18.0 - uSeconds * 0.12))
         );
         float jets = exp(-beyond * 46.0)
-          * (0.2 + 1.0 * clouds(vec2(angle * 22.0, beyond * 50.0 - uSeconds * 0.5)));
+          * (0.2 + 1.0 * clouds(vec2(around_ * 13.0, beyond * 50.0 - uSeconds * 0.5)));
 
-        gas = past * (exp(-beyond * 24.0) * (0.12 + 0.88 * wisps) + jets * 0.55);
+        gas = past * (exp(-beyond * 38.0) * (0.12 + 0.88 * wisps) + jets * 0.55);
       }
 
       light += uDawn * (
         disc * 1.9
         + vec3(1.0, 0.2, 0.05) * shine * pulse
-        + vec3(1.0, 0.32, 0.09) * gas * 0.5
+        + vec3(1.0, 0.32, 0.09) * gas * 0.28
       );
     }
 
@@ -789,7 +910,10 @@ const sky = `
     // more slowly as it reaches its place.
     float settled = 1.0 - pow(1.0 - uArrival, 3.0);
 
-    vec4 rock = moon(point, around, 0.026);
+    // The moon is lit from where the sun is on the screen, which is a
+    // little nearer the camera than the moon is, so that slightly more
+    // than the half of it facing the sun shows lit.
+    vec4 rock = moon(point, around, 0.026, normalize(vec3(normalize(seat - around), 0.12)));
     vec4 globe = earth(point, home - vec2(0.0, 0.32 * (1.0 - settled)), ${EARTH.radius});
 
     // Both hide the stars behind them from the start, and come out of the
@@ -1007,12 +1131,23 @@ export default function Starfield({ className }: StarfieldProps) {
     const start = performance.now()
     let frame = 0
 
-    // The earth can be turned by dragging it, with a mouse or a finger, and
-    // spun by letting go of it while moving. Where the pointer was last,
-    // and the spin it has, in radians per second to the right and down.
-    let orientation: ArrayLike<number> = globe()
-    let held: { x: number; y: number; at: number } | null = null
-    let spin = { right: 0, down: 0 }
+    // The earth and the sun can be turned by dragging them, with a mouse
+    // or a finger, and spun by letting go of them while moving. How each is
+    // turned, and the spin it has, in radians per second to the right and
+    // down. And which of them is held, and where the pointer was last.
+    type Body = 'earth' | 'sun'
+
+    const bodies: Record<
+      Body,
+      { orientation: ArrayLike<number>; spin: { right: number; down: number } }
+    > = {
+      earth: { orientation: globe(), spin: { right: 0, down: 0 } },
+      sun: {
+        orientation: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+        spin: { right: 0, down: 0 },
+      },
+    }
+    let held: { body: Body; x: number; y: number; at: number } | null = null
     let drawn = start
 
     // The short side of the screen, which the earth is measured in.
@@ -1026,45 +1161,71 @@ export default function Starfield({ className }: StarfieldProps) {
       clientY: number
     }
 
-    function over(place: Place) {
-      const x =
-        place.clientX -
-        canvas!.clientWidth *
-          (0.5 + aside(canvas!.clientWidth, canvas!.clientHeight) * 0.5)
-      const y = place.clientY - canvas!.clientHeight - EARTH.below * side()
+    // How large each of them is on the screen.
+    function radius(body: Body) {
+      if (body == 'earth') return EARTH.radius * side()
 
-      return Math.hypot(x, y) < EARTH.radius * side()
+      const wide = wideness(canvas!.clientWidth, canvas!.clientHeight)
+
+      return (STAR.upright + (STAR.radius - STAR.upright) * wide) * side()
     }
 
-    // Whether the earth can be taken hold of there: not through a link.
+    // Which of them is there, if any.
+    function over(place: Place): Body | null {
+      const [width, height] = [canvas!.clientWidth, canvas!.clientHeight]
+      const wide = wideness(width, height)
+      const beyond = STAR.beyond * (1 - wide) * side()
+
+      if (
+        Math.hypot(
+          place.clientX - width * (0.5 + aside(width, height) * 0.5),
+          place.clientY - height - EARTH.below * side(),
+        ) < radius('earth')
+      ) {
+        return 'earth'
+      }
+
+      if (
+        Math.hypot(
+          place.clientX + beyond,
+          place.clientY - height * 0.25 * wide + beyond,
+        ) < radius('sun')
+      ) {
+        return 'sun'
+      }
+
+      return null
+    }
+
+    // Which of them can be taken hold of there, if any: not through a link.
     function free(place: Place, target: EventTarget | null) {
-      return (
-        over(place) &&
-        !(target instanceof Element && target.closest('a, button'))
-      )
+      return target instanceof Element && target.closest('a, button')
+        ? null
+        : over(place)
     }
 
-    function hold(place: Place, at: number) {
-      held = { x: place.clientX, y: place.clientY, at }
-      spin = { right: 0, down: 0 }
+    function hold(body: Body, place: Place, at: number) {
+      held = { body, x: place.clientX, y: place.clientY, at }
+      bodies[body].spin = { right: 0, down: 0 }
     }
 
     function turnTo(place: Place, at: number) {
       if (!held) return
 
       // The ground under the pointer moves as far as the pointer does.
-      const reach = EARTH.radius * side()
+      const body = bodies[held.body]
+      const reach = radius(held.body)
       const right = (place.clientX - held.x) / reach
       const down = (place.clientY - held.y) / reach
       const delta = Math.max(at - held.at, 1) / 1000
 
-      orientation = turned(orientation, right, down)
+      body.orientation = turned(body.orientation, right, down)
       // Average over the last few moves, since a single one is jittery.
-      spin = {
-        right: limit(spin.right * 0.6 + (right / delta) * 0.4),
-        down: limit(spin.down * 0.6 + (down / delta) * 0.4),
+      body.spin = {
+        right: limit(body.spin.right * 0.6 + (right / delta) * 0.4),
+        down: limit(body.spin.down * 0.6 + (down / delta) * 0.4),
       }
-      held = { x: place.clientX, y: place.clientY, at }
+      held = { ...held, x: place.clientX, y: place.clientY, at }
 
       // A sky that holds still is not drawn again by itself.
       if (still.matches) draw()
@@ -1073,7 +1234,7 @@ export default function Starfield({ className }: StarfieldProps) {
     function letGo(at: number) {
       if (!held) return
 
-      if (at - held.at > REST) spin = { right: 0, down: 0 }
+      if (at - held.at > REST) bodies[held.body].spin = { right: 0, down: 0 }
 
       held = null
     }
@@ -1083,11 +1244,13 @@ export default function Starfield({ className }: StarfieldProps) {
     // the page from scrolling instead.
     function grab(event: PointerEvent) {
       if (event.pointerType == 'touch' || event.button != 0) return
-      if (!free(event, event.target)) return
+      const body = free(event, event.target)
+
+      if (!body) return
 
       // Keeps the drag from selecting the text of the page.
       event.preventDefault()
-      hold(event, event.timeStamp)
+      hold(body, event, event.timeStamp)
       document.documentElement.style.cursor = 'grabbing'
     }
 
@@ -1107,13 +1270,11 @@ export default function Starfield({ className }: StarfieldProps) {
 
     function touch(event: TouchEvent) {
       const finger = event.touches[0]
+      // Two fingers are zooming the page, not turning anything.
+      const body = event.touches.length == 1 ? free(finger, event.target) : null
 
-      // Two fingers are zooming the page, not turning the earth.
-      if (event.touches.length == 1 && free(finger, event.target)) {
-        hold(finger, event.timeStamp)
-      } else {
-        held = null
-      }
+      if (body) hold(body, finger, event.timeStamp)
+      else held = null
     }
 
     function swipe(event: TouchEvent) {
@@ -1167,22 +1328,28 @@ export default function Starfield({ className }: StarfieldProps) {
         gl!.viewport(0, 0, width, height)
       }
 
-      // Left alone after a throw, the earth spins on and slows down, until
-      // only the turning it always does is left.
+      // Left alone after a throw, each of them spins on and slows down,
+      // until only the turning it always does is left.
       const now = performance.now()
       const elapsed = Math.min((now - drawn) / 1000, 0.05)
 
       drawn = now
 
-      if (!held && Math.abs(spin.right) + Math.abs(spin.down) > 0.0005) {
+      for (const [name, body] of Object.entries(bodies)) {
+        const { right, down } = body.spin
+
+        if (held?.body == name || Math.abs(right) + Math.abs(down) < 0.0005) {
+          continue
+        }
+
         const slowed = Math.exp(-FRICTION * elapsed)
 
-        orientation = turned(
-          orientation,
-          spin.right * elapsed,
-          spin.down * elapsed,
+        body.orientation = turned(
+          body.orientation,
+          right * elapsed,
+          down * elapsed,
         )
-        spin = { right: spin.right * slowed, down: spin.down * slowed }
+        body.spin = { right: right * slowed, down: down * slowed }
       }
 
       const shared = {
@@ -1220,6 +1387,11 @@ export default function Starfield({ className }: StarfieldProps) {
           waiting || still.matches
             ? Number(!waiting)
             : Math.min((performance.now() - arrived) / 1000 / ARRIVAL, 1),
+        uHeld: Number(held?.body == 'earth'),
+        uSunrise:
+          waiting || still.matches
+            ? Number(!waiting)
+            : Math.min((performance.now() - arrived) / 1000 / SUNRISE, 1),
       })
       gl!.uniform2f(
         gl!.getUniformLocation(skyProgram!, 'uResolution'),
@@ -1229,7 +1401,12 @@ export default function Starfield({ className }: StarfieldProps) {
       gl!.uniformMatrix3fv(
         gl!.getUniformLocation(skyProgram!, 'uGlobe'),
         false,
-        Float32Array.from(orientation),
+        Float32Array.from(bodies.earth.orientation),
+      )
+      gl!.uniformMatrix3fv(
+        gl!.getUniformLocation(skyProgram!, 'uStar'),
+        false,
+        Float32Array.from(bodies.sun.orientation),
       )
       gl!.drawArrays(gl!.TRIANGLES, 0, 3)
 
