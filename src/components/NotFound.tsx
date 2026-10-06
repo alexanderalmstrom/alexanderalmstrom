@@ -134,10 +134,10 @@ function Telemetry() {
     <p className="mb-6 font-mono text-[0.8125rem] tracking-[0.2em] uppercase motion-safe:animate-glitch-flicker">
       {/* The first thing to rise in, through a mask of its own. */}
       <span className="block overflow-hidden">
-        <span className="flex flex-wrap gap-x-6 gap-y-1 motion-safe:animate-rise">
-          <span>Error 404</span>
+        <span className="flex flex-wrap sm:gap-x-6 gap-y-1 motion-safe:animate-rise max-sm:text-xs">
+          <span className='max-sm:basis-1/2'>Error 404</span>
           {readouts.map(([name, value], index) => (
-            <span key={name} aria-hidden="true">
+            <span key={name} className="max-sm:basis-1/2" aria-hidden="true">
               {name}{' '}
               {noise?.index == index
                 ? noise.text.slice(0, value.length)
