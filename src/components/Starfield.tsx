@@ -197,6 +197,10 @@ const sky = `
     return length(offset - along * clamp(dot(offset, along) / dot(along, along), 0.0, 1.0));
   }
 
+  // The seconds the earth takes to turn around once: slowly, but fast
+  // enough for the ground to be seen moving.
+  const float DAY = 1000.0;
+
   // A hard flash and a weaker one after it, by the seconds since a strike.
   float flash(float since) {
     // Before the strike there is nothing, and it has to be said outright:
@@ -239,7 +243,7 @@ const sky = `
       // place on the map of the clouds is fixed, and where that is seen
       // follows from it.
       float middle = (run + 0.5) * life - head_start;
-      vec2 cloud = chart(uGlobe * spot) - vec2(middle / 1350.0 * 1.2, 0.0);
+      vec2 cloud = chart(uGlobe * spot) - vec2(middle / DAY * 1.2, 0.0);
 
       // Read from a coarse level of the map, for the cloud over the whole
       // area and not at one point of it.
@@ -340,10 +344,9 @@ const sky = `
     }
 
     vec3 normal = vec3(disc, sqrt(1.0 - reach * reach));
-    // The earth turns very slowly, once in a little over twenty minutes, and the clouds a
-    // little faster than the ground under them.
+    // The clouds turn a little faster than the ground under them.
     vec2 at = chart(uGlobe * normal);
-    vec2 turn = vec2(uSeconds / 1350.0, 0.0);
+    vec2 turn = vec2(uSeconds / DAY, 0.0);
     vec3 map = texture2D(uDay, at - turn).rgb;
     vec3 ground = pow(map, vec3(2.2));
     vec3 cities = pow(texture2D(uNight, at - turn).rgb, vec3(2.2));
