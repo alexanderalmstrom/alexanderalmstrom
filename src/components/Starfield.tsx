@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // The earth as NASA photographed it: Blue Marble for the day side, Black
 // Marble for the lights at night, and a map of the clouds. The moon is from
@@ -998,6 +998,10 @@ const starFragment = `
   }
 `
 
+// How many times a canvas that lost its context is replaced by a new one,
+// so that a graphics card that keeps failing is left alone in the end.
+const ATTEMPTS = 3
+
 function link(gl: WebGLRenderingContext, vertex: string, fragment: string) {
   const program = gl.createProgram()!
 
@@ -1022,12 +1026,25 @@ function link(gl: WebGLRenderingContext, vertex: string, fragment: string) {
 // as one shader over the whole screen. Without WebGL the canvas simply stays empty.
 export default function Starfield({ className }: StarfieldProps) {
   const ref = useRef<HTMLCanvasElement>(null)
+  // A canvas only ever has the one context, and a context that is lost
+  // stays lost. So when that happens the canvas is replaced by a new one,
+  // which this counts, and the sky is set up again on that.
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     const canvas = ref.current
     const gl = canvas?.getContext('webgl', { antialias: false })
 
     if (!canvas || !gl) return
+
+    function replace() {
+      setAttempt((attempt) => Math.min(attempt + 1, ATTEMPTS))
+    }
+
+    // The context is already lost when this runs again on a canvas it has
+    // run on before, as it does when the code is replaced while developing:
+    // the clean up below gave the context up.
+    if (gl.isContextLost()) return replace()
 
     const skyProgram = link(
       gl,
@@ -1130,6 +1147,16 @@ export default function Starfield({ className }: StarfieldProps) {
     const still = window.matchMedia('(prefers-reduced-motion: reduce)')
     const start = performance.now()
     let frame = 0
+
+    // The browser can take the context away at any time, when the graphics
+    // card is reset or too much is asked of it.
+    function lost() {
+      gone = true
+      cancelAnimationFrame(frame)
+      replace()
+    }
+
+    canvas.addEventListener('webglcontextlost', lost)
 
     // The earth and the sun can be turned by dragging them, with a mouse
     // or a finger, and spun by letting go of them while moving. How each is
@@ -1428,10 +1455,12 @@ export default function Starfield({ className }: StarfieldProps) {
       window.removeEventListener('touchend', lift)
       window.removeEventListener('touchcancel', lift)
       document.documentElement.style.cursor = ''
+      // Giving the context up here is not the browser taking it away.
+      canvas.removeEventListener('webglcontextlost', lost)
       // Browsers only allow a handful of WebGL contexts at a time.
       gl.getExtension('WEBGL_lose_context')?.loseContext()
     }
-  }, [])
+  }, [attempt])
 
-  return <canvas ref={ref} className={className} />
+  return <canvas key={attempt} ref={ref} className={className} />
 }
