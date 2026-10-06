@@ -2,11 +2,13 @@ import { useEffect, useRef } from 'react'
 
 // The earth as NASA photographed it: Blue Marble for the day side, Black
 // Marble for the lights at night, and a map of the clouds. The moon is from
-// its Lunar Reconnaissance Orbiter.
+// its Lunar Reconnaissance Orbiter, and the sun is a photograph by its Solar
+// Dynamics Observatory, taken in the ultraviolet light of glowing helium.
 import earthClouds from '../images/earth-clouds.jpg'
 import earthDay from '../images/earth-day.jpg'
 import earthNight from '../images/earth-night.jpg'
 import moonSurface from '../images/moon.jpg'
+import sunSurface from '../images/sun.jpg'
 
 interface StarfieldProps {
   className?: string
@@ -146,7 +148,8 @@ const exposure = `
 
 // The far sky, painted per pixel: the band of our own galaxy seen from the
 // inside, with dark lanes of dust and a haze of faint stars along it, now
-// and then a shooting star, and in front of that the earth and the moon.
+// and then a shooting star, the sun at the edge, and in front of all that
+// the earth and the moon.
 const sky = `
   precision highp float;
 
@@ -158,6 +161,7 @@ const sky = `
   uniform sampler2D uNight;
   uniform sampler2D uClouds;
   uniform sampler2D uMoon;
+  uniform sampler2D uSun;
   uniform mat3 uGlobe;
   uniform float uDawn;
   uniform float uArrival;
@@ -192,6 +196,32 @@ const sky = `
     }
 
     return value;
+  }
+
+  // A point that goes round a small circle at the given pace, from the given
+  // place on it. Clouds read a little to the side of where they are, by
+  // this, shift about without ever drifting off.
+  vec2 churn(float pace, float from) {
+    return 0.5 * vec2(cos(uSeconds * pace + from), sin(uSeconds * pace + from));
+  }
+
+  // Clouds that change where they are instead of drifting past. Two sets
+  // of them take turns: while one shows in full the other is swapped for a
+  // new one unseen, and then they fade over. The given pace is how many
+  // times a second that happens.
+  float simmer(vec2 point, float pace) {
+    float beat = uSeconds * pace;
+    float early = floor(beat);
+    float late = floor(beat + 0.5);
+    // How much of the first set shows: none as it is swapped, and all of it
+    // half a beat later, as the second one is.
+    float share = 1.0 - abs(2.0 * fract(beat) - 1.0);
+    float first = clouds(point + 37.0 * vec2(hash(vec2(early, 1.0)), hash(vec2(early, 2.0))));
+    float second = clouds(point + 37.0 * vec2(hash(vec2(late, 3.0)), hash(vec2(late, 4.0))));
+
+    // Two sets mixed are flatter than either alone, which is made up for.
+    return 0.48 + ((first - 0.48) * share + (second - 0.48) * (1.0 - share))
+      / length(vec2(share, 1.0 - share));
   }
 
   // A shooting star: a small streak that crosses a bit of the sky in about
@@ -388,29 +418,109 @@ const sky = `
     return total;
   }
 
+  // The northern lights: a handful of separate strips of light scattered
+  // over the far north, each lying its own way, with its own length, bend
+  // and brightness, so that they make no ring around the pole. A strip is
+  // a ribbon of green with a sharp edge on one side and a fade on the
+  // other, where it turns violet, crossed by rays that ripple along it.
+  //
+  // The strips belong to the ground: they turn with the earth, by the given
+  // part of a full turn. The slant is how much more of them there is to
+  // look through where they are seen from the side, near the edge of the
+  // earth. There they also crowd together until they are finer than the
+  // pixels of the screen, so they are spread out to match, and the rays,
+  // for which the given detail is the measure, are left out. That keeps
+  // the horizon smooth.
+  vec3 aurora(vec3 place, float turn, float slant, float detail) {
+    // Nothing south of about 46 degrees.
+    if (place.y < 0.72) return vec3(0.0);
+
+    // The top of the world laid out flat, as seen from above the pole, and
+    // turned with the ground. One degree is about 0.009 across on it.
+    float turned = turn * 6.2831853;
+    vec2 top = mat2(cos(turned), sin(turned), -sin(turned), cos(turned))
+      * place.xz / (1.0 + place.y);
+    float spread = slant * slant;
+    vec3 strips = vec3(0.0);
+
+    for (int index = 0; index < 7; index++) {
+      float which = float(index);
+      // Where its middle is, which way it lies, half its length, how much
+      // it bends and how bright it is.
+      float bearing = hash(vec2(which, 1.0)) * 6.2831853;
+      vec2 middle = (0.13 + 0.17 * hash(vec2(which, 2.0))) * vec2(cos(bearing), sin(bearing));
+      float heading = hash(vec2(which, 3.0)) * 3.14159;
+      vec2 way = vec2(cos(heading), sin(heading));
+      float half_length = 0.08 + 0.14 * hash(vec2(which, 4.0));
+      float bend = (hash(vec2(which, 5.0)) - 0.5) * 3.0;
+      float bright = 0.6 + 0.6 * hash(vec2(which, 6.0));
+
+      vec2 from_middle = top - middle;
+      float along = dot(from_middle, way);
+
+      if (abs(along) < half_length) {
+        // It snakes a little, and slowly changes how.
+        float across = dot(from_middle, vec2(-way.y, way.x))
+          - bend * along * along
+          - 0.012 * sin(along * 40.0 + which * 2.0 + uSeconds * 0.15);
+        // The rays stand side by side along it, and flicker. They are kept
+        // coarse: anything finer would be smaller than a pixel on a phone.
+        float rays = 0.65 * noise(vec2(along * 55.0 + uSeconds * 0.06, which * 5.0 - uSeconds * 0.04))
+          + 0.35 * noise(vec2(along * 125.0 - uSeconds * 0.09, which * 9.0));
+        float curtains = mix(0.95, 0.3 + 1.4 * smoothstep(0.3, 0.72, rays), detail);
+        float shimmer = mix(1.0, 0.8 + 0.2 * sin(uSeconds * 1.4 + rays * 20.0), detail);
+
+        strips += bright * curtains * shimmer
+          * smoothstep(half_length, half_length * 0.55, abs(along))
+          * (
+            vec3(0.12, 1.0, 0.42) * exp(-across * across / ((across < 0.0 ? 0.00006 : 0.0004) * spread))
+            + vec3(0.6, 0.15, 0.85) * 0.35 * exp(-pow((across - 0.022 * slant) / (0.016 * slant), 2.0))
+          );
+      }
+    }
+
+    return strips * sqrt(slant);
+  }
+
   // The earth, with its colour already multiplied by how much of the pixel
   // it covers: land and sea by day, cities by night, clouds and their
-  // lightning over both, and the air as a blue haze that thickens towards
-  // the edge and glows past it.
+  // lightning over both, the northern lights, and the air as a blue haze
+  // that thickens towards the edge and glows past it.
   vec4 earth(vec2 point, vec2 centre, float radius) {
     vec2 disc = (point - centre) / radius;
     float reach = length(disc);
-
-    if (reach >= 1.0) {
-      // Past the edge there is only the thin shell of air, lit from behind.
-      float lit = smoothstep(-0.35, 0.3, dot(vec3(disc / reach, 0.0), SUN));
-      float glow = exp((1.0 - reach) / 0.012) * lit * 0.85;
-
-      return vec4(AIR * glow, glow);
-    }
-
-    vec3 normal = vec3(disc, sqrt(1.0 - reach * reach));
-    // The clouds turn a little faster than the ground under them.
-    vec2 at = chart(uGlobe * normal);
     // While it arrives the earth is spun back a little under a tenth of a
     // turn, which it makes up fast at first and ever more slowly, until
     // what is left of its spin is exactly the speed it keeps afterwards.
     vec2 turn = vec2(uSeconds / DAY - 0.08 * pow(1.0 - uArrival, 3.0), 0.0);
+    // What is right at the edge, seen from the side: how much of the sun's
+    // light the air there catches, and the northern lights, which stand
+    // high enough over the ground to show past it.
+    float grazing = smoothstep(-0.35, 0.3, dot(vec3(disc / max(reach, 0.0001), 0.0), SUN));
+    vec3 lights = vec3(0.0);
+
+    if (reach > 0.98) {
+      lights = aurora(uGlobe * vec3(disc / reach, 0.0), turn.x, 2.4, 0.0)
+        * (1.0 - 0.7 * grazing) * 0.8;
+    }
+
+    if (reach >= 1.0) {
+      // Past the edge there is only the thin shell of air, lit from behind,
+      // and the northern lights fading out above it.
+      float glow = exp((1.0 - reach) / 0.012) * grazing * 0.85;
+
+      lights *= exp((1.0 - reach) / 0.009);
+
+      return vec4(
+        AIR * glow + lights,
+        clamp(glow + max(lights.r, max(lights.g, lights.b)), 0.0, 1.0)
+      );
+    }
+
+    vec3 normal = vec3(disc, sqrt(1.0 - reach * reach));
+    // The clouds turn a little faster than the ground under them.
+    vec3 place = uGlobe * normal;
+    vec2 at = chart(place);
     vec3 map = texture2D(uDay, at - turn).rgb;
     vec3 ground = pow(map, vec3(2.2));
     vec3 cities = pow(texture2D(uNight, at - turn).rgb, vec3(2.2));
@@ -418,8 +528,13 @@ const sky = `
     // The map of the clouds is coarse this close up, so finer billows are
     // worked into it, and a few thin clouds are added where it has none.
     vec2 sky = at - turn * 1.2;
-    float billows = clouds(sky * vec2(260.0, 130.0));
-    float wisps = smoothstep(0.55, 0.85, clouds(sky * vec2(70.0, 35.0) + 31.0));
+    // Detail finer than the pixels of the screen shows as grain. That is
+    // what it becomes towards the edge of the earth, where the ground is
+    // seen from the side, and near the poles, where the map crowds
+    // together, so it is left out there.
+    float facing = smoothstep(0.08, 0.45, normal.z) * smoothstep(0.97, 0.8, abs(place.y));
+    float billows = mix(0.5, clouds(sky * vec2(160.0, 80.0)), facing);
+    float wisps = smoothstep(0.55, 0.85, clouds(sky * vec2(70.0, 35.0) + 31.0)) * facing;
     float cover = smoothstep(
       0.08,
       0.85,
@@ -462,13 +577,24 @@ const sky = `
 
     colour = mix(colour, AIR * haze, haze * (0.1 + 0.75 * pow(1.0 - normal.z, 2.5)));
 
-    // The last few pixels of the ground blend into the glow of the air
-    // right over the edge, so that the earth does not end in a hard line.
-    float rim = smoothstep(-0.35, 0.3, dot(vec3(disc / reach, 0.0), SUN)) * 0.85;
+    // The northern lights hang above the clouds and the air. They are
+    // bright in the dark and pale by day, and brighter towards the edge of
+    // the earth, where they are seen from the side.
+    colour += aurora(
+      place,
+      turn.x,
+      1.0 / pow(max(normal.z, 0.23), 0.6),
+      smoothstep(0.2, 0.55, normal.z)
+    ) * mix(1.0, 0.3, day) * 0.8;
+
+    // The last few pixels of the ground blend into what is right over the
+    // edge, the glow of the air and the northern lights there, so that the
+    // earth does not end in a hard line.
+    float rim = grazing * 0.85;
     float soften = 2.5 * uPixelRatio / min(uResolution.x, uResolution.y) / radius;
 
     return mix(
-      vec4(AIR * rim, rim),
+      vec4(AIR * rim + lights, clamp(rim + max(lights.r, max(lights.g, lights.b)), 0.0, 1.0)),
       vec4(pow(colour, vec3(1.0 / 2.2)), 1.0),
       smoothstep(1.0, 1.0 - soften, reach)
     );
@@ -539,11 +665,116 @@ const sky = `
     light += vec3(0.9, 0.95, 1.0) * 0.8
       * (meteor(point, edge, 0.0) + meteor(point, edge, 1.0) + meteor(point, edge, 2.0));
 
+    // The sun sits on the left edge of the screen, half out of sight, on
+    // the side the earth and the moon are lit from. On an upright screen,
+    // such as a phone, it is in the top left corner instead and nearly
+    // three times the size, a quarter of it showing. It arrives with the
+    // earth and the moon, once its photograph is there.
+    float wide = smoothstep(0.8, 1.4, uResolution.x / uResolution.y);
+    // Everything about the sun below is measured as if it were always its
+    // size on a wide screen, 0.11 across the short side from middle to
+    // edge, so the distances to it are scaled to match.
+    vec2 sunward = (point - vec2(-edge.x, edge.y * mix(1.0, 0.5, wide)))
+      * (0.11 / mix(0.3, 0.11, wide));
+    float off = length(sunward);
+
+    // Nothing of it reaches the far side of the screen.
+    if (off < 0.8) {
+      // The photograph is a square with the sun filling nine tenths of it,
+      // shown the other way up, which turns its most active edge towards
+      // the screen. What is seen at the edge, the fuzz of gas and the
+      // flames that stand out from it, is all the photograph's own.
+      vec2 frame = 0.5 - sunward / (0.11 / 0.9) * 0.5;
+      vec3 disc = vec3(0.0);
+
+      if (max(abs(frame.x - 0.5), abs(frame.y - 0.5)) < 0.5) {
+        float middle = length(frame - 0.5);
+        // The photograph is still, so its surface is set in motion here,
+        // as the plasma it is. Whatever moves it is at full strength well
+        // inside the sun and gone at its edge, which is left exactly as
+        // round as it is.
+        float inside = smoothstep(0.45, 0.36, middle);
+
+        // Everything below is laid out on the ball that the sun is and not
+        // on the flat disc it looks like, so that it crowds together
+        // towards the edge the way the real surface does.
+        vec2 ball = (frame - 0.5) / 0.452;
+        float out_ = min(length(ball), 0.999);
+        vec2 ground = ball * asin(out_) / max(out_, 0.001);
+
+        // Large slow currents, and smaller eddies that they carry along.
+        // Each goes its own way round, so that nothing ever comes back to
+        // quite where it was.
+        vec2 currents = vec2(
+          clouds(ground + churn(0.09, 0.0)),
+          clouds(ground + 5.2 + churn(0.1, 2.0))
+        );
+        vec2 eddies = vec2(
+          clouds(ground * 1.6 + currents * 3.0 + 1.7 + churn(0.13, 4.0)),
+          clouds(ground * 1.6 + currents * 3.0 + 9.2 + churn(0.15, 1.0))
+        );
+        // The gas itself: fine and streaky, drawn out along the eddies. And
+        // finer still, the cells that well up and sink back all over it.
+        float plasma = smoothstep(0.25, 0.75, clouds(ground * 8.0 + eddies * 6.0 + churn(0.2, 3.0)));
+        float cells = smoothstep(0.28, 0.7, simmer(ground * 12.0, 0.8));
+
+        // The eddies carry what is in the photograph along with them.
+        vec3 photo = pow(
+          texture2D(uSun, frame + (eddies - 0.48) * 0.035 * inside).rgb,
+          vec3(2.2)
+        );
+        // The gas shades it, less towards the edge and not at all past it.
+        float shading = smoothstep(0.47, 0.44, middle) * (0.5 + 0.5 * inside);
+
+        disc = photo * smoothstep(0.5, 0.47, middle)
+          * mix(1.0, (0.6 + 0.85 * plasma) * (0.78 + 0.45 * cells), shading);
+        // Warmed from the deep red of the photograph towards orange.
+        disc += disc.r * vec3(0.0, 0.16, 0.02);
+        // Where the gas is thickest over one of the regions that are bright
+        // in the photograph, it flares up towards yellow and white, the way
+        // the hottest places on the sun do.
+        disc += vec3(1.0, 0.75, 0.35) * photo.g * pow(smoothstep(0.5, 1.0, plasma), 2.0) * 2.0 * shading;
+      }
+
+      // The sun is wrapped in a soft glow of its own colour, close around
+      // the edge and fainter further out, which swells and fades a little.
+      float beyond = max(off - 0.108, 0.0);
+      float pulse = 1.0 + 0.06 * sin(uSeconds * 0.7) + 0.03 * sin(uSeconds * 1.9);
+      float shine = smoothstep(0.094, 0.112, off) * exp(-beyond * 26.0) * 0.38
+        + 0.035 / (off + 0.06) * exp(-off * 3.6);
+
+      // Gas hangs around it, as before but much thinner: a ragged fringe
+      // of small jets right at the edge, and beyond that soft wisps, gone
+      // within a fifth of the sun's width. Both move straight outwards and
+      // no other way. All of it is kept much fainter than the sun, so that
+      // the edge stays a clean circle.
+      float gas = 0.0;
+      float angle = atan(sunward.y, sunward.x);
+      float past = smoothstep(0.1, 0.116, off);
+
+      if (off < 0.3) {
+        float wisps = smoothstep(
+          0.28,
+          0.74,
+          clouds(vec2(angle * 3.5, beyond * 18.0 - uSeconds * 0.12))
+        );
+        float jets = exp(-beyond * 46.0)
+          * (0.2 + 1.0 * clouds(vec2(angle * 22.0, beyond * 50.0 - uSeconds * 0.5)));
+
+        gas = past * (exp(-beyond * 24.0) * (0.12 + 0.88 * wisps) + jets * 0.55);
+      }
+
+      light += uDawn * (
+        disc * 1.9
+        + vec3(1.0, 0.2, 0.05) * shine * pulse
+        + vec3(1.0, 0.32, 0.09) * gas * 0.5
+      );
+    }
+
     gl_FragColor = expose(light);
 
     // The earth rises over the bottom of the screen, the moon far behind
     // it. Neither is lit until their maps are there.
-    float wide = smoothstep(0.8, 1.4, uResolution.x / uResolution.y);
     vec2 home = vec2(
       edge.x * mix(${EARTH.upright.toFixed(2)}, ${EARTH.right.toFixed(2)}, wide),
       -edge.y - ${EARTH.below}
@@ -722,6 +953,7 @@ export default function Starfield({ className }: StarfieldProps) {
       uNight: earthNight,
       uClouds: earthClouds,
       uMoon: moonSurface,
+      uSun: sunSurface,
     }
     const sharpest = gl.getExtension('EXT_texture_filter_anisotropic')
     let waiting = Object.keys(maps).length
