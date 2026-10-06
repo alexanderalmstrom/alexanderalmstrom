@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { cn } from '../lib/cn'
@@ -162,33 +162,29 @@ function Heading() {
   ))
 }
 
-const LIGHT = '(prefers-color-scheme: light)'
-
-// Whether the visitor has the light theme, kept up to date if they switch.
-function useLightTheme() {
-  return useSyncExternalStore(
-    (notify) => {
-      const theme = window.matchMedia(LIGHT)
-
-      theme.addEventListener('change', notify)
-
-      return () => theme.removeEventListener('change', notify)
-    },
-    () => window.matchMedia(LIGHT).matches,
-  )
-}
-
 export default function NotFound() {
-  // Space is dark, so the sky is left out on the light theme. It is not
-  // just hidden: its maps of the earth and the moon are never fetched.
-  const light = useLightTheme()
+  // Space is dark whatever theme the visitor prefers, so the whole site
+  // goes dark for as long as this page is shown, along with the colour the
+  // browser gives its own bars on the light theme.
+  useLayoutEffect(() => {
+    const bars = document.querySelector<HTMLMetaElement>(
+      'meta[name="theme-color"][media]',
+    )
+    const colour = bars?.content
+
+    document.documentElement.dataset.theme = 'dark'
+    if (bars) bars.content = '#000000'
+
+    return () => {
+      delete document.documentElement.dataset.theme
+      if (bars && colour) bars.content = colour
+    }
+  }, [])
 
   return (
     <Container className="mt-10">
       <DocumentMeta title="Page not found" />
-      {light ? null : (
-        <Starfield className="pointer-events-none fixed inset-0 -z-1 size-full motion-safe:animate-dawn" />
-      )}
+      <Starfield className="pointer-events-none fixed inset-0 -z-1 size-full motion-safe:animate-dawn" />
       {/* Everything but the heading is set in the typeface of the
           readouts. The heading grows with the width of the screen. */}
       <div className="w-full flex-none px-8 font-mono text-[0.8125rem] lg:px-16">
@@ -198,7 +194,7 @@ export default function NotFound() {
             <Heading />
           </Glitch>
         </h1>
-        <p className="lg:text-lg motion-safe:animate-glitch-flicker motion-safe:[animation-delay:-1.7s]">
+        <p className="motion-safe:animate-glitch-flicker motion-safe:[animation-delay:-1.7s] lg:text-lg">
           {/* Rises in after the heading, through a mask of its own; the
               padding keeps descenders from being cut. */}
           <span className="mb-[-0.15em] block overflow-hidden pb-[0.15em]">

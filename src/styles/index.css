@@ -254,10 +254,14 @@
     color-scheme: dark;
 
     @media (prefers-color-scheme: light) {
-      color-scheme: light;
-      --color-background: #fff;
-      --color-foreground: #000;
-      --color-muted: rgb(221 221 221 / 0.5);
+      /* A page can keep the dark theme by setting data-theme on the root,
+         as the not found page does. */
+      &:not([data-theme='dark']) {
+        color-scheme: light;
+        --color-background: #fff;
+        --color-foreground: #000;
+        --color-muted: rgb(221 221 221 / 0.5);
+      }
     }
   }
 
