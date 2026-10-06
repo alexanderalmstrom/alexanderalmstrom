@@ -1,10 +1,18 @@
-import { Fragment, useEffect, useState, useSyncExternalStore } from 'react'
-import type { CSSProperties, ReactNode } from 'react'
+import {
+  Fragment,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react'
+import type { ReactNode } from 'react'
 
 import { cn } from '../lib/cn'
 
 import Container from './Container'
 import DocumentMeta from './DocumentMeta'
+import LooseLetter from './LooseLetter'
+import type { Drift } from './LooseLetter'
 import Starfield from './Starfield'
 
 interface GlitchProps {
@@ -143,29 +151,31 @@ function Telemetry() {
 }
 
 const lines = ['Uh-Oh! Houston,', 'We have a problem']
+const text = lines.join(' ')
 
-// Nothing holds the letters down out here, so a few of them have come
-// loose. By their place in the heading: how far each one floats off, how
-// much it turns on the way, and the seconds it takes to get there and back.
-const loose: Record<
-  number,
-  { x: string; y: string; turn: string; time: number }
-> = {
-  3: { x: '11vw', y: '-11vh', turn: '-40deg', time: 420 },
-  12: { x: '14vw', y: '-6vh', turn: '95deg', time: 480 },
-  21: { x: '6vw', y: '16vh', turn: '60deg', time: 380 },
-  28: { x: '18vw', y: '12vh', turn: '-120deg', time: 500 },
-  32: { x: '26vw', y: '4vh', turn: '35deg', time: 450 },
+// Nothing holds the letters down out here, so two of them have come loose:
+// the e in have and the m in problem. By their place in the heading, how
+// each one floats and turns when left alone.
+const loose: Record<number, Drift> = {
+  22: { x: 0.3, y: 1.4, spin: 1.2 },
+  32: { x: 0.9, y: 0.8, spin: -1.4 },
+}
+
+interface HeadingProps {
+  // Whether the loose letters have left, so that only their gaps remain.
+  released: boolean
 }
 
 // The heading rises into place line by line when the page opens, like the
-// heading of a hero. Each line rises through a mask that is taken away once
-// it has arrived, so that the loose letters can leave it.
-function Heading() {
+// heading of a hero: each line rises through a mask, and the padding keeps
+// descenders from being cut.
+function Heading({ released }: HeadingProps) {
   let place = 0
 
   return lines.map((line, index) => (
-    <span key={index} className="block motion-safe:animate-unmask">
+    <span
+      key={index}
+      className="-mb-[0.15em] block overflow-hidden pb-[0.15em]">
       <span
         className="block motion-safe:animate-rise"
         style={{ animationDelay: `${(index + 1) * STAGGER}s` }}>
@@ -180,27 +190,20 @@ function Heading() {
               {/* A loose letter is a box of its own, which would otherwise
                   let the word break in two at the end of a line. */}
               <span className="whitespace-nowrap">
-                {[...word].map((letter, offset) => {
-                  const drift = loose[start + offset]
-
-                  return drift ? (
+                {[...word].map((letter, offset) =>
+                  loose[start + offset] ? (
+                    // The letter stays here unseen once it has left, so that
+                    // the word keeps its gap and still reads the same aloud.
                     <span
                       key={offset}
-                      className="inline-block motion-safe:animate-drift"
-                      style={
-                        {
-                          '--drift-x': drift.x,
-                          '--drift-y': drift.y,
-                          '--drift-turn': drift.turn,
-                          animationDuration: `${drift.time}s`,
-                        } as CSSProperties
-                      }>
+                      data-loose={start + offset}
+                      className={cn('inline-block', released && 'opacity-0')}>
                       {letter}
                     </span>
                   ) : (
                     letter
-                  )
-                })}
+                  ),
+                )}
               </span>
             </Fragment>
           )
@@ -230,42 +233,82 @@ export default function NotFound() {
   // Space is dark, so the sky is left out on the light theme. It is not
   // just hidden: its maps of the earth and the moon are never fetched.
   const light = useLightTheme()
+  const [released, setReleased] = useState(false)
+  const heading = useRef<HTMLHeadingElement>(null)
+
+  // The loose letters let go of the heading once it has risen into place.
+  // That is waited for rather than timed, since a page opened in a tab in
+  // the background does not animate until it is looked at.
+  useEffect(() => {
+    let gone = false
+    const rising = (
+      heading.current?.getAnimations({ subtree: true }) ?? []
+    ).filter(
+      (animation) =>
+        animation instanceof CSSAnimation && animation.animationName == 'rise',
+    )
+
+    Promise.all(rising.map((animation) => animation.finished)).then(
+      () => {
+        if (!gone) setReleased(true)
+      },
+      // An animation that was cancelled means the page is going away.
+      () => {},
+    )
+
+    return () => {
+      gone = true
+    }
+  }, [])
 
   return (
-    // Clipped sideways, so a letter that floats past the edge of the screen
-    // does not make the page scroll.
-    <div className="overflow-x-clip">
-      <Container className="mt-10">
-        <DocumentMeta title="Page not found" />
-        {light ? null : (
-          <Starfield className="pointer-events-none fixed inset-0 -z-1 size-full motion-safe:animate-dawn" />
-        )}
-        <div className="relative w-full flex-none px-8 lg:w-10/12 lg:px-16">
-          <Telemetry />
-          <h1 className="text-[3.25rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[7.5rem]">
-            <Glitch>
-              <Heading />
-            </Glitch>
-          </h1>
-          <p className="motion-safe:animate-glitch-flicker motion-safe:[animation-delay:-1.7s]">
-            {/* Rises in after the heading, through a mask of its own; the
-                padding keeps descenders from being cut. */}
-            <span className="-mb-[0.15em] block overflow-hidden pb-[0.15em]">
-              <span
-                className="block motion-safe:animate-rise"
-                style={{ animationDelay: `${(lines.length + 1) * STAGGER}s` }}>
-                We could not find what you were looking for.
-              </span>
+    <Container className="mt-10">
+      <DocumentMeta title="Page not found" />
+      {light ? null : (
+        <Starfield className="pointer-events-none fixed inset-0 -z-1 size-full motion-safe:animate-dawn" />
+      )}
+      <div className="relative w-full flex-none px-8 lg:w-10/12 lg:px-16">
+        <Telemetry />
+        <h1
+          ref={heading}
+          className="text-[3.25rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[7.5rem]">
+          <Glitch>
+            <Heading released={released} />
+          </Glitch>
+          {/* The loose letters float over the whole screen. They are kept
+                in the heading so that they look like the rest of it, but
+                fixed to the screen so that they can leave it without making
+                the page scroll. */}
+          {released ? (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none fixed inset-0 z-10 overflow-hidden">
+              {Object.entries(loose).map(([place, drift]) => (
+                <LooseLetter key={place} place={Number(place)} drift={drift}>
+                  {text[Number(place)]}
+                </LooseLetter>
+              ))}
             </span>
-          </p>
-          {/* A thin line that inverts whatever it crosses, like a row of the
+          ) : null}
+        </h1>
+        <p className="motion-safe:animate-glitch-flicker motion-safe:[animation-delay:-1.7s]">
+          {/* Rises in after the heading, through a mask of its own; the
+                padding keeps descenders from being cut. */}
+          <span className="-mb-[0.15em] block overflow-hidden pb-[0.15em]">
+            <span
+              className="block motion-safe:animate-rise"
+              style={{ animationDelay: `${(lines.length + 1) * STAGGER}s` }}>
+              We could not find what you were looking for.
+            </span>
+          </span>
+        </p>
+        {/* A thin line that inverts whatever it crosses, like a row of the
             screen that failed to draw. */}
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 hidden h-0.5 bg-white mix-blend-difference motion-safe:block motion-safe:animate-glitch-tear"
-          />
-        </div>
-      </Container>
-    </div>
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 hidden h-0.5 bg-white mix-blend-difference motion-safe:block motion-safe:animate-glitch-tear"
+        />
+      </div>
+    </Container>
   )
 }
