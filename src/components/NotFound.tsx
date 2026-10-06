@@ -152,7 +152,7 @@ function Heading() {
   return lines.map((line, index) => (
     <span
       key={index}
-      className="-mb-[0.15em] block overflow-hidden pb-[0.15em]">
+      className="mb-[-0.15em] block overflow-hidden pb-[0.15em]">
       <span
         className="block motion-safe:animate-rise"
         style={{ animationDelay: `${(index + 1) * STAGGER}s` }}>
@@ -193,15 +193,15 @@ export default function NotFound() {
           readouts. The heading grows with the width of the screen. */}
       <div className="w-full flex-none px-8 font-mono text-[0.8125rem] lg:px-16">
         <Telemetry />
-        <h1 className="mb-8 font-sans text-[clamp(2rem,7vw,7rem)] leading-[1.05]">
+        <h1 className="mb-8 font-sans text-[clamp(2.25rem,6vw,8rem)] leading-[1.05]">
           <Glitch>
             <Heading />
           </Glitch>
         </h1>
-        <p className="text-[1rem] motion-safe:animate-glitch-flicker motion-safe:[animation-delay:-1.7s]">
+        <p className="lg:text-lg motion-safe:animate-glitch-flicker motion-safe:[animation-delay:-1.7s]">
           {/* Rises in after the heading, through a mask of its own; the
               padding keeps descenders from being cut. */}
-          <span className="-mb-[0.15em] block overflow-hidden pb-[0.15em]">
+          <span className="mb-[-0.15em] block overflow-hidden pb-[0.15em]">
             <span
               className="block motion-safe:animate-rise"
               style={{ animationDelay: `${(lines.length + 1) * STAGGER}s` }}>
