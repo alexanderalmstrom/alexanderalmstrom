@@ -60,45 +60,6 @@
   --animate-glitch-flicker: glitch-flicker 6.7s steps(1) infinite;
   --animate-glitch-tear: glitch-tear 9.7s steps(1) infinite;
 
-  /* The mask a line of the not found heading rises through. It reaches a
-     little past the line so that descenders are not cut, and is gone when
-     the line has arrived, which takes the rise and the wait before it. */
-  --animate-unmask: unmask 1.2s both;
-
-  @keyframes unmask {
-    0%,
-    99% {
-      clip-path: inset(-0.05em -0.1em -0.15em -0.1em);
-    }
-
-    100% {
-      clip-path: none;
-    }
-  }
-
-  /* A letter of the not found heading floating off and back again. Where
-     it goes and how long it takes is set on each letter (see NotFound). */
-  --animate-drift: drift 160s infinite both;
-
-  @keyframes drift {
-    0% {
-      translate: 0 0;
-      rotate: 0deg;
-      animation-timing-function: cubic-bezier(0.2, 0.2, 0.5, 1);
-    }
-
-    50% {
-      translate: var(--drift-x) var(--drift-y);
-      rotate: var(--drift-turn);
-      animation-timing-function: cubic-bezier(0.5, 0, 0.6, 1);
-    }
-
-    100% {
-      translate: 0 0;
-      rotate: 0deg;
-    }
-  }
-
   /* The slices are hidden between bursts; each clip-path is the thin band
      of the text a slice covers while it is pushed sideways. */
   @keyframes glitch-top {
