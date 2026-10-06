@@ -497,7 +497,7 @@ const sky = `
     gl_FragColor = expose(light);
 
     // The earth rises over the bottom of the screen, the moon far behind
-    // it. Neither is there until their maps are.
+    // it. Neither is lit until their maps are there.
     vec2 home = vec2(edge.x * 0.6, -edge.y - 0.22);
     // The moon goes around the earth very slowly, once an hour: over the
     // top of it to the right, and then out of sight behind it.
@@ -510,9 +510,16 @@ const sky = `
     float settled = 1.0 - pow(1.0 - uArrival, 3.0);
 
     vec4 rock = moon(point, around, 0.026);
-    vec4 globe = earth(point, home - vec2(0.0, 0.32 * (1.0 - settled)), 0.62) * uDawn;
+    vec4 globe = earth(point, home - vec2(0.0, 0.32 * (1.0 - settled)), 0.62);
 
-    gl_FragColor = mix(gl_FragColor, vec4(rock.rgb, 1.0), rock.a * uDawn);
+    // Both hide the stars behind them from the start, and come out of the
+    // dark instead of out of thin air: only their light fades in. The glow
+    // of the air past the edge of the earth, which hides nothing, fades in
+    // whole.
+    gl_FragColor = mix(gl_FragColor, vec4(rock.rgb * uDawn, 1.0), rock.a);
+
+    globe.rgb *= uDawn;
+    globe.a *= mix(uDawn, 1.0, smoothstep(0.85, 1.0, globe.a));
     gl_FragColor = globe + gl_FragColor * (1.0 - globe.a);
   }
 `
