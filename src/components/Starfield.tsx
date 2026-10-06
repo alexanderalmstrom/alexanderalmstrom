@@ -266,7 +266,7 @@ const sky = `
 
   // The seconds the earth takes to turn around once: slowly, but fast
   // enough for the ground to be seen moving.
-  const float DAY = 700.0;
+  const float DAY = 450.0;
 
   // A hard flash and a weaker one after it, by the seconds since a strike.
   float flash(float since) {
