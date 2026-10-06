@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { cn } from '../lib/cn'
@@ -192,18 +192,36 @@ function Telemetry() {
 
 const lines = ['Uh-Oh! Houston,', 'We have a problem']
 
-// The heading rises into place line by line when the page opens, like the
-// heading of a hero: each line rises through a mask, and the padding keeps
-// descenders from being cut.
+// The heading rises into place when the page opens, like the heading of a
+// hero, through masks whose padding keeps descenders from being cut. From
+// sm and up it rises line by line. On a phone the lines wrap and the type
+// is small, which makes that hard to see, so there it rises word by word.
 function Heading() {
+  let place = 0
+
   return lines.map((line, index) => (
     <span
       key={index}
-      className="mb-[-0.15em] block overflow-hidden pb-[0.15em]">
+      className="mb-[-0.15em] block pb-[0.15em] sm:overflow-hidden">
       <span
-        className="block motion-safe:animate-rise"
+        className="block sm:motion-safe:animate-rise"
         style={{ animationDelay: `${(index + 1) * STAGGER}s` }}>
-        {line}
+        {line.split(' ').map((word, index) => {
+          place += 1
+
+          return (
+            <Fragment key={index}>
+              {index > 0 ? ' ' : null}
+              <span className="inline-block max-sm:mb-[-0.15em] max-sm:overflow-hidden max-sm:pb-[0.15em] max-sm:align-bottom">
+                <span
+                  className="inline-block max-sm:motion-safe:animate-rise"
+                  style={{ animationDelay: `${place * STAGGER}s` }}>
+                  {word}
+                </span>
+              </span>
+            </Fragment>
+          )
+        })}
       </span>
     </span>
   ))
