@@ -183,7 +183,8 @@ const sky = `
     vec3 normal = vec3(disc, sqrt(1.0 - reach * reach));
     vec3 stone = pow(texture2D(uMoon, chart(normal)).rgb, vec3(2.2));
     float day = smoothstep(0.0, 0.12, dot(normal, SUN)) * clamp(dot(normal, SUN), 0.0, 1.0);
-    float pixel = 1.5 / min(uResolution.x, uResolution.y) / radius;
+    // The edge fades out over a pixel or so: crisp, but not a hard line.
+    float pixel = 1.2 * uPixelRatio / min(uResolution.x, uResolution.y) / radius;
 
     return vec4(pow(stone * day * 1.6, vec3(1.0 / 2.2)), smoothstep(1.0, 1.0 - pixel, reach));
   }
@@ -406,7 +407,16 @@ const sky = `
 
     colour = mix(colour, AIR * haze, haze * (0.1 + 0.75 * pow(1.0 - normal.z, 2.5)));
 
-    return vec4(pow(colour, vec3(1.0 / 2.2)), 1.0);
+    // The last few pixels of the ground blend into the glow of the air
+    // right over the edge, so that the earth does not end in a hard line.
+    float rim = smoothstep(-0.35, 0.3, dot(vec3(disc / reach, 0.0), SUN)) * 0.85;
+    float soften = 2.5 * uPixelRatio / min(uResolution.x, uResolution.y) / radius;
+
+    return mix(
+      vec4(AIR * rim, rim),
+      vec4(pow(colour, vec3(1.0 / 2.2)), 1.0),
+      smoothstep(1.0, 1.0 - soften, reach)
+    );
   }
 
   void main() {
@@ -420,13 +430,33 @@ const sky = `
     float gas = clouds(drift + warp * 1.3);
     float across = point.y * 0.9 - point.x * 0.5 + 0.12 + (warp - 0.5) * 0.5;
     float band = exp(-across * across * 5.0);
+    // The band has a wide, faint halo of thinner clouds around it, and
+    // swells into a bright bulge where the middle of the galaxy is.
+    float halo = exp(-across * across * 2.2);
+    float along = point.x * 0.9 + point.y * 0.5 - 0.1;
+    float bulge = exp(-across * across * 9.0 - along * along * 2.4);
     // Dust in front of the band blocks its light.
     float lanes = smoothstep(0.42, 0.72, clouds(drift * 2.4 + warp + 50.0));
-    float glow = band * smoothstep(0.25, 0.85, gas) * (1.0 - 0.8 * lanes);
+    float dust = band * smoothstep(0.25, 0.85, gas) * (1.0 - 0.8 * lanes);
+    float glow = dust + bulge * 0.4 * (1.0 - 0.8 * lanes);
 
     // Mostly old yellow stars towards the middle, bluer away from it.
-    vec3 tint = mix(vec3(0.5, 0.56, 0.75), vec3(0.84, 0.73, 0.6), band * gas);
-    vec3 light = tint * glow * 0.3;
+    vec3 tint = mix(vec3(0.42, 0.52, 0.85), vec3(1.0, 0.76, 0.5), clamp(band * gas + bulge, 0.0, 1.0));
+    vec3 light = tint * glow * 0.32;
+
+    // Clouds of gas and dust in the colours they have in long exposures:
+    // hydrogen glowing red and pink where stars are born, dust shining blue
+    // with the light of young stars near it, and violet where the two mix.
+    float hues = clouds(drift * 1.7 + warp * 0.8 + 80.0);
+    float wisps = clouds(drift * 0.9 - warp + 300.0);
+    float shade = 1.0 - 0.7 * lanes;
+
+    light += vec3(0.95, 0.22, 0.42) * smoothstep(0.52, 0.78, hues) * band * shade * 0.13;
+    light += vec3(0.12, 0.5, 0.75) * smoothstep(0.48, 0.24, hues) * halo * gas * shade * 0.17;
+    light += vec3(0.42, 0.24, 0.85) * smoothstep(0.5, 0.82, wisps) * halo * shade * 0.1;
+    // Where the dust is thick but not quite opaque, it reddens what is
+    // behind it.
+    light += vec3(0.5, 0.2, 0.08) * lanes * band * gas * 0.1;
 
     // Faint stars: at most one per small square of the screen, somewhere
     // inside it so they do not line up, and many more along the band.
@@ -434,7 +464,7 @@ const sky = `
     vec2 cell = floor(square);
     vec2 spot = 0.15 + 0.7 * vec2(hash(cell + 3.0), hash(cell + 11.0));
     float reach = length((fract(square) - spot) * 7.0);
-    float chance = 0.035 + 0.8 * glow;
+    float chance = 0.035 + 0.8 * dust;
 
     light += vec3(0.85, 0.9, 1.0) * step(1.0 - chance, hash(cell))
       * exp(-reach * reach * 2.2) * hash(cell + 7.0) * 0.75;
