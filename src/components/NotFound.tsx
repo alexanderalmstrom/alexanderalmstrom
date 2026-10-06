@@ -236,7 +236,7 @@ export default function NotFound() {
           readouts. The heading grows with the width of the screen. */}
       <div className="w-full flex-none px-8 font-mono text-[0.8125rem] lg:px-16">
         <Telemetry />
-        <h1 className="mb-4 font-sans text-[clamp(2.25rem,6vw,8rem)] leading-[1.05]">
+        <h1 className="mb-6 font-sans text-[clamp(2.25rem,6vw,8rem)] leading-[1.05]">
           <Glitch>
             <Heading />
           </Glitch>
