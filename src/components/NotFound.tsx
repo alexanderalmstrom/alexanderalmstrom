@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { cn } from '../lib/cn'
@@ -76,9 +76,46 @@ function clock(seconds: number) {
     .join(':')
 }
 
-// Readouts from the mission that lost the page. The clock keeps running,
-// the signal barely gets through and the oxygen sensor answers in code,
-// and now and then one of the values comes through as garbage.
+// What the signal can read, in percent: the digits of a 404.
+const LEVELS = [0, 4]
+
+interface RollProps {
+  value: string
+}
+
+// A character that rolls over to the next one when it changes, like a digit
+// on a mechanical clock: the new one comes down from above and pushes the
+// old one out at the bottom, behind a mask one line high.
+function Roll({ value }: RollProps) {
+  const [shown, setShown] = useState({ value, before: value })
+
+  // Keep what was shown last, to have something to roll out.
+  if (shown.value != value) setShown({ value, before: shown.value })
+
+  const changed = shown.before != shown.value
+
+  return (
+    <span className="relative inline-block h-[1lh] overflow-hidden align-bottom">
+      <span
+        key={shown.value}
+        className={cn('block', changed && 'motion-safe:animate-roll-in')}>
+        {shown.value}
+      </span>
+      {changed ? (
+        <span
+          key={`out-${shown.before}`}
+          className="absolute inset-0 hidden motion-safe:block motion-safe:animate-roll-out">
+          {shown.before}
+        </span>
+      ) : null}
+    </span>
+  )
+}
+
+// Readouts from the mission that lost the page. The clock keeps running
+// and the signal barely gets through, both rolling over like a mechanical
+// counter, the oxygen sensor answers in code, and now and then one of the
+// values comes through as garbage.
 function Telemetry() {
   const [seconds, setSeconds] = useState(0)
   const [signal, setSignal] = useState(0)
@@ -89,8 +126,9 @@ function Telemetry() {
     const tick = setInterval(() => {
       setSeconds((seconds) => seconds + 1)
       // Mostly nothing gets through, sometimes a trace of a signal, and
-      // sometimes a code from the oxygen sensor.
-      setSignal(Math.random() < 0.3 ? 1 + Math.floor(Math.random() * 2) : 0)
+      // sometimes a code from the oxygen sensor. The signal only ever reads
+      // 4 or 0, the digits of a 404.
+      setSignal(Math.random() < 0.3 ? LEVELS[1] : LEVELS[0])
       setOxygen(Math.random() < 0.25 ? scramble(CIPHER, 2) : '--')
     }, 1000)
 
@@ -124,7 +162,7 @@ function Telemetry() {
   ]
 
   return (
-    <p className="mb-6 tracking-[0.2em] uppercase motion-safe:animate-glitch-flicker">
+    <p className="mb-8 tracking-[0.2em] uppercase motion-safe:animate-glitch-flicker max-sm:text-xs">
       {/* The first thing to rise in, through a mask of its own. */}
       <span className="block overflow-hidden">
         <span className="flex flex-wrap gap-y-1 motion-safe:animate-rise sm:gap-x-6">
@@ -134,7 +172,16 @@ function Telemetry() {
               {name}{' '}
               {noise?.index == index
                 ? noise.text.slice(0, value.length)
-                : value}
+                : name == 'O2'
+                  ? value
+                  : // The clock and the signal roll over digit by digit.
+                    [...value].map((character, place) =>
+                      /\d/.test(character) ? (
+                        <Roll key={place} value={character} />
+                      ) : (
+                        character
+                      ),
+                    )}
             </span>
           ))}
         </span>
@@ -152,7 +199,7 @@ function Heading() {
   return lines.map((line, index) => (
     <span
       key={index}
-      className="-mb-[0.15em] block overflow-hidden pb-[0.15em]">
+      className="mb-[-0.15em] block overflow-hidden pb-[0.15em]">
       <span
         className="block motion-safe:animate-rise"
         style={{ animationDelay: `${(index + 1) * STAGGER}s` }}>
@@ -162,46 +209,42 @@ function Heading() {
   ))
 }
 
-const LIGHT = '(prefers-color-scheme: light)'
-
-// Whether the visitor has the light theme, kept up to date if they switch.
-function useLightTheme() {
-  return useSyncExternalStore(
-    (notify) => {
-      const theme = window.matchMedia(LIGHT)
-
-      theme.addEventListener('change', notify)
-
-      return () => theme.removeEventListener('change', notify)
-    },
-    () => window.matchMedia(LIGHT).matches,
-  )
-}
-
 export default function NotFound() {
-  // Space is dark, so the sky is left out on the light theme. It is not
-  // just hidden: its maps of the earth and the moon are never fetched.
-  const light = useLightTheme()
+  // Space is dark whatever theme the visitor prefers, so the whole site
+  // goes dark for as long as this page is shown, along with the colour the
+  // browser gives its own bars on the light theme.
+  useLayoutEffect(() => {
+    const bars = document.querySelector<HTMLMetaElement>(
+      'meta[name="theme-color"][media]',
+    )
+    const colour = bars?.content
+
+    document.documentElement.dataset.theme = 'dark'
+    if (bars) bars.content = '#000000'
+
+    return () => {
+      delete document.documentElement.dataset.theme
+      if (bars && colour) bars.content = colour
+    }
+  }, [])
 
   return (
     <Container className="mt-10">
       <DocumentMeta title="Page not found" />
-      {light ? null : (
-        <Starfield className="pointer-events-none fixed inset-0 -z-1 size-full motion-safe:animate-dawn" />
-      )}
+      <Starfield className="pointer-events-none fixed inset-0 -z-1 size-full motion-safe:animate-dawn" />
       {/* Everything but the heading is set in the typeface of the
           readouts. The heading grows with the width of the screen. */}
       <div className="w-full flex-none px-8 font-mono text-[0.8125rem] lg:px-16">
         <Telemetry />
-        <h1 className="mb-8 font-sans text-[clamp(2rem,7vw,7rem)] leading-[1.05]">
+        <h1 className="mb-4 font-sans text-[clamp(2.25rem,6vw,8rem)] leading-[1.05]">
           <Glitch>
             <Heading />
           </Glitch>
         </h1>
-        <p className="text-[1rem] motion-safe:animate-glitch-flicker motion-safe:[animation-delay:-1.7s]">
+        <p className="motion-safe:animate-glitch-flicker motion-safe:[animation-delay:-1.7s] lg:text-lg">
           {/* Rises in after the heading, through a mask of its own; the
               padding keeps descenders from being cut. */}
-          <span className="-mb-[0.15em] block overflow-hidden pb-[0.15em]">
+          <span className="mb-[-0.15em] block overflow-hidden pb-[0.15em]">
             <span
               className="block motion-safe:animate-rise"
               style={{ animationDelay: `${(lines.length + 1) * STAGGER}s` }}>

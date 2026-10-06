@@ -184,6 +184,31 @@
     }
   }
 
+  /* A digit of the readouts on the not found page rolling over: the new
+     one comes down from above and pushes the old one out at the bottom. */
+  --animate-roll-in: roll-in 0.4s cubic-bezier(0.3, 0, 0.2, 1) both;
+  --animate-roll-out: roll-out 0.4s cubic-bezier(0.3, 0, 0.2, 1) both;
+
+  @keyframes roll-in {
+    from {
+      translate: 0 -100%;
+    }
+
+    to {
+      translate: 0 0;
+    }
+  }
+
+  @keyframes roll-out {
+    from {
+      translate: 0 0;
+    }
+
+    to {
+      translate: 0 100%;
+    }
+  }
+
   @keyframes fade-in {
     from {
       opacity: 0;
@@ -254,10 +279,14 @@
     color-scheme: dark;
 
     @media (prefers-color-scheme: light) {
-      color-scheme: light;
-      --color-background: #fff;
-      --color-foreground: #000;
-      --color-muted: rgb(221 221 221 / 0.5);
+      /* A page can keep the dark theme by setting data-theme on the root,
+         as the not found page does. */
+      &:not([data-theme='dark']) {
+        color-scheme: light;
+        --color-background: #fff;
+        --color-foreground: #000;
+        --color-muted: rgb(221 221 221 / 0.5);
+      }
     }
   }
 
