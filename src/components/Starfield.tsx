@@ -18,10 +18,13 @@ const STARS = 2600
 // Slow enough to read as a drifting camera rather than as flight.
 const FLIGHT = 260
 
-// The spot on the earth that faces the camera, in degrees north and east,
-// and the seconds the earth takes to fade in once its maps have loaded.
+// The spot on the earth that faces the camera, in degrees north and east.
+// Once its maps have loaded the earth fades in over DAWN seconds, and takes
+// ARRIVAL seconds to slide up into place while its spin slows down to the
+// speed it keeps afterwards.
 const FACING = { latitude: 40, longitude: 14 }
 const DAWN = 2
+const ARRIVAL = 5
 
 // Turns a direction as the camera sees it into a direction on the earth,
 // so that FACING ends up in the middle of what is in view and the earth
@@ -94,6 +97,7 @@ const sky = `
   uniform sampler2D uMoon;
   uniform mat3 uGlobe;
   uniform float uDawn;
+  uniform float uArrival;
 
   ${exposure}
 
@@ -199,7 +203,7 @@ const sky = `
 
   // The seconds the earth takes to turn around once: slowly, but fast
   // enough for the ground to be seen moving.
-  const float DAY = 1000.0;
+  const float DAY = 700.0;
 
   // A hard flash and a weaker one after it, by the seconds since a strike.
   float flash(float since) {
@@ -346,7 +350,10 @@ const sky = `
     vec3 normal = vec3(disc, sqrt(1.0 - reach * reach));
     // The clouds turn a little faster than the ground under them.
     vec2 at = chart(uGlobe * normal);
-    vec2 turn = vec2(uSeconds / DAY, 0.0);
+    // While it arrives the earth is spun back a little under a tenth of a
+    // turn, which it makes up fast at first and ever more slowly, until
+    // what is left of its spin is exactly the speed it keeps afterwards.
+    vec2 turn = vec2(uSeconds / DAY - 0.08 * pow(1.0 - uArrival, 3.0), 0.0);
     vec3 map = texture2D(uDay, at - turn).rgb;
     vec3 ground = pow(map, vec3(2.2));
     vec3 cities = pow(texture2D(uNight, at - turn).rgb, vec3(2.2));
@@ -469,8 +476,20 @@ const sky = `
     float reach = length((fract(square) - spot) * 7.0);
     float chance = 0.035 + 0.8 * dust;
 
-    light += vec3(0.85, 0.9, 1.0) * step(1.0 - chance, hash(cell))
-      * exp(-reach * reach * 2.2) * hash(cell + 7.0) * 0.75;
+    if (hash(cell) >= 1.0 - chance) {
+      // Most of these twinkle the way stars do through moving air: not to
+      // a beat but unevenly, as three waves of different lengths that never
+      // line up the same way twice, and each at its own pace.
+      float phase = hash(cell + 19.0);
+      float pace = uSeconds * (1.4 + phase * 2.6);
+      float waver = 0.5 * sin(pace + phase * 40.0)
+        + 0.3 * sin(pace * 2.3 + phase * 71.0)
+        + 0.2 * sin(pace * 5.1 + phase * 13.0);
+      float dip = fract(phase * 7.31) < 0.75 ? 0.45 : 0.12;
+
+      light += vec3(0.85, 0.9, 1.0) * exp(-reach * reach * 2.2) * hash(cell + 7.0) * 0.75
+        * (1.0 - dip + dip * waver);
+    }
 
     light += vec3(0.9, 0.95, 1.0) * 0.8
       * (meteor(point, edge, 0.0) + meteor(point, edge, 1.0) + meteor(point, edge, 2.0));
@@ -486,8 +505,12 @@ const sky = `
     vec2 away = vec2(edge.x * -0.05, -edge.y + 0.52) - home;
     vec2 around = home + mat2(cos(orbit), sin(orbit), -sin(orbit), cos(orbit)) * away;
 
+    // The earth comes up from below the screen, fast at first and ever
+    // more slowly as it reaches its place.
+    float settled = 1.0 - pow(1.0 - uArrival, 3.0);
+
     vec4 rock = moon(point, around, 0.026);
-    vec4 globe = earth(point, home, 0.62) * uDawn;
+    vec4 globe = earth(point, home - vec2(0.0, 0.32 * (1.0 - settled)), 0.62) * uDawn;
 
     gl_FragColor = mix(gl_FragColor, vec4(rock.rgb, 1.0), rock.a * uDawn);
     gl_FragColor = globe + gl_FragColor * (1.0 - globe.a);
@@ -762,6 +785,10 @@ export default function Starfield({ className }: StarfieldProps) {
           waiting || still.matches
             ? Number(!waiting)
             : Math.min((performance.now() - arrived) / 1000 / DAWN, 1),
+        uArrival:
+          waiting || still.matches
+            ? Number(!waiting)
+            : Math.min((performance.now() - arrived) / 1000 / ARRIVAL, 1),
       })
       gl!.uniform2f(
         gl!.getUniformLocation(skyProgram!, 'uResolution'),
