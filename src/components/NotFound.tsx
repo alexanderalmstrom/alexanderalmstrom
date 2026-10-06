@@ -190,7 +190,8 @@ function Telemetry() {
   )
 }
 
-const lines = ['Uh-Oh! Houston,', 'We have a problem']
+// What the crew of Apollo 13 actually said.
+const lines = ["Houston, we've had", 'a problem here.']
 
 // The heading rises into place when the page opens, like the heading of a
 // hero, through masks whose padding keeps descenders from being cut. From
