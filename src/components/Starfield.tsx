@@ -24,28 +24,29 @@ const FACING = { latitude: 40, longitude: 14 }
 const DAWN = 2
 
 // Turns a direction as the camera sees it into a direction on the earth,
-// so that FACING ends up in the middle of what is in view with north
-// pointing up. Laid out column by column, the way WebGL takes a matrix.
+// so that FACING ends up in the middle of what is in view and the earth
+// turns towards the camera and to the right. Laid out column by column, the way WebGL takes a matrix.
 function globe() {
   const latitude = (FACING.latitude * Math.PI) / 180
   const longitude = (FACING.longitude * Math.PI) / 180
   const [sinLat, cosLat] = [Math.sin(latitude), Math.cos(latitude)]
   const [sinLon, cosLon] = [Math.sin(longitude), Math.cos(longitude)]
 
-  // Up, north and east at that spot, first as the camera sees them. The
-  // earth sits low on the screen, so the middle of it leans back.
+  // Up, east and north at that spot, first as the camera sees them. The
+  // earth sits low on the screen, so the middle of it leans back. East is
+  // the way the ground moves as the earth turns: to the right and towards
+  // the camera, as far as that goes along the ground.
   const length = Math.hypot(-0.1, 0.72, 0.69)
   const up = [-0.1 / length, 0.72 / length, 0.69 / length]
-  const lean = Math.hypot(-up[1] * up[0], 1 - up[1] * up[1], -up[1] * up[2])
+  const aim = [1, -0.6, 0.6]
+  const off = aim[0] * up[0] + aim[1] * up[1] + aim[2] * up[2]
+  const flat = aim.map((part, axis) => part - off * up[axis])
+  const reach = Math.hypot(flat[0], flat[1], flat[2])
+  const east = flat.map((part) => part / reach)
   const north = [
-    (-up[1] * up[0]) / lean,
-    (1 - up[1] * up[1]) / lean,
-    (-up[1] * up[2]) / lean,
-  ]
-  const east = [
-    north[1] * up[2] - north[2] * up[1],
-    north[2] * up[0] - north[0] * up[2],
-    north[0] * up[1] - north[1] * up[0],
+    up[1] * east[2] - up[2] * east[1],
+    up[2] * east[0] - up[0] * east[2],
+    up[0] * east[1] - up[1] * east[0],
   ]
 
   // And the same three on the earth itself.
