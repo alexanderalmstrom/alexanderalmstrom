@@ -17,11 +17,12 @@ interface Noise {
   text: string
 }
 
-// A copy of the text that covers a horizontal slice of the original and is
-// pushed sideways, so the line looks torn. It is opaque to hide the slice it
-// replaces, and its coloured shadow is the misaligned colour channel.
+// A copy of the text of which only a horizontal slice shows, pushed
+// sideways, so that the letters double up there with a fringe of colour:
+// the misaligned colour channel. It has no background of its own, which
+// would show as a dark bar across the sky behind the text.
 const slice =
-  'pointer-events-none absolute inset-0 hidden bg-background select-none motion-safe:block'
+  'pointer-events-none absolute inset-0 hidden select-none motion-safe:block'
 
 // Text that breaks up in short bursts, like a screen losing its signal.
 function Glitch({ children }: GlitchProps) {
