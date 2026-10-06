@@ -24,28 +24,29 @@ const FACING = { latitude: 40, longitude: 14 }
 const DAWN = 2
 
 // Turns a direction as the camera sees it into a direction on the earth,
-// so that FACING ends up in the middle of what is in view with north
-// pointing up. Laid out column by column, the way WebGL takes a matrix.
+// so that FACING ends up in the middle of what is in view and the earth
+// turns towards the camera and to the right. Laid out column by column, the way WebGL takes a matrix.
 function globe() {
   const latitude = (FACING.latitude * Math.PI) / 180
   const longitude = (FACING.longitude * Math.PI) / 180
   const [sinLat, cosLat] = [Math.sin(latitude), Math.cos(latitude)]
   const [sinLon, cosLon] = [Math.sin(longitude), Math.cos(longitude)]
 
-  // Up, north and east at that spot, first as the camera sees them. The
-  // earth sits low on the screen, so the middle of it leans back.
+  // Up, east and north at that spot, first as the camera sees them. The
+  // earth sits low on the screen, so the middle of it leans back. East is
+  // the way the ground moves as the earth turns: to the right and towards
+  // the camera, as far as that goes along the ground.
   const length = Math.hypot(-0.1, 0.72, 0.69)
   const up = [-0.1 / length, 0.72 / length, 0.69 / length]
-  const lean = Math.hypot(-up[1] * up[0], 1 - up[1] * up[1], -up[1] * up[2])
+  const aim = [1, -0.6, 0.6]
+  const off = aim[0] * up[0] + aim[1] * up[1] + aim[2] * up[2]
+  const flat = aim.map((part, axis) => part - off * up[axis])
+  const reach = Math.hypot(flat[0], flat[1], flat[2])
+  const east = flat.map((part) => part / reach)
   const north = [
-    (-up[1] * up[0]) / lean,
-    (1 - up[1] * up[1]) / lean,
-    (-up[1] * up[2]) / lean,
-  ]
-  const east = [
-    north[1] * up[2] - north[2] * up[1],
-    north[2] * up[0] - north[0] * up[2],
-    north[0] * up[1] - north[1] * up[0],
+    up[1] * east[2] - up[2] * east[1],
+    up[2] * east[0] - up[0] * east[2],
+    up[0] * east[1] - up[1] * east[0],
   ]
 
   // And the same three on the earth itself.
@@ -156,8 +157,9 @@ const sky = `
       * smoothstep(0.0, 0.15, age) * smoothstep(1.0, 0.5, age);
   }
 
-  // Towards the sun, which is up to the left and a little behind the camera.
-  const vec3 SUN = vec3(-0.78, 0.56, 0.28);
+  // Towards the sun, which is up to the left and nearly level with the
+  // earth, so that night has fallen on the right of what is in view.
+  const vec3 SUN = vec3(-0.88, 0.46, 0.1);
 
   const vec3 AIR = vec3(0.3, 0.56, 1.0);
 
@@ -181,14 +183,150 @@ const sky = `
     vec3 normal = vec3(disc, sqrt(1.0 - reach * reach));
     vec3 stone = pow(texture2D(uMoon, chart(normal)).rgb, vec3(2.2));
     float day = smoothstep(0.0, 0.12, dot(normal, SUN)) * clamp(dot(normal, SUN), 0.0, 1.0);
-    float pixel = 1.5 / min(uResolution.x, uResolution.y) / radius;
+    // The edge fades out over a pixel or so: crisp, but not a hard line.
+    float pixel = 1.2 * uPixelRatio / min(uResolution.x, uResolution.y) / radius;
 
     return vec4(pow(stone * day * 1.6, vec3(1.0 / 2.2)), smoothstep(1.0, 1.0 - pixel, reach));
   }
 
+  // How far a point is from the line between two others.
+  float segment(vec2 point, vec2 from, vec2 to) {
+    vec2 along = to - from;
+    vec2 offset = point - from;
+
+    return length(offset - along * clamp(dot(offset, along) / dot(along, along), 0.0, 1.0));
+  }
+
+  // A hard flash and a weaker one after it, by the seconds since a strike.
+  float flash(float since) {
+    // Before the strike there is nothing, and it has to be said outright:
+    // the fading below grows without end for a time that has yet to come.
+    if (since <= 0.0) return 0.0;
+
+    return smoothstep(0.0, 0.02, since) * exp(-since * 18.0)
+      + 0.6 * smoothstep(0.15, 0.17, since) * exp(-max(since - 0.15, 0.0) * 24.0);
+  }
+
+  // The thunderstorms on the earth, of which there are a handful at a time.
+  // Each lasts a while over a patch of cloud far from the camera, towards
+  // the horizon, and strikes twice in that time. A strike falls from the
+  // cloud straight down to the ground under it: a jagged channel with a
+  // couple of forks, which also only go down, in a glow.
+  //
+  // Returned are the channel, the glow and how deep inside a storm a place
+  // is. The first two are kept apart since the cloud above them dims the
+  // one and is lit up by the other.
+  vec3 storms(vec3 normal, vec2 disc, vec2 drift) {
+    vec3 total = vec3(0.0);
+
+    for (int index = 0; index < 7; index++) {
+      float which = float(index);
+      float life = 7.0 + which * 1.7;
+      float head_start = life * hash(vec2(which, 3.0));
+      float clock = uSeconds + head_start;
+      float run = floor(clock / life);
+      float age = clock / life - run;
+      vec2 seed = vec2(run, which * 7.0 + 1.0);
+
+      // Where the storm is seen in the middle of its life: on the far side
+      // of what is in view, but not so near the edge that a strike would
+      // stick out over it.
+      float towards = 0.38 + 0.22 * hash(seed);
+      float around = radians(55.0 + 85.0 * hash(seed + 3.0));
+      vec3 spot = vec3(sqrt(1.0 - towards * towards) * vec2(cos(around), sin(around)), towards);
+
+      // It stays with the cloud it is in, which turns with the earth: the
+      // place on the map of the clouds is fixed, and where that is seen
+      // follows from it.
+      float middle = (run + 0.5) * life - head_start;
+      vec2 cloud = chart(uGlobe * spot) - vec2(middle / 1350.0 * 1.2, 0.0);
+
+      // Read from a coarse level of the map, for the cloud over the whole
+      // area and not at one point of it.
+      if (texture2D(uClouds, cloud, 4.0).r < 0.3) continue;
+
+      vec2 map = cloud + drift;
+      float east = (map.x - 0.5) * 6.2831853;
+      float north = (map.y - 0.5) * 3.1415927;
+      vec3 anchor = vec3(cos(north) * sin(east), sin(north), cos(north) * cos(east)) * uGlobe;
+
+      // Zero right at the storm, growing with the angle away from it.
+      float away = 1.0 - dot(normal, anchor);
+
+      total.z = max(
+        total.z,
+        smoothstep(0.0, 0.15, age) * smoothstep(1.0, 0.85, age) * smoothstep(0.004, 0.0006, away)
+      );
+
+      float since = age * life;
+      float first = life * 0.3;
+      float second = life * 0.62;
+      float flicker = flash(since - first) + flash(since - second);
+
+      if (flicker < 0.01 || away > 0.02) continue;
+
+      // The two strikes of a storm are not alike.
+      seed += since > second ? 5.0 : 0.0;
+
+      // Straight up from the ground is straight out from the middle of the
+      // earth, so the channel runs from the cloud, a little way up, to the
+      // ground under it. No strike falls quite straight, though: each one
+      // leans its own way.
+      float lean = (hash(seed + 8.3) - 0.5) * 1.3;
+      vec2 ground = anchor.xy;
+      vec2 down = mat2(cos(lean), sin(lean), -sin(lean), cos(lean)) * ground * -0.03;
+      vec2 top = ground - down;
+      vec2 across = vec2(-down.y, down.x);
+      vec2 last = top;
+      float channel = 1.0;
+      float forks = 1.0;
+
+      for (int joint = 1; joint <= 6; joint++) {
+        float along = float(joint) / 6.0;
+        // The joints stray to the sides, except for the last one.
+        float stray = joint == 6 ? 0.0 : (hash(seed + along * 7.1) - 0.5) * 0.22;
+        vec2 next = top + down * along + across * stray;
+
+        channel = min(channel, segment(disc, last, next));
+
+        if (joint == 2 || joint == 4) {
+          float side = hash(seed + along * 3.3) < 0.5 ? -1.0 : 1.0;
+          vec2 tip = last;
+
+          for (int twig = 1; twig <= 2; twig++) {
+            vec2 further = tip
+              + across * side * (0.05 + 0.08 * hash(seed + along + float(twig)))
+              + down * (0.16 + 0.12 * hash(seed + along * 5.0 + float(twig)));
+
+            forks = min(forks, segment(disc, tip, further));
+            tip = further;
+          }
+        }
+
+        last = next;
+      }
+
+      float bolt = exp(-channel * channel / 0.0000006) + 0.6 * exp(-forks * forks / 0.0000003);
+
+      // The top of the channel is inside the cloud, so it only comes into
+      // sight on its way out of it, and the glow is brightest up there.
+      vec2 below = disc - top;
+
+      bolt *= smoothstep(-0.05, 0.4, dot(below, down) / dot(down, down));
+
+      float glow = 0.35 * exp(-min(channel, forks) * 420.0)
+        + 0.6 * exp(-dot(below, below) / 0.00035);
+
+      total.xy += vec2(bolt, glow) * flicker * 2.2;
+    }
+
+    return total;
+  }
+
   // The earth, with its colour already multiplied by how much of the pixel
-  // it covers: land and sea by day, cities by night, clouds over both, and
-  // the air as a blue haze that thickens towards the edge and glows past it.
+  // it covers: land and sea by day, cities by night, clouds and their
+  // lightning over both, and the air as a blue haze that thickens towards
+  // the edge and glows past it.
   vec4 earth(vec2 point, vec2 centre, float radius) {
     vec2 disc = (point - centre) / radius;
     float reach = length(disc);
@@ -209,7 +347,32 @@ const sky = `
     vec3 map = texture2D(uDay, at - turn).rgb;
     vec3 ground = pow(map, vec3(2.2));
     vec3 cities = pow(texture2D(uNight, at - turn).rgb, vec3(2.2));
-    float cover = smoothstep(0.08, 0.85, texture2D(uClouds, at - turn * 1.2).r);
+
+    // The map of the clouds is coarse this close up, so finer billows are
+    // worked into it, and a few thin clouds are added where it has none.
+    vec2 sky = at - turn * 1.2;
+    float billows = clouds(sky * vec2(260.0, 130.0));
+    float wisps = smoothstep(0.55, 0.85, clouds(sky * vec2(70.0, 35.0) + 31.0));
+    float cover = smoothstep(
+      0.08,
+      0.85,
+      texture2D(uClouds, sky).r * (0.5 + billows) + wisps * billows * 0.5
+    );
+    // The clouds between a place and the sun, which is to the west of it,
+    // leave it in their shadow.
+    float shadow = smoothstep(0.2, 0.9, texture2D(uClouds, sky - vec2(0.004, 0.0)).r);
+
+    ground *= 1.0 - 0.4 * shadow;
+
+    // A thunderstorm makes no clouds of its own. It thickens the ones the
+    // map has there and darkens them where they are thickest, so that they
+    // keep the shapes of real clouds.
+    vec3 weather = storms(normal, disc, turn * 1.2);
+    float depth = weather.z;
+
+    cover = min(cover * (1.0 + 0.6 * depth), 1.0);
+
+    float storm = min(depth * smoothstep(0.35, 0.95, cover) * (0.5 + 0.7 * billows), 1.0);
 
     float sun = dot(normal, SUN);
     float day = smoothstep(-0.12, 0.3, sun);
@@ -219,7 +382,11 @@ const sky = `
     float mirror = max(reflect(-SUN, normal).z, 0.0);
     float glint = (pow(mirror, 70.0) * 0.9 + pow(mirror, 8.0) * 0.07) * sea * (1.0 - cover);
 
-    vec3 lit = mix(ground * 1.25 + glint, vec3(0.92), cover);
+    vec3 lit = mix(
+      ground * 1.25 + glint,
+      mix(vec3(0.92), vec3(0.34, 0.36, 0.42), storm * 0.8),
+      cover
+    );
 
     lit *= 0.2 + 0.8 * clamp(sun, 0.0, 1.0);
     // Sunlight turns red where it reaches the ground at a low angle.
@@ -228,12 +395,28 @@ const sky = `
     vec3 dark = cities * vec3(1.0, 0.76, 0.46) * 2.2 * (1.0 - cover * 0.8);
     vec3 colour = lit * day + dark * (1.0 - smoothstep(-0.15, 0.05, sun));
 
+    // Lightning strikes under the cloud. Its glow lights the cloud from
+    // below, more where the cloud is thin, and hardly the ground where
+    // there is none. The channel itself still shows through, dimmed. All of it shows best at night, but also
+    // against the dark of its own cloud by day.
+    colour += vec3(0.72, 0.83, 1.0) * (1.0 - 0.45 * day)
+      * (weather.x * 0.6 + weather.y * (1.7 - 1.2 * billows) * (0.15 + 0.85 * cover));
+
     // Looking at the edge is looking through much more air.
     float haze = smoothstep(-0.3, 0.3, sun);
 
     colour = mix(colour, AIR * haze, haze * (0.1 + 0.75 * pow(1.0 - normal.z, 2.5)));
 
-    return vec4(pow(colour, vec3(1.0 / 2.2)), 1.0);
+    // The last few pixels of the ground blend into the glow of the air
+    // right over the edge, so that the earth does not end in a hard line.
+    float rim = smoothstep(-0.35, 0.3, dot(vec3(disc / reach, 0.0), SUN)) * 0.85;
+    float soften = 2.5 * uPixelRatio / min(uResolution.x, uResolution.y) / radius;
+
+    return mix(
+      vec4(AIR * rim, rim),
+      vec4(pow(colour, vec3(1.0 / 2.2)), 1.0),
+      smoothstep(1.0, 1.0 - soften, reach)
+    );
   }
 
   void main() {
@@ -247,13 +430,33 @@ const sky = `
     float gas = clouds(drift + warp * 1.3);
     float across = point.y * 0.9 - point.x * 0.5 + 0.12 + (warp - 0.5) * 0.5;
     float band = exp(-across * across * 5.0);
+    // The band has a wide, faint halo of thinner clouds around it, and
+    // swells into a bright bulge where the middle of the galaxy is.
+    float halo = exp(-across * across * 2.2);
+    float along = point.x * 0.9 + point.y * 0.5 - 0.1;
+    float bulge = exp(-across * across * 9.0 - along * along * 2.4);
     // Dust in front of the band blocks its light.
     float lanes = smoothstep(0.42, 0.72, clouds(drift * 2.4 + warp + 50.0));
-    float glow = band * smoothstep(0.25, 0.85, gas) * (1.0 - 0.8 * lanes);
+    float dust = band * smoothstep(0.25, 0.85, gas) * (1.0 - 0.8 * lanes);
+    float glow = dust + bulge * 0.4 * (1.0 - 0.8 * lanes);
 
     // Mostly old yellow stars towards the middle, bluer away from it.
-    vec3 tint = mix(vec3(0.5, 0.56, 0.75), vec3(0.84, 0.73, 0.6), band * gas);
-    vec3 light = tint * glow * 0.3;
+    vec3 tint = mix(vec3(0.42, 0.52, 0.85), vec3(1.0, 0.76, 0.5), clamp(band * gas + bulge, 0.0, 1.0));
+    vec3 light = tint * glow * 0.32;
+
+    // Clouds of gas and dust in the colours they have in long exposures:
+    // hydrogen glowing red and pink where stars are born, dust shining blue
+    // with the light of young stars near it, and violet where the two mix.
+    float hues = clouds(drift * 1.7 + warp * 0.8 + 80.0);
+    float wisps = clouds(drift * 0.9 - warp + 300.0);
+    float shade = 1.0 - 0.7 * lanes;
+
+    light += vec3(0.95, 0.22, 0.42) * smoothstep(0.52, 0.78, hues) * band * shade * 0.13;
+    light += vec3(0.12, 0.5, 0.75) * smoothstep(0.48, 0.24, hues) * halo * gas * shade * 0.17;
+    light += vec3(0.42, 0.24, 0.85) * smoothstep(0.5, 0.82, wisps) * halo * shade * 0.1;
+    // Where the dust is thick but not quite opaque, it reddens what is
+    // behind it.
+    light += vec3(0.5, 0.2, 0.08) * lanes * band * gas * 0.1;
 
     // Faint stars: at most one per small square of the screen, somewhere
     // inside it so they do not line up, and many more along the band.
@@ -261,7 +464,7 @@ const sky = `
     vec2 cell = floor(square);
     vec2 spot = 0.15 + 0.7 * vec2(hash(cell + 3.0), hash(cell + 11.0));
     float reach = length((fract(square) - spot) * 7.0);
-    float chance = 0.035 + 0.8 * glow;
+    float chance = 0.035 + 0.8 * dust;
 
     light += vec3(0.85, 0.9, 1.0) * step(1.0 - chance, hash(cell))
       * exp(-reach * reach * 2.2) * hash(cell + 7.0) * 0.75;

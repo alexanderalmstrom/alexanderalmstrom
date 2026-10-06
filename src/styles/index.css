@@ -58,7 +58,6 @@
   --animate-glitch-bottom: glitch-bottom 7.1s steps(1) infinite;
   --animate-glitch-shake: glitch-shake 8.3s steps(1) infinite;
   --animate-glitch-flicker: glitch-flicker 6.7s steps(1) infinite;
-  --animate-glitch-tear: glitch-tear 9.7s steps(1) infinite;
 
   /* The slices are hidden between bursts; each clip-path is the thin band
      of the text a slice covers while it is pushed sideways. */
@@ -182,43 +181,6 @@
     100% {
       opacity: 1;
       translate: 0 0;
-    }
-  }
-
-  @keyframes glitch-tear {
-    0% {
-      opacity: 0;
-      top: 0;
-    }
-
-    22% {
-      opacity: 0.7;
-      top: 18%;
-      translate: -0.5rem 0;
-    }
-
-    23% {
-      top: 21%;
-      translate: 0.25rem 0;
-    }
-
-    24% {
-      opacity: 0;
-    }
-
-    64% {
-      opacity: 0.5;
-      top: 67%;
-      translate: 0.375rem 0;
-    }
-
-    65% {
-      opacity: 0;
-    }
-
-    100% {
-      opacity: 0;
-      top: 0;
     }
   }
 
